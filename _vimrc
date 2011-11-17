@@ -232,6 +232,19 @@ endif
 
 
 "---------------------------------------------
+"" command-t.vim
+"----------------------------------
+
+let g:CommandTCancelMap=['<C-[>', '<C-c>','<Esc>']
+let g:CommandTBackspaceMap = ['<C-h>']
+let g:CommandTDeleteMap=['<Del>', '<C-l>'] 
+let g:CommandTCursorLeftMap=['<Left>', '<C-b>']
+let g:CommandTCursorRightMap=['<Right>', '<C-f>']
+
+"---------------------------------------------
+
+
+"---------------------------------------------
 "" font setting
 "----------------------------------
 if 'windows' == g:platform
