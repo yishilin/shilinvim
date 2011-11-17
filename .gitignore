@@ -1,0 +1,10 @@
+Gemfile.lock
+.bundle
+log/*.log
+*.pid
+tmp/**/*
+tmp/*
+coverage
+.project
+*.swp
+.DS_Store
