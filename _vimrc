@@ -237,13 +237,16 @@ endif
 
 nmap <silent> <Leader>t :CommandT<CR>
 nmap <silent> <Leader>f :CommandT<CR>
-let g:CommandTCancelMap=['<C-[>','<C-]>', '<C-c>','<Esc>']
-let g:CommandTBackspaceMap = ['<C-h>', '<Del>']
-let g:CommandTDeleteMap=['<C-l>'] 
+let g:CommandTCancelMap=['<C-[>','<C-]>', '<C-o>', '<C-c>','<Esc>']
+let g:CommandTBackspaceMap = ['<C-h>', '<BS>']
+let g:CommandTDeleteMap=['<C-l>', '<Del>']
 let g:CommandTCursorLeftMap=['<Left>', '<C-b>']
 let g:CommandTCursorRightMap=['<Right>', '<C-f>']
+let g:CommandTSelectNextMap=["<C-n>", "<C-j>", "<Down>"]
+let g:CommandTSelectPrevMap=["<C-p>", "<C-k>", "<Up>"]
 
 "---------------------------------------------
+
 
 
 "---------------------------------------------
@@ -355,11 +358,20 @@ set formatoptions=tcqr
 set cindent
 set autoindent
 
+
+
+
 "------------------------------------------------ 
 "" rails.vim
 "---------------------------- 
-let g:project_root = "/local/yottaa/com.yottaa.dpu"
+function! Set_rails_project_root()
+  let g:project_root = CurDir()
+endfunction
+
+autocmd User Rails		call Set_rails_project_root()
 "------------------------------------------------ 
+
+
 
 
 
@@ -397,6 +409,7 @@ function! g:SetTab(expandEnable, spaceNum)
 endfunction
 
 call g:SetTab(1, 4)
+
 
 
 
@@ -724,7 +737,7 @@ let g:NERDTreeMapMenu="M"
 ""  NERDTree ignore ['expression-a', 'expression-b']
 let NERDTreeIgnore=['^CVS$', 'phpMyAdmin', 'svn$', 'git$', '^Thumbs.db$', '.class$']
 ""  NERDTree render the exist tree
-map <silent> <F11> :NERDTreeToggle<cr>
+map <silent> mv :NERDTreeToggle<cr>
 
 "" Switch to current dir
 "" and NERDTree init and render a new tree

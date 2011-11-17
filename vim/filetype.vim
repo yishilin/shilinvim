@@ -51,8 +51,9 @@ augroup filetypedetect
   au! BufRead,BufNewFile *.test           setfiletype tcl
   au! BufRead,BufNewFile *.tpl            setfiletype php
   au! BufRead,BufNewFile *.json           setfiletype json
-  au! BufEnter,BufRead,BufNewFile *.vim            set filetype=vim
-  au! BufRead,BufNewFile *_spec.rb        set filetype=ruby.spec 
+  au! BufEnter,BufRead,BufNewFile *.vim   set filetype=vim
+  au! BufRead,BufNewFile *_spec.rb        set filetype=ruby.spec
+  au! FileType ruby,eruby,yaml,cucumber call g:SetTab(1, 2)
   au! BufNewFile,BufRead *.as  setf actionscript 
   au BufRead,BufNewFile *.txt  set syntax=txt 
 augroup END
