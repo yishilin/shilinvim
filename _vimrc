@@ -235,9 +235,11 @@ endif
 "" command-t.vim
 "----------------------------------
 
-let g:CommandTCancelMap=['<C-[>', '<C-c>','<Esc>']
-let g:CommandTBackspaceMap = ['<C-h>']
-let g:CommandTDeleteMap=['<Del>', '<C-l>'] 
+nmap <silent> <Leader>t :CommandT<CR>
+nmap <silent> <Leader>f :CommandT<CR>
+let g:CommandTCancelMap=['<C-[>','<C-]>', '<C-c>','<Esc>']
+let g:CommandTBackspaceMap = ['<C-h>', '<Del>']
+let g:CommandTDeleteMap=['<C-l>'] 
 let g:CommandTCursorLeftMap=['<Left>', '<C-b>']
 let g:CommandTCursorRightMap=['<Right>', '<C-f>']
 
