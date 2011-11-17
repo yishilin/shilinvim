@@ -1,0 +1,2622 @@
+使用脚本编写 Vim 编辑器，第 1 部分: 变量、值和表达式
+
+Vimscript 基本元素入门
+
+    Vimscript 是一种用于改造和扩展 Vim 编辑器的机制。使用脚本可以创建新工具、简化常见任务，甚至重新设计并取代已有的编辑特性。本文是本系列文章的第一篇，介绍了 Vimscript 编程语言的基本元素：值、变量、表达式、语句、函数和命令。将通过一系列简单的示例演示和解释这些特性。 
+
+优秀的文本编辑器
+
+有这样一则老笑话：如果 Emacs 拥有一款优良的文本编辑器，那么它将是一个优秀的操作系统，相反，如果 vi 拥有一个不错的操作系统，那么它将是一款非常出色的文本编辑器。这个笑话反映了 Emacs 有一个一直比 vi 好的策略优势：一种嵌入式扩展编程语言。实际上，Emacs 用户一直乐于忍受引入了 RSI 的控制问题，并且愿意在 Lisp 中编写他们的扩展，这个事实展示了内置扩展语言的强大优势。
+
+现在，vi 程序员不再需要向 Emacs 的插入式脚本语言投去嫉妒的眼光。我们最喜欢的编辑器现在也可以使用脚本进行更改 — 并且比 Emacs 更友好。
+
+在本系列文章中，我们将考查最受欢迎的 vi 新版本，即 Vim 编辑器，以及 Vim 提供的简单但功能极其强大的脚本语言。第一篇文章将探究 Vim 脚本的基本构建块：变量、值、表达式、简单流控制以及 Vim 为数众多的实用函数。
+
+我将假设您已经接触过 Vim 并且熟悉它的交互式特性。如果还没有这些基础的话，Vim 网站和各种在线资源以及一些书籍都是非常不错的学习起点，或者只需在 Vim 内部输入 :help 获得帮助。请查看 参考资料 小节中的链接。
+
+如没有特别说明，本系列文章的所有示例将假设您使用的是 Vim 7.2 版本或更高版本。如果要检查所使用的 Vim 的版本，只需要像下面这样调用编辑器：
+
+vim --version
+
+或者在 Vim 内输入 :version。如果使用的是旧版本的 Vim，强烈建议您升级到最新版本，因为早期版本并不支持我们将要讨论的大部分 Vimscript 特性。参考资料 小节提供了下载和升级 Vim 的链接。 
+
+Vimscript
+
+Vim 的脚本语言被称为 Vimscript，是典型的动态命令式语言，提供了大多数常见的语言特性：变量、表达式、控制结构、内置函数、用户定义函数、一级字符串、高级数据结构（列表和字典）、终端和文件 I/O、正则表达式模式匹配、异常和集成调试器。
+
+如果要通过内置的帮助系统读取 Vim 自带的 Vimscript 文档，在任何 Vim 会话内部输入下面的内容即可：
+
+:help vim-script-intro
+
+然后阅读这些文档。
+
+运行 Vim 脚本
+
+有许多种方法可以执行 Vim 脚本命令。最简单的方法就是将命令放入到一个文件（通常使用 .vim 作为扩展名），然后执行该文件，方法为在一个 Vim 会话内部对文件执行 :source：
+
+:source /full/path/to/the/scriptfile.vim
+
+或者，可以在 Vim 命令行中，在冒号后面直接输入脚本命令。例如：
+
+:call MyBackupFunc(expand('%'), { 'all':1, 'save':'recent'})
+
+但很少有人这样做。毕竟，脚本的一个重要方面就是减少 输入的内容。因此，调用 Vim 脚本的最普通的方法就是创建新的键盘映射，如下所示：
+
+:nmap ;s :source /full/path/to/the/scriptfile.vim<CR>
+
+:nmap \b :call MyBackupFunc(expand('%'), { 'all': 1 })<CR>
+
+这些命令通常被放在主目录的 .vimrc 初始化文件中。随后，当处于 Normal 模式（就是说不能插入文本）时，关键序列 ;s 将执行指定的脚本文件，而 \b 序列将调用 MyBackupFunc() 函数（该函数大概也是在 .vimrc 文件的某个位置中定义的）。
+
+本文中的所有 Vimscript 示例使用各种类型的键映射作为触发器。在后续文章中，我们将探究另外两个常见调用技巧：从 Vim 命令行中以冒号形式运行脚本，并使用编辑器事件自动触发脚本。
+
+
+
+
+
+
+
+语法示例
+
+Vim 提供有非常复杂的语法突出显示功能，该特性可以通过内置 :syntax enable 命令启用，并使用 :syntax off 命令关闭。
+
+但是，在每次需要启用或关闭语法突出显示功能时，都需要输入 10 个以上的字符，这一点令人很恼火。相反，您可以在自己的 .vimrc 文件中添加以下 Vimscript 代码行：
+
+清单 1. 启用或关闭语法突出显示功能
+
+        
+function! ToggleSyntax()
+   if exists("g:syntax_on")
+      syntax off
+   else
+      syntax enable
+   endif
+endfunction
+
+nmap <silent>  ;s  :call ToggleSyntax()<CR>
+
+
+这些代码的作用是：在 Normal 模式下，每当输入命令时，;s 序列将开启或关闭语法突出显示功能。让我们看看这段脚本的每个部分。
+
+显然，第一个代码块是一个函数声明，定义了名为 ToggleSyntax() 的函数，它没有包含任何参数。这个用户定义函数首先调用名为 exists() 的 Vim 函数，为它传递一个字符串。exists() 函数确定是否定义了一个具有由字符串定义的名称的变量（在本例中为全局变量 g:syntax_on）。
+
+如果是的话，if 语句将执行一个 syntax off 命令；否则它将执行 syntax enable 命令。由于 syntax enable 定义了 g:syntax_on 变量，而 syntax off 解除了变量定义，反复调用 ToggleSyntax() 函数将不停地启用和禁用语法突出显示。
+
+剩下的工作就是设置一个关键的序列（本例中为 ;s）来调用 ToggleSyntax() 函数：
+
+nmap <silent> ;s :call ToggleSyntax()<CR>
+
+nmap 表示 “normal-mode key mapping”。nmap 之后的 <silent> 选项使得映射不能回传它所执行的任何命令，确保新的 ;s 命令默默地完成它的工作。它的职责就是执行下面的命令：
+
+:call ToggleSyntax()<CR>
+
+这就是希望忽略返回值时，在 Vimscript 中调用函数的方式。
+
+注意，最后的 <CR> 序列是字符 <、C、R 和 > 的字母序列。Vimscript 将它与回车符等同起来。事实上，Vimscript 理解非打印字符的许多其他类似的表示。例如，可以创建一个键盘映射，使空格键起到下翻键的功能（和在大多数 Web 浏览器中一样），如下所示：
+
+:nmap <Space> <PageDown>
+
+通过在 Vim 内输入 :help keycodes，可以看到这些特殊符号的完整列表。
+
+还需注意，ToggleSyntax() 能够直接调用内置 syntax 命令。这是因为 Vim 中的每个内置冒号命令都自动成为 Vimscript 中的一个语句。例如，要为使用 Vim 编写的文档更方便地创建中心标题，可以创建一个函数，将当前行中的每个字母大写，将整个行集中在一起，然后跳到下一行，如下所示：
+
+清单 2. 创建中心标题
+
+        
+function! CapitalizeCenterAndMoveDown()
+   s/\<./\u&/g   "Built-in substitution capitalizes each word
+   center        "Built-in center command centers entire line
+   +1            "Built-in relative motion (+1 line down)
+endfunction
+
+nmap <silent>  \C  :call CapitalizeCenterAndMoveDown()<CR>
+
+
+Vimscript 语句
+
+如此前的例子所示，Vimscript 中的所有语句都以换行符结尾（和 shell 脚本或 Python 一样）。如果需要跨多个行运行一条语句，只需要使用反斜杠作为续行符。在表示续行时，反斜杠很少被放在行的末尾，而是放在延续行的开始处：
+
+清单 3. 使用反斜杠作为续行符
+
+        
+call SetName(
+\             first_name,
+\             middle_initial,
+\             family_name
+\           )
+
+
+通过使用竖线做分隔符，可以将两个或更多个语句放在单个行中：
+
+echo "Starting..." | call Phase(1) | call Phase(2) | echo "Done"
+
+也就是说，Vimscript 中的竖线相当于其他大多数编程语言中的分号。不幸的是，Vim 不能使用分号，因为这个符号在命令的开始处已经有了其他含义（它表示 “从当前行到……”，是命令的行范围的一部分）。
+
+注释
+
+竖线作为语句分隔符的一个重要用途体现在注释中。Vimscript 注释以一个双引号开始并持续到行末，如下所示：
+
+清单 4. Vimscript 中的注释
+
+        
+if exists("g:syntax_on")
+   syntax off      "Not 'syntax clear' (which does something else)
+else
+   syntax enable   "Not 'syntax on' (which overrides colorscheme)
+endif
+
+
+不幸的是，Vimscript 字符串也可以以双引号开头并且始终优先于注释。这意味着不能把注释放到可能需要使用字符串的位置，因为注释将始终被解释为字符串：
+
+echo "> " "Print generic prompt
+
+echo 命令要求一个或多个字符串，因此此行代码将生成一个错误，指出第二个字符串缺少一个右引号（Vim 是这样认为的）。
+
+然而，可以始终将注释放在语句的最前头，这样，通过在开始注释之前使用竖线显式地开始一条新语句，就可以解决上面的问题，如下所示：
+
+echo "> " |"Print generic prompt
+
+值和变量
+
+Vimscript 中的变量分配需要一个特殊的关键字，let：
+
+清单 5. 使用 let 关键字
+
+        
+let name = "Damian"
+
+let height = 165
+
+let interests = [ 'Cinema', 'Literature', 'World Domination', 101 ]
+
+let phone     = { 'cell':5551017346, 'home':5558038728, 'work':'?' }
+
+
+注意，字符串可以使用双引号或单引号作为分隔符进行指定，双引号字符串用于特殊的 “转义序列”，比如 "\n"（用于换行符）、"\t"（用于制表符）、"\u263A"（用于 Unicode 笑脸标志）或者 "\<ESC>"（用于转义字符）。相比之下，使用单引号分隔的字符串将包括在其中的所有内容视为文字字符 — 两个连续的单引号是一个例外，它们被单纯地当作单引号。
+
+Vimscript 的值通常为以下三种类型的其中之一：
+
+    * scalar：一个单个值，比如字符串或数字。例如："Damian" 或 165
+    * list：使用方括号分隔的有序值序列，并带有以 0 开头的隐式整数索引。例如：['Cinema', 'Literature', 'World Domination', 101]
+    * dictionary：使用花括号分隔的一组无序值集合，带有显式的的字符串键。例如：{'cell':5551017346, 'home':5558038728, 'work':'?'}
+
+注意，列表或字典中的值不一定必须是相同的类型；可以混合使用字符串、数字，甚至是嵌套的列表或字典，如果需要的话。
+
+和值不同的是，变量没有固有类型。相反，它们使用分配得到的第一个值的类型。因此，在前面的例子中，name 和 height 变量现在都是标量（就是说，它们现在只能存储字符串或数字），interests 现在是一个 list 变量（就是说，它只能存储列表），而 phone 现在是一个 dictionary 变量（并且只能存储字典）。变量类型一旦分配后，就会保持不变并在运行时严格遵守：
+
+let interests = 'unknown' " Error: variable type mismatch
+
+默认情况下，变量的范围是变量第一次被分配到的函数的内部，如果它的第一次分配出现在任何函数的外部，那么它就是全局变量。然而，也可以显式地将变量声明为属于其他范围，可以使用各种前缀进行声明，表 1 进行了总结。
+
+表 1. Vimscript 变量范围
+前缀  含义
+g: varname  变量为全局变量
+s: varname  变量的范围为当前的脚本文件
+w: varname  变量的范围为当前的编辑器窗口
+t: varname  变量的范围为当前的编辑器选项卡
+b: varname  变量的范围为当前的编辑器缓冲区
+l: varname  变量的范围为当前的函数
+a: varname  变量是当前函数的一个参数
+v: varname  变量是 Vim 的预定义变量
+
+还有一些伪变量（pseudovariables），脚本可以使用它们访问 Vim 提供的其他类型的值容器。表 2 对此进行了总结。
+
+表 2. Vimscript 伪变量
+前缀  含义
+& varname   一个 Vim 选项（如果指定的话，则为本地选项，否则为全局选项）
+&l: varname   本地 Vim 选项
+&g: varname   全局 Vim 选项
+@ varname   一个 Vim 注册器
+$ varname   一个环境变量
+
+“option” 伪变量非常有用。例如，可以设置两个键映射（key-map）来增加或减小当前的表空间，如下所示： 
+
+ nmap <silent> ]] :let &tabstop += 1<CR>
+
+nmap <silent> [[ :let &tabstop -= &tabstop > 1 ? 1 : 0<CR>
+
+表达式
+
+注意，上例中的 [[ 键映射使用了一个包含类似 C 的 “三元表达式” 的表达式：
+
+&tabstop > 1 ? 1 : 0
+
+这可以阻止键映射将当前表空间递减到最小值 1 以下。如这个例子所示，Vimscript 中的表达式由大多数其他现代脚本语言中使用的相同的基本运算符组成，并且使用基本相同的语法。可用的运算符（按照优先权分组）在表 3 中做了总结。
+
+表 3. Vimscript 运算符优先表
+运算  运算符语法
+赋值
+数值相加并赋值
+数值相减并赋值
+字符串连接并赋值  let var = expr
+let var += expr
+let var -= expr
+let var .= expr
+三元运算符  bool ? expr-if-true : expr-if-false
+逻辑 OR   bool || bool
+逻辑 AND  bool && bool
+数值或字符串相等
+数值或字符串不相等
+数值或字符串大于
+数值或字符串大于等于
+数值或字符串小于
+数值或字符串小于等于  expr == expr
+expr != expr
+expr > expr
+expr >= expr
+expr < expr
+expr <= expr
+数值相加
+数值相减
+字符串连接  num + num
+num - num
+str . str
+数值相乘
+数值相除
+数值系数  num * num
+num / num
+num % num
+转换为数值
+求负数
+逻辑 NOT  + num
+- num
+! bool
+括号优先  ( expr )
+
+逻辑说明
+
+和 C 一样，在 Vimscript 中，对于布尔值来说，只有数值 0 为假；任何非 0 数值 — 不管是正数还是负数 — 都为真。然而，所有逻辑和比较运算符都全部返回值 1，表示真。
+
+当将字符串作为布尔值使用时，将首先把字符串转换为整数，然后再计算真（非 0）或假（0）。这意味着大部分字符串 — 包括大部分非空字符串 — 将被计算为 false。一个典型的错误是像下面这样测试空字符串：
+
+清单 6. 错误的空字符串测试
+
+        
+let result_string = GetResult();
+
+if !result_string
+   echo "No result"
+endif
+
+
+问题在于，在 result_string 被分配了一个空字符串后，上面的代码就不能正常工作，如果 result_string 包含诸如 "I am NOT an empty string" 之类的字符串，它仍然表示 "No result"，因为该字符串首先将被转换为一个数字（0），然后再转换为布尔值（假）。
+
+正确的做法是显式地测试字符串是否为空，使用相应的内置函数：
+
+清单 7. 正确地测试空字符串
+
+        
+if empty(result_string)
+   echo "No result"
+endif
+
+
+比较函数说明
+
+在 Vimscript 中，比较函数始终执行数字比较，除非两个运算对象都是字符串。特别是，如果一个运算对象是字符串，另一个是数字，那么字符串将被转换为数字，然后再对两个数字进行数值比较。这样做会导致一个难以发现的错误：
+
+let ident = 'Vim'
+
+if ident == 0 "Always true (string 'Vim' converted to number 0)
+
+在这种情况下，一种更健壮的解决方案是：
+
+if ident == '0'   "Uses string equality if ident contains string
+        "but numeri
+                  c equality if ident contains number
+      
+
+
+字符串比较通常使用 Vim 的 ignorecase 选项的本地设置，但是任何字符串比较函数都可以被显式地标记为大小写敏感（通过附加一个 #）或大小写不敏感（通过附加一个 ?）：
+
+清单 8. 将字符串比较函数设置为大小写敏感或大小写不敏感
+
+        
+if name ==? 'Batman'         |"Equality always case insensitive
+   echo "I'm Batman"
+elseif name <# 'ee cummings' |"Less-than always case sensitive
+   echo "the sky was can dy lu minous"
+endif
+
+
+强烈推荐对所有字符串比较使用 “显式设置大小写的” 运算对象，因为这样可以确保无论用户选项设置如何变化，脚本都可以可靠地执行。
+
+算术说明
+
+在使用算术表达式时，还需要记住一点，在版本 7.2 之前，Vim 只支持整数运算。早期版本中的一个普遍错误是编写类似下面的代码：
+
+清单 9. 整数算术的问题
+
+        
+        "Step through each file...
+for filenum in range(filecount)
+   " Show progress...
+   echo (filenum / filecount * 100) . '% done'
+        " Make progress...
+   call process_file(filenum)
+endfor
+
+
+由于 filenum 始终小于 filecount，整数除法 filenum/filecount 将始终生成 0，因此每次迭代循环都将生成：
+
+Now 0% done
+
+即使对于版本 7.2，如果其中一个运算对象被明确声明为浮点类型，那么 Vim 只支持浮点算术：
+
+let filecount = 234
+
+echo filecount/100   |" echoes 2
+echo filecount/100.0 |" echoes 2.34
+      
+
+
+
+
+
+
+
+
+
+另一个切换示例
+
+可以采用前面所示的语法切换示例轻松地创建更多有用工具。例如，如果您经常会拼错或错误使用一组单词，那么可以向 .vimrc 添加一个脚本来激活 Vim 的匹配机制并在检查文本时突出显示错误的单词。
+
+比如，可以创建一个键映射（比如 ;p），能够按照下面的方式在 Vim 中显式文本（比如前一个段落）：
+
+It's easy to adapt the syntax-toggling script shown earlier to create other useful tools. For example, if there is a set of words that you frequently misspell or misapply, you could add a script to your .vimrc to activate Vim's match mechanism and highlight problematic words when you're proofreading text.
+
+这段脚本可能类似清单 10。
+
+清单 10. 突出显示经常拼错的单词
+
+        
+"Create a text highlighting style that always stands out...
+highlight STANDOUT term=bold cterm=bold gui=bold
+
+"List of troublesome words...
+let s:words = [
+             \ "it's",  "its",
+             \ "your",  "you're",
+             \ "were",  "we're",   "where",
+             \ "their", "they're", "there",
+             \ "to",    "too",     "two"
+             \ ]
+
+"Build a Vim command to match troublesome words...
+let s:words_matcher
+\ = 'match STANDOUT /\c\<\(' . join(s:words, '\|') . '\)\>/'
+
+"Toggle word checking on or off...
+function! WordCheck ()
+   "Toggle the flag (or set it if it doesn't yet exist)...
+   let w:check_words = exists('w:check_words') ? !w:check_words : 1
+
+   "Turn match mechanism on/off, according to new state of flag...
+   if w:check_words
+      exec s:words_matcher
+   else
+      match none
+   endif
+endfunction
+
+"Use ;p to toggle checking...
+
+nmap <silent>  ;p  :call WordCheck()<CR>
+
+
+变量 w:check_words 被用作一个布尔标记，用来启用或关闭单词检查。WordCheck() 函数的第一行代码检查标记是否已经存在，如果存在的话，变量分配仅仅启用变量的布尔值：
+
+let w:check_words = exists('w:check_words') ? !w:check_words : 1
+
+如果 w:check_words 不存在，那么将通过向它分配值 1 来创建：
+
+let w:check_words = exists('w:check_words') ? !w:check_words : 1
+
+注意使用了 w: 作为前缀，这表示标记变量对于当前窗口来说始终是本地变量。这将允许在每个编辑器窗口中独立启用单词检查（这与 match 命令的行为是一致的，后者的作用也只对当前窗口有效）。
+
+单词检查是通过设置 Vim 的 match 命令启用的。match 要求一个文本突出显示说明（本例中为 STANDOUT），紧接着是一个正则表达式，指定要突出显示哪段文本。在本例中，正则表达式的构建方式是对脚本 s:words list 变量中指定的所有单词执行 OR 运算（即 join(s:words, '\|')）。这组待选对象随后使用大小写不敏感的单词边界括起（\c\<\(...\)\>），确保只有完整的单词被匹配，而不需要关心大小写。
+
+WordCheck() 函数随后将结果字符串转换为一个 Vim 命令并执行它（exec s:words_matcher），从而启用匹配功能。当 w:check_words 被关闭后，函数将执行 match none 命令，解除特殊匹配。
+
+
+
+
+
+
+
+在 Insert 模式下使用脚本
+
+Vimscripting 绝不仅限于 Normal 模式。还可以使用 imap 或 iabbrev 命令设置键映射或缩写词，可以在插入文本时使用。例如：
+
+imap <silent> <C-D><C-D> <C-R>=strftime("%e %b %Y")<CR>
+
+imap <silent> <C-T><C-T> <C-R>=strftime("%l:%M %p")<CR>
+
+在 .vimrc 中有了这些映射后，在 Insert 模式下输入两次 CTRL-D 将促使 Vim 调用它的内置 strftime() 函数并插入生成的日期，同样，两次按下 CTRL-T 将插入当前时间。
+
+可以使用相同的通用模式，让插入模式或缩写词执行任何 可编写脚本的操作。只需要将相应的 Vimscript 表达式或函数调用放到第一个 <C-R>=（告诉 Vim 插入后面内容的计算结果）和最后一个 <CR>（告诉 Vim 实际地执行前面的表达式）之间。但是，要注意，<C-R>（Vim 对 CTRL-R 使用的缩写）和 <CR>（Vim 对回车使用的缩写）是不同的。
+
+比如，可以使用 Vim 的内置 getcwd() 函数为当前的工作目录创建缩写，如下所示：
+
+iabbrev <silent> CWD <C-R>=getcwd()<CR>
+
+或者，可以嵌入一个简单的计算器，在文本插入期间输入 CTRL-C 便可调用该计算器：
+
+imap <silent> <C-C> <C-R>=string(eval(input("Calculate: ")))<CR>
+
+下面这个表达式：
+
+string( eval( input("Calculate: ") ) )
+
+首先调用内置的 input() 函数来请求用户输入他们的计算，随后 input() 作为一个字符串返回。该输入字符串被传递到内置的 eval() 中，后者将它作为一个 Vimscript 表达式进行计算并返回结果。接下来，内置 string() 函数将数值结果转换回一个字符串，键映射的 <C-R>= 序列将能够插入该字符串。
+
+更加复杂的 Insert 模式的脚本
+
+插入映射所涉及的脚本要比前面的例子更加复杂。在这种情况下，通常最好将代码重构为一个用户定义的函数，键映射随后就可以调用该函数。
+
+例如，可以在插入期间改变 CTRL-Y 的行为。通常，CTRL-Y 在 Insert 模式下会执行 “纵向复制（vertical copy）”。也就是说，它将从紧挨着游标的上一行中复制同一列中的字符。例如，在下面的情形中，将在游标处插入一个 “m”：
+
+Glib jocks quiz nymph to vex dwarf
+Glib jocks quiz ny_
+
+然而，您可能希望忽略中间的空行，并复制插入点上方的第一个非空 行的同一列中的字符。这将意味着，举例说，下面情形中的 CTRL-Y 也将插入一个 “m”，即使紧挨着它的上一行是空行：
+
+Glib jocks quiz nymph to vex dwarf
+
+Glib jocks quiz ny_
+
+通过在 .vimrc 文件中添加以下代码，您就可以实现这种增强的行为：
+
+清单 11. 改进纵向复制，忽略空行
+
+        
+"Locate and return character "above" current cursor position...
+function! LookUpwards()
+   "Locate current column and preceding line from which to copy...
+   let column_num      = virtcol('.')
+   let target_pattern  = '\%' . column_num . 'v.'
+   let target_line_num = search(target_pattern . '*\S', 'bnW')
+
+   "If target line found, return vertically copied character...
+
+   if !target_line_num
+      return ""
+   else
+      return matchstr(getline(target_line_num), target_pattern)
+   endif
+endfunction
+
+"Reimplement CTRL-Y within insert mode...
+
+imap <silent>  <C-Y>  <C-R><C-R>=LookUpwards()<CR>
+
+
+LookUpwards() 函数首先判断插入点目前位于屏幕上的哪个列（即 “虚拟列”），使用内置的 virtcol() 函数可以做到这点。'.' 参数指定当前游标位置的列编号：
+
+let column_num = virtcol('.')
+
+LookUpwards() 随后使用内置 search() 函数从当前的游标位置倒退着浏览文件：
+
+let target_pattern = '\%' . column_num . 'v.'
+let target_line_num = search(target_pattern . '*\S', 'bnW')
+
+搜索使用了一个特殊的目标模式（即 \%column_numv.*\S）来查找最近的一个行，这个行在游标所处的这一列（\%column_numv）或后一列（.*）应当具有一个非空字符（\S）。search() 的第二个参数是配置字符串 bnW，它告诉函数向后搜索，而不是移动游标，也不是封装搜索。如果搜索成功，search() 将返回相应行的行号；如果搜索失败，它将返回 0。
+
+if 语句将判断哪个字符 — 如果有的话 — 将被复制到插入点。如果没有找到符合条件的行，target_line_num 将被分配一个 0 值，因此，第一个返回语句被执行并返回空字符串（表示 “没有插入任何内容”）。
+
+但是，如果找到符合条件的行，那么将执行第二个返回语句。它首先从当前编辑器缓冲区中获得前面行的副本：
+
+return matchstr(getline(target_line_num), target_pattern)
+
+然后查找并返回之前调用 search() 并成功匹配的只包含一个字符的字符串：
+
+return matchstr(getline(target_line_num), target_pattern)
+
+在 LookUpwards() 内部实现了这个新的纵向复制行为后，剩下的工作就是在 Insert 模式中覆盖标准的 CTRL-Y 命令，使用下面的 imap：
+
+imap <silent> <C-Y> <C-R><C-R>=LookUpwards()<CR>
+
+注意，考虑到前面的 imap 示例都使用 <C-R>= 调用 Vimscript 函数调用，因此本例使用 <C-R><C-R>=。使用 single-CTRL-R 表单插入后面的表达式的结果，就好象是直接输入的一样，这意味着结果中的任何特殊字符将保留它们的特殊含义和行为。另一方面，double-CTRL-R 表单将按原样逐字插入结果，不做任何处理。
+
+在本例中更适合使用逐字插入，因为这里的目标是精确地复制游标上方的文本。如果键映射使用 <C-R>=，那么从前面的行中复制字母转义字符就相当于输入字符，而这将会造成编辑器立刻退出 Insert 模式。
+
+学习 Vim 的内置函数
+
+从前面的每一个示例中可以看到，Vimscript 的大部分功能都来源于它提供的广泛的内置函数，数目大约超过 200 个。可以通过输入下面的内容开始学习这些函数：
+
+:help functions
+
+或者，可以访问一个（更加有用的）分类列表：
+
+:help function-list
+
+
+
+
+
+
+
+结束语
+
+Vimscript 是一种用来重组和扩展 Vim 编辑器的机制。通过脚本能够创建新的工具（比如突出显示拼错的单词）并简化常见任务的执行（比如修改表空间或者插入时间和日期信息，或者启用语法突出显示功能），甚至能够完全重新设计已有的编辑器特性（比如增强 CTRL-Y 的 “复制上一行” 的行为）。
+
+对于许多人，学习任何一种新语言的最简单方法就是参考示例。为此，您可以在 Vim Tips wiki 中找到大量的样例 Vimscripts — 大多数样例本身就是非常有用的工具。或者，要获得更广泛的样例 Vim 脚本，可以参考 Vim 脚本归档中 2000 多个更大型的项目。参考资料 小节中给出了资源链接。
+
+如果您已经熟悉使用 Perl、Python、Ruby、PHP、Lua、Awk、Tcl 或任何 shell 语言，那么 Vimscript 会让您觉得既熟悉又陌生，它具有与上述语言类似的通用方法和概念，但是又具有特殊的语义特性。为了克服这些冲突并掌握 Vimscript，您将需要花一些时间来实际体验、研究并使用这种语言。那么，为什么不研究一下 Vim 目前的工作原理并尝试编写一个更好的解决方案呢？
+
+本文仅仅描述了 Vimscript 的基本变量、值、表达式和函数。您使用这些内容所能构建的 “更好的解决方案” 显然是十分有限的。因此，在未来的几期文章中，我们将查看更高级的 Vimscript 工具和技巧：数据结构、流控制、用户定义命令、事件驱动脚本、构建 Vim 模块，并使用其他脚本语言扩展 Vim。特别是，本系列的下一篇文章将重点考察 Vimscript 的用户定义函数的特性，以及它们如何改善您的 Vim 体验。
+
+
+使用脚本编写 Vim 编辑器，第 2 部分: 用户定义函数
+用户定义函数
+
+Haskell 或 Scheme 程序员会告诉您，函数对于任何严肃的编程语言来说都是最重要的特性。对于 C 或 Perl 程序员，他们也会告诉您完全相同的观点。
+
+函数为严肃的程序员提供了两个基本优势：
+
+   1. 它们能够将复杂的计算任务细分为足够小的部分，从而能够容易地被人类理解。
+   2. 它们允许这些细分后的部分具有逻辑的和可理解的名称，这样就十分适合由人类处理。
+
+Vimscript 是一种严肃的编程语言，因此它天生就支持创建用户定义函数。事实上，它确实提供了比 Scheme、C 或 Perl 更加优秀的 用户定义函数支持。本文探究了 Vimscript 函数的各种特性，并展示了如何使用这些函数以可维护的方式增强并扩展 Vim 的内置函数。
+
+声明函数
+
+Vimscript 中的函数使用 function 关键字定义，后跟函数名，然后是参数列表（这是强制的，即使该函数没有参数）。函数体然后从下一行开始，一直连续下去，直到遇到一个匹配的 endfunction 关键字。例如：
+
+清单 1. 具有正确结构的函数
+
+        
+        function
+        ExpurgateText (text)
+    let expurgated_text = a:text
+
+    for expletive in [ 'cagal', 'frak', 'gorram', 'mebs', 'zarking']
+        let expurgated_text
+        \   = substitute(expurgated_text, expletive, '[DELETED]', 'g')
+    endfor
+
+    return expurgated_text
+endfunction
+      
+
+
+函数返回值使用 return 语句指定。可以根据需要指定任意数量的单独 return 语句。如果函数被用作一个过程，并且没有任何有用的返回值，那么可以不包含 return 语句。然而，Vimscript 函数始终 返回一个值，因此如果没有指定任何 return，那么函数将自动返回 0。
+
+Vimscript 中的函数名必须以大写字母开头：
+
+清单 2. 以大写字母开头的函数名
+
+        
+function SaveBackup ()
+    let b:backup_count = exists('b:backup_count') ? b:backup_count+1 : 1
+    return writefile(getline(1,'$'), bufname('%') . '_' . b:backup_count)
+endfunction
+
+nmap <silent>  <C-B>  :call SaveBackup()<CR>
+
+
+这个例子定义了一个函数，它将递增当前缓冲区的 b:backup_count 变量的值（或初始化为 1，如果尚不存在的话）。函数随后获取当前文件（getline(1,'$')）中的每一行并调用内置的 writefile() 函数来将它们写入到磁盘中。writefile() 的第二个参数是将要写入的新文件的名称；在本例中，为当前文件（bufname('%')）的名称附加上计数器的新值。返回的值为对 writefile() 调用的 success/failure 值。最后，nmap 设置 CTRL-B 以调用函数来创建对当前文件的有限备份。
+
+Vimscript 函数没有使用前导大写字母，相反，可以使用显式的范围前缀声明函数（类似变量，如 第 1 部分 所述）。最常见的选择是 s:，它表示函数对于当前脚本文件是本地函数。如果函数使用这种方式确定范围，那么它的名称就不需要以大写开头；它可以是任意有效标识符。然而，显式确定范围的函数必须始终使用范围前缀进行调用。比如：
+
+清单 3. 使用范围前缀调用函数
+
+        
+        " Function scoped to current script file...
+function s:save_backup ()
+    let b:backup_count = exists('b:backup_count') ? b:backup_count+1 : 1
+    return writefile(getline(1,'$'), bufname('%') . '_' . b:backup_count)
+endfunction
+
+nmap <silent>  <C-B>  :call s:save_backup()<CR>
+
+
+可重新声明的函数
+
+Vimscript 中的函数声明为运行时语句，因此如果一个脚本被加载两次，那么该脚本中的任何函数声明都将被执行两次，因此将重新创建相应的函数。
+
+重新声明函数被看作一种致命的错误（这样做是为了防止发生两个不同脚本同时声明函数的冲突）。这使得很难在需要反复加载的脚本中创建函数，比如自定义的语法突出显示脚本。
+
+因此 Vimscript 提供了一个关键字修饰符（function!），允许在需要时指出某个函数声明可以被安全地重载：
+
+清单 4. 表示某个函数声明可以被安全地重载
+
+        
+        function! s:save_backup ()
+    let b:backup_count = exists('b:backup_count') ? b:backup_count+1 : 1
+    return writefile(getline(1,'$'), bufname('%') . '_' . b:backup_count)
+endfunction
+
+
+对于使用这个修饰过的关键字定义的函数，没有执行任何重新声明检查，因此非常适合用于显式确定范围的函数（在这种情况下，范围已经确保函数不会和其他脚本中的函数发生冲突）。
+
+调用函数
+
+要调用函数并使用它的返回值作为语言表达式的一部分，只需要命名它并附加一个使用圆括号括起的参数列表：
+
+清单 5. 使用函数的返回值
+
+        
+        "Clean up the current line...
+let success = setline('.', ExpurgateText(getline('.')) )
+
+
+但是要注意，与 C 或 Perl 不同，Vimscript 并不 允许您在未使用的情况下抛出函数的返回值。因此，如果打算使用函数作为过程或子例程并忽略它的返回值，那么必须使用 call 命令为调用添加前缀：
+
+清单 6. 在未使用返回值的情况下使用函数
+
+        
+"Checkpoint the text...
+call SaveBackup()
+
+
+否则，Vimscript 将假设该函数调用实际上是一个内置的 Vim 命令，并且很可能会发出报警，指出并不存在这类命令。我们将在本系列的后续文章中查看函数和命令之间的区别。
+
+参数列表
+
+Vimscript 允许您定义显式参数 和可变参数列表，甚至可以将两者结合起来。
+
+在声明了子例程的名称后，您可以立即指定最多 20 个显式命名的参数。指定参数后，通过将 a: 前缀添加到参数名，可以在函数内部访问当前调用的相应参数值：
+
+清单 7. 在函数内部访问参数值
+
+        
+function PrintDetails(name, title, email)
+    echo 'Name:   '  a:title  a:name
+    echo 'Contact:'  a:email
+endfunction
+
+
+如果您不清楚一个函数具有多少个参数，那么可以指定一个可变的参数列表，使用省略号（...）而不是命名参数。在本例中，函数可以使用任意数量的参数调用，并且这些值被收集到一个单一变量中：一个名为 a:000 的数组。为单个参数也提供了位置参数名：a:1、a:2、a:3，等等。参数的数量可以是 a:0。例如：
+
+清单 8. 指定并使用一个可变的参数列表
+
+        
+function Average(...)
+    let sum = 0.0
+
+    for nextval in a:000
+        "a:000 is the list of arguments
+        let sum += nextval
+    endfor
+
+    return sum / a:0
+        "a:0 is the number of arguments
+endfunction
+
+
+注意，在本例中，sum 必须被初始化为一个显式的浮点值；否则，所有后续计算都将使用整数运算计算。
+
+结合命名参数和可变参数
+
+可以在同一个函数中同时使用命名参数和可变参数，只需要将可变参数的省略号放在命名参数列表之后。
+
+例如，假设您希望创建一个 CommentBlock() 函数，它将接收一个字符串并针对不同的编程语言将其格式化为相应的注释块。这类函数始终需要调用者为其提供一个字符串来进行格式化，因此应当使用命名参数。但是，您可能希望注释导入器（introducer）、“boxing” 字符和注释的宽度全部是可选的（在被省略时具有合理的默认值）。那么应当像下面这样调用：
+
+清单 9. 一个简单的 CommentBlock 函数调用
+
+        
+call CommentBlock("This is a comment")
+
+
+并且将返回一个多行字符串包含：
+
+清单 10. CommentBlock 返回
+
+        
+//*******************
+// This is a comment
+//*******************
+
+
+然而，如果提供额外的参数，那么将为注释导入器、“boxing” 字符和注释宽度指定非默认值。因此这个调用将为：
+
+清单 11. 更加复杂的 CommentBlock 函数调用
+
+        
+call CommentBlock("This is a comment", '#', '=', 40)
+
+
+would return the string:
+
+清单 12. CommentBlock 返回
+
+        
+#========================================
+# This is a comment
+#========================================
+
+
+这类函数的可能的实现方式为：
+
+清单 13. CommentBlock 实现
+
+        
+function CommentBlock(comment, ...)
+    "If 1 or more optional args, first optional arg is introducer...
+    let introducer =  a:0 >= 1  ?  a:1  :  "//"
+
+    "If 2 or more optional args, second optional arg is boxing character...
+    let box_char   =  a:0 >= 2  ?  a:2  :  "*"
+
+    "If 3 or more optional args, third optional arg is comment width...
+    let width      =  a:0 >= 3  ?  a:3  :  strlen(a:comment) + 2
+
+    " Build the comment box and put the comment inside it...
+    return introducer . repeat(box_char,width) . "\<CR>"
+    \    . introducer . " " . a:comment        . "\<CR>"
+    \    . introducer . repeat(box_char,width) . "\<CR>"
+endfunction
+
+
+如果至少有一个可选参数（a:0 >= 1），那么导入器参数将指定给第一个选项（即 a:1）；否则，将指定一个默认值 "//"。类似地，如果有两个或多个可选参数（a:0 >= 2），那么 box_char 变量被分配给第二个选项（a:2），或一个默认值 "*"。如果提供了三个或多个可选参数，那么第三个选项被分配给 width 变量。如果没有提供宽度参数，那么将自动根据注释参数本身计算相应的宽度（strlen(a:comment)+2）。
+
+最后，将所有参数值解析后，将构建注释框的顶部和底部行：首先是一个注释导入器，后跟 boxing 字符的重复次数（repeat(box_char,width)），在这两者之间是注释文本本身。
+
+当然，要使用这个函数，需要以某种方式调用它。最理想的方法可能是使用一个插入映射：
+
+清单 14. 使用一个插入映射调用函数
+
+        
+        "C++/Java/PHP comment...
+imap <silent>  ///  <C-R>=CommentBlock(input("Enter comment: "))<CR>
+
+"Ada/Applescript/Eiffel comment...
+imap <silent>  ---  <C-R>=CommentBlock(input("Enter comment: "),'--')<CR>
+
+"Perl/Python/Shell comment...
+imap <silent>  ###  <C-R>=CommentBlock(input("Enter comment: "),'#','#')<CR>
+
+
+对于每一个映射，将首先调用内置的 input() 函数来请求注释文本中的用户类型。CommentBlock() 函数随后被调用，以将文本转换为一个注释块。最后，前导 <C-R>= 插入结果字符串。
+
+注意，第一个映射仅仅传递一个单一参数，因此默认使用 // 作为其注释标记。第二个和第三个映射传递第二个参数来指定 # 或 -- 作为它们各自的注释导入器。最后一个映射传递第三个参数，使得 “boxing” 字符匹配它的注释导入器。
+
+
+
+
+
+
+
+函数和行范围
+
+可以使用一个初始的行范围调用任何标准的 Vim 命令（包括 call），这将针对范围中的每一行重复一次命令：
+
+"Delete every line from the current line (.) to the end-of-file ($)...
+:.,$delete
+
+"Replace "foo" with "bar" everywhere in lines 1 to 10
+:1,10s/foo/bar/
+
+"Center every line from five above the current line to five below it...
+:-5,+5center
+
+可以在任何 Vim 会话中输入 :help cmdline-ranges 来了解更多有关此工具的内容。
+
+对于 call 命令，指定范围将致使所请求的函数被反复调用：对范围中的每一行调用一次。要了解这样做的原因，考虑一下如何编写一个函数来将当前行中的任何 “原始的” & 符号转换为适当的 XML &amp; 实体，但是这样做也足够灵巧，可以忽略任何已经存在于其他实体中的 & 符号。这个功能的实现方式类似如下所示：
+
+清单 15. 转换 & 符号的函数
+
+        
+function DeAmperfy()
+    "Get current line...
+    let curr_line   = getline('.')
+
+    "Replace raw ampersands...
+    let replacement = substitute(curr_line,'&\(\w\+;\)\@!','&amp;','g')
+
+    "Update current line...
+    call setline('.', replacement)
+endfunction
+
+
+DeAmperfy() 中的第一行代码从编辑器缓冲区获取当前行（getline('.')）。第二行代码从当前行中查找其后未 跟随标识符和冒号的 &，使用了否定先行（negative lookahead）模式 '&\(\w\+;\)\@!'（参见 :help \@! 获得更多细节）。substitute() 调用随后使用 XML &amp; 实体替换所有此类 “原始” & 符号。最后，DeAmperfy() 中的第三行代码使用修改后的文本更新当前行。
+
+如果从命令行调用该函数：
+
+:call DeAmperfy()
+
+将只对当前行执行替换。但是如果在 call 之前指定了一个范围：
+
+:1,$call DeAmperfy()
+
+那么将针对范围内的每一行调用一次函数（在本例中，指的是文件中的每一行）。
+
+内部化函数行范围
+
+这种针对每一行反复调用函数 的行为是一种方便的默认行为。然而，有时希望指定一个范围，但是只调用一次函数，然后在函数内部处理范围语义。这对于 Vimscript 也很简单。只需要将一个特殊修饰符（range）附加到函数声明之后：
+
+清单 16. 函数内部的范围语义
+
+        
+function DeAmperfyAll() range
+        "Step through each line in the range...
+    for linenum in range(a:firstline, a:lastline)
+        "Replace loose ampersands (as in DeAmperfy())...
+        let curr_line   = getline(linenum)
+        let replacement = substitute(curr_line,'&\(\w\+;\)\@!','&amp;','g')
+        call setline(linenum, replacement)
+    endfor
+
+    "Report what was done...
+    if a:lastline > a:firstline
+        echo "DeAmperfied" (a:lastline - a:firstline + 1) "lines"
+    endif
+endfunction
+
+
+在参数列表之后指定了 range 修饰符后，使用如下范围调用 DeAmperfyAll() 时：
+
+:1,$call DeAmperfyAll()
+
+将只对函数执行一次调用，而两个特殊参数 a:firstline 和 a:lastline 被设置为范围的第一个行号和最后一个行号。如果未指定任何范围，那么 a:firstline 和 a:lastline 都将被设置为当前行号。
+
+函数首先构建一个包含所有相关行号的列表（range(a:firstline, a:lastline)）。注意，对内置 range() 函数的调用与在函数声明中使用 range 修饰符一点关系也没有。range() 函数只是一个 list 构造函数，非常类似于 Python 中的 range() 函数，或者是 Haskell 或 Perl 中的 .. 运算符。
+
+确定了将要处理的行号列表后，函数使用 for 循环来遍历每个行号：
+
+for linenum in range(a:firstline, a:lastline)
+
+然后相应地更新每一行（正如最初的 DeAmperfy() 所做的那样）。
+
+最后，如果范围涵盖了多个行（即 a:lastline > a:firstline），函数将报告被更新的行的数量。
+
+可视范围
+
+一旦拥有了一个可以操作行范围的函数调用后，一个特别有用的技巧就是通过 Visual 模式（参见 :help Visual-mode 获得更多细节）调用该函数。
+
+例如，如果游标位于文本块的某个位置，那么可以使用下面的代码在周围的段落中编码所有 & 号：
+
+Vip:call DeAmperfyAll()
+
+在 Normal 模式下输入 V 将切换到 Visual 模式。ip 随后将使 Visual 模式突出显示您正位于其中的整个段落。之后，: 将您切换到 Command 模式并自动将命令范围设置为刚刚从 Visual 模式选择的行的范围。此时，调用 DeAmperfyAll() 对所有行执行 deamperfy 操作。
+
+注意，在这个实例中，可以使用下面的代码获得相同的效果：
+
+Vip:call DeAmperfy()
+
+惟一的不同之处在于 DeAmperfy() 函数将被反复调用：针对 Visual 模式下 Vip 中突出显示的每一行调用一次。
+
+
+
+
+
+
+
+用于编码的函数
+
+Vimscript 中的大多数用户定义函数只需要很少的参数，并且通常情况下根本不需要参数。这是因为它们常常直接从当前编辑器缓冲区和上下文信息（比如当前游标位置、当前段落大小、当前窗口大小或当前行的内容）中获得数据。
+
+此外，如果函数通过上下文而不是参数列表包含数据，那么往往更加有用和方便。例如，维护源代码的一个常见问题就是赋值运算符在聚集起来后无法对齐，这将损害代码的可读性：
+
+清单 16. 无法对齐的赋值运算符
+
+        
+let applicants_name = 'Luke'
+let mothers_maiden_name = 'Amidala'
+let closest_relative = 'sister'
+let fathers_occupation = 'Sith'
+
+
+在每次添加新语句时手动重新对齐它们将十分费力：
+
+清单 17. 手动重新对齐赋值运算符
+
+        
+let applicants_name     = 'Luke'
+let mothers_maiden_name = 'Amidala'
+let closest_relative    = 'sister'
+let fathers_occupation  = 'Sith'
+
+
+要让日常编程任务没那么乏味，可以创建一个键映射（比如 ;=），它可以选择当前代码块、定位具有赋值运算符的任何行，并自动对齐这些运算符。如下所示：
+
+清单 18. 对齐赋值运算符的函数
+
+        
+function AlignAssignments ()
+    "Patterns needed to locate assignment operators...
+    let ASSIGN_OP   = '[-+*/%|&]\?=\@<!=[=~]\@!'
+    let ASSIGN_LINE = '^\(.\{-}\)\s*\(' . ASSIGN_OP . '\)'
+
+    "Locate block of code to be considered (same indentation, no blanks)
+    let indent_pat = '^' . matchstr(getline('.'), '^\s*') . '\S'
+    let firstline  = search('^\%('. indent_pat . '\)\@!','bnW') + 1
+    let lastline   = search('^\%('. indent_pat . '\)\@!', 'nW') - 1
+    if lastline < 0
+        let lastline = line('$')
+    endif
+
+    "Find the column at which the operators should be aligned...
+    let max_align_col = 0
+    let max_op_width  = 0
+    for linetext in getline(firstline, lastline)
+        "Does this line have an assignment in it?
+        let left_width = match(linetext, '\s*' . ASSIGN_OP)
+
+        "If so, track the maximal assignment column and operator width...
+        if left_width >= 0
+            let max_align_col = max([max_align_col, left_width])
+
+            let op_width      = strlen(matchstr(linetext, ASSIGN_OP))
+            let max_op_width  = max([max_op_width, op_width+1])
+         endif
+    endfor
+
+    "Code needed to reformat lines so as to align operators...
+    let FORMATTER = '\=printf("%-*s%*s", max_align_col, submatch(1),
+    \                                    max_op_width,  submatch(2))'
+
+    " Reformat lines with operators aligned in the appropriate column...
+    for linenum in range(firstline, lastline)
+        let oldline = getline(linenum)
+        let newline = substitute(oldline, ASSIGN_LINE, FORMATTER, "")
+        call setline(linenum, newline)
+    endfor
+endfunction
+
+nmap <silent>  ;=  :call AlignAssignments()<CR>
+
+
+AlignAssignments() 函数首先创建两个正则表达式（参见 :help pattern 获得有关 Vim 正则表达式语法的必要细节）：
+
+let ASSIGN_OP   = '[-+*/%|&]\?=\@<!=[=~]\@!'
+let ASSIGN_LINE = '^\(.\{-}\)\s*\(' . ASSIGN_OP . '\)'
+
+
+ASSIGN_OP 中的模式匹配任何标准的赋值运算符：=、+=、-=、*=，等等，但是注意不要匹配其他包含 = 的运算符，比如 == 和 =~。如果您喜欢的语言中包含其他赋值运算符（比如 .= 或 ||= 或 ^=），那么可以扩展 ASSIGN_OP 正则表达式来识别这些运算符。另一种选择是，可以重新定义 ASSIGN_OP 来识别其他 “可对齐的” 类型，比如注释导入器或列表及，并对齐它们。
+
+ASSIGN_LINE 中的模式只在行的起始部分（^）开始匹配，首先匹配最小字符数（.\{-}），然后匹配任何空白（\s*），最后匹配赋值运算符。
+
+注意，最初的 “最小字符数” 子模式和运算符子模式都在捕捉圆括号内进行了指定：\(...\)。这两个正则表达式组件捕获的子字符串稍后将通过调用内置 submatch() 函数来提取；具体来讲，通过调用 submatch(1) 来提取运算符前面的所有内容，然后调用 submatch(2) 来提取运算符本身。
+
+AlignAssignments() 随后查找它将对其进行操作的行范围：
+
+let indent_pat = '^' . matchstr(getline('.'), '^\s*') . '\S'
+let firstline  = search('^\%('. indent_pat . '\)\@!','bnW') + 1
+let lastline   = search('^\%('. indent_pat . '\)\@!', 'nW') - 1
+if lastline < 0
+    let lastline = line('$')
+endif
+
+
+在此前的例子中，函数依赖于一个显式的命令范围或一个 Visual 模式选择来确定要进行处理的行，但是这个函数则直接计算它自己的行范围。具体来讲，它首先调用内置 matchstr() 函数来确定出现在当前行（getline('.')）起始部分的前导空白（'^\s*'）。随后在 indent_pat 中构建一个新的正则表达式，精确匹配任何非空行的起始处的相同序列的空白（即拖尾 '\S'）。
+
+AlignAssignments() 随后调用内置 search() 函数向上搜索（使用标记 'bnW'）并定位位于游标上方的第一个不 具有相同缩进的行。向此行号加 1 将得出感兴趣的范围的起始行号，也就是说，具有相同缩进的第一个相邻行就作为当前行。
+
+第二个 search() 调用随后向下搜索（'nW'）来判断 lastline：具有相同缩进的最后一个相邻行。对于这种情况，搜索可能会到达文件的末尾，并且没有找到具有不同缩进的行，这种情况下 search() 将返回 -1。要正确地处理这种情况，随后的 if 语句需要显式地将 lastline 设置为文件末端的行号（即设置为由 line('$') 返回的行号）。
+
+这两个搜索的结果将使 AlignAssignments() 知道紧邻着当前行的上方或下方、具有与当前行完全相同的缩进的完整行范围。它使用这些信息来确保只对位于同一代码块中相同范围级别的赋值语句执行对齐。当然，如果代码的缩进不能正确反映它的范围，那么这种情况下必须进行重新格式化。
+
+AlignAssignments() 中的第一个 for 循环判断其中的赋值运算符应当对齐的列。实现方法是遍历所选范围内的行列表（由 getline(firstline, lastline) 取回的行）并检查每个行是否包含赋值运算符（运算符的前面可能包含空格）：
+
+let left_width = match(linetext, '\s*' . ASSIGN_OP)
+
+
+如果该行中没有运算符，那么内置 match() 函数将无法找到匹配，因此将返回 -1。对于这种情况，循环将直接跳到下一行。如果存在 运算符，那么 match() 将返回在其中显示运算符的（正）指数。if 语句随后使用内置 max() 函数判断这个最近的列位置是否比此前找到的运算符更靠右，从而跟踪所需的最大列位置来对齐范围内的所有赋值运算符：
+
+let max_align_col = max([max_align_col, left_width])
+
+
+if 中剩下的两行代码使用内置 matchstr() 函数检索实际的运算符，然后使用内置 strlen() 函数判断行的长度（"=" 的长度为 1，'+='、'-=' 的长度为 2，等等）。max_op_width 变量随后被用来跟踪所需的最大宽度，以对范围内的各种运算符执行对齐：
+
+let op_width     = strlen(matchstr(linetext, ASSIGN_OP))
+let max_op_width = max([max_op_width, op_width+1])
+
+
+一旦确定了赋值区域的位置和宽度，剩下的就是遍历范围中的行并相应地执行重新格式化。要执行重新格式化，函数将使用内置的 printf() 函数。这个函数十分有用，但是它的命名非常糟糕。它与 C、Perl 或 PHP 中的 printf 函数不同。实际上，它类似于以上这些语言中的 sprintf 函数。也就是说，在 Vimscript 中，printf 并不会输出其数据参数列表的格式化后的版本；它会返回一个字符串，其中包含了数据参数列表的格式化后的版本。
+
+理想情况下，要重新格式化每一行，AlignAssignments() 将使用内置的 substitute() 函数，并使用经过 printf 重新整理后的文本替换运算符之前的所有内容。不幸的是，substitute() 要求使用固定的字符串作为它的替代值，而不是一个函数调用。
+
+因此，要使用 printf() 来重新格式化每个替换文本，需要使用特殊的嵌入式替换形式："\=expr"。替换字符串中的前导 \= 要求 substitute() 对随后的表达式求值并使用结果作为替换文本。注意，这类似于 Insert 模式下的 <C-R>= 机制，惟一不同的是这种奇妙的行为只针对内置 substitute() 函数的替换字符串（或在标准 :s/.../.../ Vim 命令中）。
+
+在本例中，特殊替换形式对于每一行来说都将是相同的 printf ，因此它将在第二个 for 循环开始之前被预先存储到 FORMATTER 变量中：
+
+let FORMATTER = '\=printf("%-*s%*s", max_align_col, submatch(1),
+\                                    max_op_width,  submatch(2))'
+
+
+当最终被 substitute() 调用时，这个内嵌的 printf() 将把运算符左侧的所有内容（submatch(1)）靠左对齐（使用 %-*s 占位符）并将结果放到字符宽度为 max_align_col 的字段中。随后将运算符本身（submatch(2)）右对齐（使用 %*s）到第二个字段，其字符宽度为 max_op_width。参考 :help printf()，了解 - 和 * 选项如何修改这里使用的两个 %s 格式说明符（specifier）。
+
+有了这个格式化程序后，第二个 for 循环就可以遍历完整的行号范围，每次取回一行相应的文本缓冲内容：
+
+for linenum in range(firstline, lastline)
+    let oldline = getline(linenum)
+
+
+循环随后使用 substitute() 来转换这些内容，方法是匹配位于任何赋值运算符之前并包括运算符在内的所有内容（使用 ASSIGN_LINE 中的模式）并使用 printf() 调用的结果替换文本（如 FORMATTER 中指定的那样）：
+
+    let newline = substitute(oldline, ASSIGN_LINE, FORMATTER, "")
+    call setline(linenum, newline)
+endfor
+
+
+当 for 循环遍历了所有行之后，这些行中的赋值运算符将被正确对齐。剩余的工作是创建一个键映射来调用 AlignAssignments()，如下所示：
+
+nmap <silent>  ;=  :call AlignAssignments()<CR>
+
+  
+  
+文档选项
+  将打印机的版面设置成横向打印模式  
+
+打印本页
+  将此页作为电子邮件发送  
+
+将此页作为电子邮件发送
+  英文原文  
+
+英文原文
+
+级别： 初级
+
+Damian Conway, Dr., CEO 和首席培训师, Thoughtstream
+
+2009 年 7 月 27 日
+
+    要将应用程序分解为正确的、可维护的组件，从而管理实际编程任务的复杂性，用户定义函数是必不可少的一种工具。本文是 本系列文章 的第二篇，介绍了如何使用 Vimscript 语言创建和部署新函数，并通过一些实际的示例展示这样做的必要性。
+
+  
+关于 Vimscript 和本系列
+Vimscript 是一种功能强大的脚本语言，让您能够修改和扩展 Vim 编辑器。您可以使用它创建新的工具，简化常见任务，甚至重新修改编辑器的已有特性。这份正在发表中的 系列文章 假设您对 Vim 编辑器有一定的了解。您还应该阅读 “使用脚本编写 Vim 编辑器，第 1 部分”，其中介绍了变量、值和表达式，以及构建函数的基础知识。
+
+用户定义函数
+
+Haskell 或 Scheme 程序员会告诉您，函数对于任何严肃的编程语言来说都是最重要的特性。对于 C 或 Perl 程序员，他们也会告诉您完全相同的观点。
+
+函数为严肃的程序员提供了两个基本优势：
+
+   1. 它们能够将复杂的计算任务细分为足够小的部分，从而能够容易地被人类理解。
+   2. 它们允许这些细分后的部分具有逻辑的和可理解的名称，这样就十分适合由人类处理。
+
+Vimscript 是一种严肃的编程语言，因此它天生就支持创建用户定义函数。事实上，它确实提供了比 Scheme、C 或 Perl 更加优秀的 用户定义函数支持。本文探究了 Vimscript 函数的各种特性，并展示了如何使用这些函数以可维护的方式增强并扩展 Vim 的内置函数。
+
+声明函数
+
+Vimscript 中的函数使用 function 关键字定义，后跟函数名，然后是参数列表（这是强制的，即使该函数没有参数）。函数体然后从下一行开始，一直连续下去，直到遇到一个匹配的 endfunction 关键字。例如：
+
+清单 1. 具有正确结构的函数
+
+        
+        function
+        ExpurgateText (text)
+    let expurgated_text = a:text
+
+    for expletive in [ 'cagal', 'frak', 'gorram', 'mebs', 'zarking']
+        let expurgated_text
+        \   = substitute(expurgated_text, expletive, '[DELETED]', 'g')
+    endfor
+
+    return expurgated_text
+endfunction
+      
+
+
+函数返回值使用 return 语句指定。可以根据需要指定任意数量的单独 return 语句。如果函数被用作一个过程，并且没有任何有用的返回值，那么可以不包含 return 语句。然而，Vimscript 函数始终 返回一个值，因此如果没有指定任何 return，那么函数将自动返回 0。
+
+Vimscript 中的函数名必须以大写字母开头：
+
+清单 2. 以大写字母开头的函数名
+
+        
+function SaveBackup ()
+    let b:backup_count = exists('b:backup_count') ? b:backup_count+1 : 1
+    return writefile(getline(1,'$'), bufname('%') . '_' . b:backup_count)
+endfunction
+
+nmap <silent>  <C-B>  :call SaveBackup()<CR>
+
+
+这个例子定义了一个函数，它将递增当前缓冲区的 b:backup_count 变量的值（或初始化为 1，如果尚不存在的话）。函数随后获取当前文件（getline(1,'$')）中的每一行并调用内置的 writefile() 函数来将它们写入到磁盘中。writefile() 的第二个参数是将要写入的新文件的名称；在本例中，为当前文件（bufname('%')）的名称附加上计数器的新值。返回的值为对 writefile() 调用的 success/failure 值。最后，nmap 设置 CTRL-B 以调用函数来创建对当前文件的有限备份。
+
+Vimscript 函数没有使用前导大写字母，相反，可以使用显式的范围前缀声明函数（类似变量，如 第 1 部分 所述）。最常见的选择是 s:，它表示函数对于当前脚本文件是本地函数。如果函数使用这种方式确定范围，那么它的名称就不需要以大写开头；它可以是任意有效标识符。然而，显式确定范围的函数必须始终使用范围前缀进行调用。比如：
+
+清单 3. 使用范围前缀调用函数
+
+        
+        " Function scoped to current script file...
+function s:save_backup ()
+    let b:backup_count = exists('b:backup_count') ? b:backup_count+1 : 1
+    return writefile(getline(1,'$'), bufname('%') . '_' . b:backup_count)
+endfunction
+
+nmap <silent>  <C-B>  :call s:save_backup()<CR>
+
+
+可重新声明的函数
+
+Vimscript 中的函数声明为运行时语句，因此如果一个脚本被加载两次，那么该脚本中的任何函数声明都将被执行两次，因此将重新创建相应的函数。
+
+重新声明函数被看作一种致命的错误（这样做是为了防止发生两个不同脚本同时声明函数的冲突）。这使得很难在需要反复加载的脚本中创建函数，比如自定义的语法突出显示脚本。
+
+因此 Vimscript 提供了一个关键字修饰符（function!），允许在需要时指出某个函数声明可以被安全地重载：
+
+清单 4. 表示某个函数声明可以被安全地重载
+
+        
+        function! s:save_backup ()
+    let b:backup_count = exists('b:backup_count') ? b:backup_count+1 : 1
+    return writefile(getline(1,'$'), bufname('%') . '_' . b:backup_count)
+endfunction
+
+
+对于使用这个修饰过的关键字定义的函数，没有执行任何重新声明检查，因此非常适合用于显式确定范围的函数（在这种情况下，范围已经确保函数不会和其他脚本中的函数发生冲突）。
+
+调用函数
+
+要调用函数并使用它的返回值作为语言表达式的一部分，只需要命名它并附加一个使用圆括号括起的参数列表：
+
+清单 5. 使用函数的返回值
+
+        
+        "Clean up the current line...
+let success = setline('.', ExpurgateText(getline('.')) )
+
+
+但是要注意，与 C 或 Perl 不同，Vimscript 并不 允许您在未使用的情况下抛出函数的返回值。因此，如果打算使用函数作为过程或子例程并忽略它的返回值，那么必须使用 call 命令为调用添加前缀：
+
+清单 6. 在未使用返回值的情况下使用函数
+
+        
+"Checkpoint the text...
+call SaveBackup()
+
+
+否则，Vimscript 将假设该函数调用实际上是一个内置的 Vim 命令，并且很可能会发出报警，指出并不存在这类命令。我们将在本系列的后续文章中查看函数和命令之间的区别。
+
+参数列表
+
+Vimscript 允许您定义显式参数 和可变参数列表，甚至可以将两者结合起来。
+
+在声明了子例程的名称后，您可以立即指定最多 20 个显式命名的参数。指定参数后，通过将 a: 前缀添加到参数名，可以在函数内部访问当前调用的相应参数值：
+
+清单 7. 在函数内部访问参数值
+
+        
+function PrintDetails(name, title, email)
+    echo 'Name:   '  a:title  a:name
+    echo 'Contact:'  a:email
+endfunction
+
+
+如果您不清楚一个函数具有多少个参数，那么可以指定一个可变的参数列表，使用省略号（...）而不是命名参数。在本例中，函数可以使用任意数量的参数调用，并且这些值被收集到一个单一变量中：一个名为 a:000 的数组。为单个参数也提供了位置参数名：a:1、a:2、a:3，等等。参数的数量可以是 a:0。例如：
+
+清单 8. 指定并使用一个可变的参数列表
+
+        
+function Average(...)
+    let sum = 0.0
+
+    for nextval in a:000
+        "a:000 is the list of arguments
+        let sum += nextval
+    endfor
+
+    return sum / a:0
+        "a:0 is the number of arguments
+endfunction
+
+
+注意，在本例中，sum 必须被初始化为一个显式的浮点值；否则，所有后续计算都将使用整数运算计算。
+
+结合命名参数和可变参数
+
+可以在同一个函数中同时使用命名参数和可变参数，只需要将可变参数的省略号放在命名参数列表之后。
+
+例如，假设您希望创建一个 CommentBlock() 函数，它将接收一个字符串并针对不同的编程语言将其格式化为相应的注释块。这类函数始终需要调用者为其提供一个字符串来进行格式化，因此应当使用命名参数。但是，您可能希望注释导入器（introducer）、“boxing” 字符和注释的宽度全部是可选的（在被省略时具有合理的默认值）。那么应当像下面这样调用：
+
+清单 9. 一个简单的 CommentBlock 函数调用
+
+        
+call CommentBlock("This is a comment")
+
+
+并且将返回一个多行字符串包含：
+
+清单 10. CommentBlock 返回
+
+        
+//*******************
+// This is a comment
+//*******************
+
+
+然而，如果提供额外的参数，那么将为注释导入器、“boxing” 字符和注释宽度指定非默认值。因此这个调用将为：
+
+清单 11. 更加复杂的 CommentBlock 函数调用
+
+        
+call CommentBlock("This is a comment", '#', '=', 40)
+
+
+would return the string:
+
+清单 12. CommentBlock 返回
+
+        
+#========================================
+# This is a comment
+#========================================
+
+
+这类函数的可能的实现方式为：
+
+清单 13. CommentBlock 实现
+
+        
+function CommentBlock(comment, ...)
+    "If 1 or more optional args, first optional arg is introducer...
+    let introducer =  a:0 >= 1  ?  a:1  :  "//"
+
+    "If 2 or more optional args, second optional arg is boxing character...
+    let box_char   =  a:0 >= 2  ?  a:2  :  "*"
+
+    "If 3 or more optional args, third optional arg is comment width...
+    let width      =  a:0 >= 3  ?  a:3  :  strlen(a:comment) + 2
+
+    " Build the comment box and put the comment inside it...
+    return introducer . repeat(box_char,width) . "\<CR>"
+    \    . introducer . " " . a:comment        . "\<CR>"
+    \    . introducer . repeat(box_char,width) . "\<CR>"
+endfunction
+
+
+如果至少有一个可选参数（a:0 >= 1），那么导入器参数将指定给第一个选项（即 a:1）；否则，将指定一个默认值 "//"。类似地，如果有两个或多个可选参数（a:0 >= 2），那么 box_char 变量被分配给第二个选项（a:2），或一个默认值 "*"。如果提供了三个或多个可选参数，那么第三个选项被分配给 width 变量。如果没有提供宽度参数，那么将自动根据注释参数本身计算相应的宽度（strlen(a:comment)+2）。
+
+最后，将所有参数值解析后，将构建注释框的顶部和底部行：首先是一个注释导入器，后跟 boxing 字符的重复次数（repeat(box_char,width)），在这两者之间是注释文本本身。
+
+当然，要使用这个函数，需要以某种方式调用它。最理想的方法可能是使用一个插入映射：
+
+清单 14. 使用一个插入映射调用函数
+
+        
+        "C++/Java/PHP comment...
+imap <silent>  ///  <C-R>=CommentBlock(input("Enter comment: "))<CR>
+
+"Ada/Applescript/Eiffel comment...
+imap <silent>  ---  <C-R>=CommentBlock(input("Enter comment: "),'--')<CR>
+
+"Perl/Python/Shell comment...
+imap <silent>  ###  <C-R>=CommentBlock(input("Enter comment: "),'#','#')<CR>
+
+
+对于每一个映射，将首先调用内置的 input() 函数来请求注释文本中的用户类型。CommentBlock() 函数随后被调用，以将文本转换为一个注释块。最后，前导 <C-R>= 插入结果字符串。
+
+注意，第一个映射仅仅传递一个单一参数，因此默认使用 // 作为其注释标记。第二个和第三个映射传递第二个参数来指定 # 或 -- 作为它们各自的注释导入器。最后一个映射传递第三个参数，使得 “boxing” 字符匹配它的注释导入器。
+
+
+
+
+
+
+
+函数和行范围
+
+可以使用一个初始的行范围调用任何标准的 Vim 命令（包括 call），这将针对范围中的每一行重复一次命令：
+
+"Delete every line from the current line (.) to the end-of-file ($)...
+:.,$delete
+
+"Replace "foo" with "bar" everywhere in lines 1 to 10
+:1,10s/foo/bar/
+
+"Center every line from five above the current line to five below it...
+:-5,+5center
+
+可以在任何 Vim 会话中输入 :help cmdline-ranges 来了解更多有关此工具的内容。
+
+对于 call 命令，指定范围将致使所请求的函数被反复调用：对范围中的每一行调用一次。要了解这样做的原因，考虑一下如何编写一个函数来将当前行中的任何 “原始的” & 符号转换为适当的 XML &amp; 实体，但是这样做也足够灵巧，可以忽略任何已经存在于其他实体中的 & 符号。这个功能的实现方式类似如下所示：
+
+清单 15. 转换 & 符号的函数
+
+        
+function DeAmperfy()
+    "Get current line...
+    let curr_line   = getline('.')
+
+    "Replace raw ampersands...
+    let replacement = substitute(curr_line,'&\(\w\+;\)\@!','&amp;','g')
+
+    "Update current line...
+    call setline('.', replacement)
+endfunction
+
+
+DeAmperfy() 中的第一行代码从编辑器缓冲区获取当前行（getline('.')）。第二行代码从当前行中查找其后未 跟随标识符和冒号的 &，使用了否定先行（negative lookahead）模式 '&\(\w\+;\)\@!'（参见 :help \@! 获得更多细节）。substitute() 调用随后使用 XML &amp; 实体替换所有此类 “原始” & 符号。最后，DeAmperfy() 中的第三行代码使用修改后的文本更新当前行。
+
+如果从命令行调用该函数：
+
+:call DeAmperfy()
+
+将只对当前行执行替换。但是如果在 call 之前指定了一个范围：
+
+:1,$call DeAmperfy()
+
+那么将针对范围内的每一行调用一次函数（在本例中，指的是文件中的每一行）。
+
+内部化函数行范围
+
+这种针对每一行反复调用函数 的行为是一种方便的默认行为。然而，有时希望指定一个范围，但是只调用一次函数，然后在函数内部处理范围语义。这对于 Vimscript 也很简单。只需要将一个特殊修饰符（range）附加到函数声明之后：
+
+清单 16. 函数内部的范围语义
+
+        
+function DeAmperfyAll() range
+        "Step through each line in the range...
+    for linenum in range(a:firstline, a:lastline)
+        "Replace loose ampersands (as in DeAmperfy())...
+        let curr_line   = getline(linenum)
+        let replacement = substitute(curr_line,'&\(\w\+;\)\@!','&amp;','g')
+        call setline(linenum, replacement)
+    endfor
+
+    "Report what was done...
+    if a:lastline > a:firstline
+        echo "DeAmperfied" (a:lastline - a:firstline + 1) "lines"
+    endif
+endfunction
+
+
+在参数列表之后指定了 range 修饰符后，使用如下范围调用 DeAmperfyAll() 时：
+
+:1,$call DeAmperfyAll()
+
+将只对函数执行一次调用，而两个特殊参数 a:firstline 和 a:lastline 被设置为范围的第一个行号和最后一个行号。如果未指定任何范围，那么 a:firstline 和 a:lastline 都将被设置为当前行号。
+
+函数首先构建一个包含所有相关行号的列表（range(a:firstline, a:lastline)）。注意，对内置 range() 函数的调用与在函数声明中使用 range 修饰符一点关系也没有。range() 函数只是一个 list 构造函数，非常类似于 Python 中的 range() 函数，或者是 Haskell 或 Perl 中的 .. 运算符。
+
+确定了将要处理的行号列表后，函数使用 for 循环来遍历每个行号：
+
+for linenum in range(a:firstline, a:lastline)
+
+然后相应地更新每一行（正如最初的 DeAmperfy() 所做的那样）。
+
+最后，如果范围涵盖了多个行（即 a:lastline > a:firstline），函数将报告被更新的行的数量。
+
+可视范围
+
+一旦拥有了一个可以操作行范围的函数调用后，一个特别有用的技巧就是通过 Visual 模式（参见 :help Visual-mode 获得更多细节）调用该函数。
+
+例如，如果游标位于文本块的某个位置，那么可以使用下面的代码在周围的段落中编码所有 & 号：
+
+Vip:call DeAmperfyAll()
+
+在 Normal 模式下输入 V 将切换到 Visual 模式。ip 随后将使 Visual 模式突出显示您正位于其中的整个段落。之后，: 将您切换到 Command 模式并自动将命令范围设置为刚刚从 Visual 模式选择的行的范围。此时，调用 DeAmperfyAll() 对所有行执行 deamperfy 操作。
+
+注意，在这个实例中，可以使用下面的代码获得相同的效果：
+
+Vip:call DeAmperfy()
+
+惟一的不同之处在于 DeAmperfy() 函数将被反复调用：针对 Visual 模式下 Vip 中突出显示的每一行调用一次。
+
+
+
+
+
+
+
+用于编码的函数
+
+Vimscript 中的大多数用户定义函数只需要很少的参数，并且通常情况下根本不需要参数。这是因为它们常常直接从当前编辑器缓冲区和上下文信息（比如当前游标位置、当前段落大小、当前窗口大小或当前行的内容）中获得数据。
+
+此外，如果函数通过上下文而不是参数列表包含数据，那么往往更加有用和方便。例如，维护源代码的一个常见问题就是赋值运算符在聚集起来后无法对齐，这将损害代码的可读性：
+
+清单 16. 无法对齐的赋值运算符
+
+        
+let applicants_name = 'Luke'
+let mothers_maiden_name = 'Amidala'
+let closest_relative = 'sister'
+let fathers_occupation = 'Sith'
+
+
+在每次添加新语句时手动重新对齐它们将十分费力：
+
+清单 17. 手动重新对齐赋值运算符
+
+        
+let applicants_name     = 'Luke'
+let mothers_maiden_name = 'Amidala'
+let closest_relative    = 'sister'
+let fathers_occupation  = 'Sith'
+
+
+要让日常编程任务没那么乏味，可以创建一个键映射（比如 ;=），它可以选择当前代码块、定位具有赋值运算符的任何行，并自动对齐这些运算符。如下所示：
+
+清单 18. 对齐赋值运算符的函数
+
+        
+function AlignAssignments ()
+    "Patterns needed to locate assignment operators...
+    let ASSIGN_OP   = '[-+*/%|&]\?=\@<!=[=~]\@!'
+    let ASSIGN_LINE = '^\(.\{-}\)\s*\(' . ASSIGN_OP . '\)'
+
+    "Locate block of code to be considered (same indentation, no blanks)
+    let indent_pat = '^' . matchstr(getline('.'), '^\s*') . '\S'
+    let firstline  = search('^\%('. indent_pat . '\)\@!','bnW') + 1
+    let lastline   = search('^\%('. indent_pat . '\)\@!', 'nW') - 1
+    if lastline < 0
+        let lastline = line('$')
+    endif
+
+    "Find the column at which the operators should be aligned...
+    let max_align_col = 0
+    let max_op_width  = 0
+    for linetext in getline(firstline, lastline)
+        "Does this line have an assignment in it?
+        let left_width = match(linetext, '\s*' . ASSIGN_OP)
+
+        "If so, track the maximal assignment column and operator width...
+        if left_width >= 0
+            let max_align_col = max([max_align_col, left_width])
+
+            let op_width      = strlen(matchstr(linetext, ASSIGN_OP))
+            let max_op_width  = max([max_op_width, op_width+1])
+         endif
+    endfor
+
+    "Code needed to reformat lines so as to align operators...
+    let FORMATTER = '\=printf("%-*s%*s", max_align_col, submatch(1),
+    \                                    max_op_width,  submatch(2))'
+
+    " Reformat lines with operators aligned in the appropriate column...
+    for linenum in range(firstline, lastline)
+        let oldline = getline(linenum)
+        let newline = substitute(oldline, ASSIGN_LINE, FORMATTER, "")
+        call setline(linenum, newline)
+    endfor
+endfunction
+
+nmap <silent>  ;=  :call AlignAssignments()<CR>
+
+
+AlignAssignments() 函数首先创建两个正则表达式（参见 :help pattern 获得有关 Vim 正则表达式语法的必要细节）：
+
+let ASSIGN_OP   = '[-+*/%|&]\?=\@<!=[=~]\@!'
+let ASSIGN_LINE = '^\(.\{-}\)\s*\(' . ASSIGN_OP . '\)'
+
+
+ASSIGN_OP 中的模式匹配任何标准的赋值运算符：=、+=、-=、*=，等等，但是注意不要匹配其他包含 = 的运算符，比如 == 和 =~。如果您喜欢的语言中包含其他赋值运算符（比如 .= 或 ||= 或 ^=），那么可以扩展 ASSIGN_OP 正则表达式来识别这些运算符。另一种选择是，可以重新定义 ASSIGN_OP 来识别其他 “可对齐的” 类型，比如注释导入器或列表及，并对齐它们。
+
+ASSIGN_LINE 中的模式只在行的起始部分（^）开始匹配，首先匹配最小字符数（.\{-}），然后匹配任何空白（\s*），最后匹配赋值运算符。
+
+注意，最初的 “最小字符数” 子模式和运算符子模式都在捕捉圆括号内进行了指定：\(...\)。这两个正则表达式组件捕获的子字符串稍后将通过调用内置 submatch() 函数来提取；具体来讲，通过调用 submatch(1) 来提取运算符前面的所有内容，然后调用 submatch(2) 来提取运算符本身。
+
+AlignAssignments() 随后查找它将对其进行操作的行范围：
+
+let indent_pat = '^' . matchstr(getline('.'), '^\s*') . '\S'
+let firstline  = search('^\%('. indent_pat . '\)\@!','bnW') + 1
+let lastline   = search('^\%('. indent_pat . '\)\@!', 'nW') - 1
+if lastline < 0
+    let lastline = line('$')
+endif
+
+
+在此前的例子中，函数依赖于一个显式的命令范围或一个 Visual 模式选择来确定要进行处理的行，但是这个函数则直接计算它自己的行范围。具体来讲，它首先调用内置 matchstr() 函数来确定出现在当前行（getline('.')）起始部分的前导空白（'^\s*'）。随后在 indent_pat 中构建一个新的正则表达式，精确匹配任何非空行的起始处的相同序列的空白（即拖尾 '\S'）。
+
+AlignAssignments() 随后调用内置 search() 函数向上搜索（使用标记 'bnW'）并定位位于游标上方的第一个不 具有相同缩进的行。向此行号加 1 将得出感兴趣的范围的起始行号，也就是说，具有相同缩进的第一个相邻行就作为当前行。
+
+第二个 search() 调用随后向下搜索（'nW'）来判断 lastline：具有相同缩进的最后一个相邻行。对于这种情况，搜索可能会到达文件的末尾，并且没有找到具有不同缩进的行，这种情况下 search() 将返回 -1。要正确地处理这种情况，随后的 if 语句需要显式地将 lastline 设置为文件末端的行号（即设置为由 line('$') 返回的行号）。
+
+这两个搜索的结果将使 AlignAssignments() 知道紧邻着当前行的上方或下方、具有与当前行完全相同的缩进的完整行范围。它使用这些信息来确保只对位于同一代码块中相同范围级别的赋值语句执行对齐。当然，如果代码的缩进不能正确反映它的范围，那么这种情况下必须进行重新格式化。
+
+AlignAssignments() 中的第一个 for 循环判断其中的赋值运算符应当对齐的列。实现方法是遍历所选范围内的行列表（由 getline(firstline, lastline) 取回的行）并检查每个行是否包含赋值运算符（运算符的前面可能包含空格）：
+
+let left_width = match(linetext, '\s*' . ASSIGN_OP)
+
+
+如果该行中没有运算符，那么内置 match() 函数将无法找到匹配，因此将返回 -1。对于这种情况，循环将直接跳到下一行。如果存在 运算符，那么 match() 将返回在其中显示运算符的（正）指数。if 语句随后使用内置 max() 函数判断这个最近的列位置是否比此前找到的运算符更靠右，从而跟踪所需的最大列位置来对齐范围内的所有赋值运算符：
+
+let max_align_col = max([max_align_col, left_width])
+
+
+if 中剩下的两行代码使用内置 matchstr() 函数检索实际的运算符，然后使用内置 strlen() 函数判断行的长度（"=" 的长度为 1，'+='、'-=' 的长度为 2，等等）。max_op_width 变量随后被用来跟踪所需的最大宽度，以对范围内的各种运算符执行对齐：
+
+let op_width     = strlen(matchstr(linetext, ASSIGN_OP))
+let max_op_width = max([max_op_width, op_width+1])
+
+
+一旦确定了赋值区域的位置和宽度，剩下的就是遍历范围中的行并相应地执行重新格式化。要执行重新格式化，函数将使用内置的 printf() 函数。这个函数十分有用，但是它的命名非常糟糕。它与 C、Perl 或 PHP 中的 printf 函数不同。实际上，它类似于以上这些语言中的 sprintf 函数。也就是说，在 Vimscript 中，printf 并不会输出其数据参数列表的格式化后的版本；它会返回一个字符串，其中包含了数据参数列表的格式化后的版本。
+
+理想情况下，要重新格式化每一行，AlignAssignments() 将使用内置的 substitute() 函数，并使用经过 printf 重新整理后的文本替换运算符之前的所有内容。不幸的是，substitute() 要求使用固定的字符串作为它的替代值，而不是一个函数调用。
+
+因此，要使用 printf() 来重新格式化每个替换文本，需要使用特殊的嵌入式替换形式："\=expr"。替换字符串中的前导 \= 要求 substitute() 对随后的表达式求值并使用结果作为替换文本。注意，这类似于 Insert 模式下的 <C-R>= 机制，惟一不同的是这种奇妙的行为只针对内置 substitute() 函数的替换字符串（或在标准 :s/.../.../ Vim 命令中）。
+
+在本例中，特殊替换形式对于每一行来说都将是相同的 printf ，因此它将在第二个 for 循环开始之前被预先存储到 FORMATTER 变量中：
+
+let FORMATTER = '\=printf("%-*s%*s", max_align_col, submatch(1),
+\                                    max_op_width,  submatch(2))'
+
+
+当最终被 substitute() 调用时，这个内嵌的 printf() 将把运算符左侧的所有内容（submatch(1)）靠左对齐（使用 %-*s 占位符）并将结果放到字符宽度为 max_align_col 的字段中。随后将运算符本身（submatch(2)）右对齐（使用 %*s）到第二个字段，其字符宽度为 max_op_width。参考 :help printf()，了解 - 和 * 选项如何修改这里使用的两个 %s 格式说明符（specifier）。
+
+有了这个格式化程序后，第二个 for 循环就可以遍历完整的行号范围，每次取回一行相应的文本缓冲内容：
+
+for linenum in range(firstline, lastline)
+    let oldline = getline(linenum)
+
+
+循环随后使用 substitute() 来转换这些内容，方法是匹配位于任何赋值运算符之前并包括运算符在内的所有内容（使用 ASSIGN_LINE 中的模式）并使用 printf() 调用的结果替换文本（如 FORMATTER 中指定的那样）：
+
+    let newline = substitute(oldline, ASSIGN_LINE, FORMATTER, "")
+    call setline(linenum, newline)
+endfor
+
+
+当 for 循环遍历了所有行之后，这些行中的赋值运算符将被正确对齐。剩余的工作是创建一个键映射来调用 AlignAssignments()，如下所示：
+
+nmap <silent>  ;=  :call AlignAssignments()<CR>
+
+
+
+
+
+结束语
+
+为了处理真实 Vim 编程任务的复杂性，需要将应用程序分解为正确的、可维护的组件，而函数是实现这个过程的基本工具。
+
+Vimscript 允许您使用固定的或可变的参数列表来定义函数，并使它们通过自动的或用户控制的方式与编辑器的文本缓冲中的行范围进行交互。函数可以回调到 Vim 的内置特性（比如，回调到 search() 或 substitute() 文本），并且它们可以直接访问编辑器状态信息（比如通过 line('.') 确定游标所在的当前行）或者与当前进行编辑的任何文本缓冲进行交互（通过 getline() 和 setline()）。
+
+这无疑提供了非常强大的功能，但是通过编程的方式操作状态和内容始终受限于数据表示的整洁性和准确性，我们的代码将对这些数据进行处理。到目前为止，该 系列文章 一直关注单个标量函数（数值、字符串和布尔值）的使用。在接下来两篇文章中，我们将探讨更强大、更方便的数据结构的应用：有序列表和随机访问字典。 
+
+
+
+--------------------------------------
+
+神奇的VIM
+
+  
+    当今世界，文本编辑器种类繁多，大有'乱花渐欲迷人眼'之势。中国有句古语：手巧不如家什妙，作为IT业的专业人士，选择一款优秀的编辑软件至关重要。笔者认为：LINUX下的VIM※以其强大的功能和无穷的魅力将使您终生受益。
+
+由于被广泛移植，无论是PC 机的DOS和WINDOWS，还是RISC/6000的AIX，乃至于IBM的大型机S/390，都能见到VIM的身影。然而，对于初学者，VIM的用户界面与使用方法非常不符合常规，甚至认为它比较混乱，无所适从。事实上，VIM编辑器是专门为经验丰富的用户设计的，它的界面和使用方法提供了更快的速度和更强的功能。对于熟知它的用户，VIM的许多特性节省了时间和击键次数，并可以完成一些其他编辑器无法完成的功能。
+
+学习的最好方法是实践，唯有如此，才能真正掌握其中的精髓。文中列举的实例，都是笔者在实际工作中遇到的，具有一定的代表性，请大家在阅读的过程中仔细体会。
+
+好了，现在让我们共同畅游神奇的VIM的世界！
+
+例一、两个常用的指令序列
+
+   1. xp 左右交换光标处两字符的位置。
+   2. ddp 上下交换光标处两行的位置。
+
+
+
+
+例二、重复输入同一字符
+
+有时，我们可能想多次输入同一字符，VIM的插入功能可以很好的完成这项工作
+
+命令 80i=^ESC 一次可以输入80个字符= ,当然，80a=^ESC 也可以完成上述功能。
+
+请注意：此处的^ESC表示键盘左上方上的ESC键。
+
+
+
+
+例三、将两个文本数据文件按行逐条合并，并给出标尺
+
+数据文件1内容如下：
+1-----
+2-----
+3-----
+
+数据文件2内容如下：
+1=====
+2=====
+3=====
+
+要求的结果如下：
+|--------1---------2---------3---------4---------5
+1-----
+1=====
+|--------1---------2---------3---------4---------5
+2-----
+2=====
+|--------1---------2---------3---------4---------5
+3-----
+3=====
+
+也许您会说，这还不简单，无非是反复拷贝、粘贴，任何一款文本编辑器都能完成上述功能。可是，如果这两个文件都很大，每个文件都成千上万行，恐怕简单的拷贝、粘贴就难以胜任了。因此，我们所关心的，是找到一种行之有效的方法，把枯燥乏味的工作留给计算机，我们只需发布指令。为达到此目的，请按以下步骤执行：
+
+㈠、将两文件合并，结果如下
+1-----
+2-----
+3-----
+1=====
+2=====
+3=====
+
+㈡、在两文件头尾相接的地方插入标志行，用以区分两个文件，本文采用的是一整行！字符
+1-----
+2-----
+3-----
+!!!!!!!!!!!!!!!!!!!!!!!!
+1=====
+2=====
+3=====
+
+㈢、在标志行的下方输入标尺
+1-----
+2-----
+3-----
+!!!!!!!!!!!!!!!!!!!!!!!!
+|--------1---------2---------3---------4---------5
+1=====
+2=====
+3=====
+
+㈣、执行宏命令脚本merge_2r.vim，即在VIM编辑器中按如下键 :so merge_2r.vim 回车
+
+㈤、按下键盘上的=键，执行的结果如下
+|--------1---------2---------3---------4---------5
+1-----
+1=====
+|--------1---------2---------3---------4---------5
+2-----
+2=====
+|--------1---------2---------3---------4---------5
+3-----
+3=====
+|--------1---------2---------3---------4---------5
+!!!!!!!!!!!!!!!!!!!!!!!!
+|--------1---------2---------3---------4---------5
+
+㈥、将最后三行删除，即可得到我们需要的结果
+|--------1---------2---------3---------4---------5
+1-----
+1=====
+|--------1---------2---------3---------4---------5
+2-----
+2=====
+|--------1---------2---------3---------4---------5
+3-----
+3=====
+
+怎么样，简单吗？请大家自己实际尝试一下。下面，我来详细讲解宏命令脚本merge_2r.vim 。
+
+该脚本内容如下：
+
+"--------------------------------------------------------------------
+"Macro Function :  Merge   File1 And File2,Have Ruler in every record
+"          Date :  2001/12/01
+"        Author :  Yan Shi
+"--------------------------------------------------------------------
+"1----- 
+"2-----                                               }  Sample File1
+"3-----
+"!!!!!!!!!!!!!!!!!!!!!!!!                                  Flag Row
+"|--------1---------2---------3---------4---------5          Ruler
+"1===== 
+"2=====                                               }  Sample File2
+"3===== 
+"--------------------------------------------------------------------
+:1
+:map = ma/!!!!!^M+:.co 'a-1^M/!!!!!^M2+:.m'a^M+=
+
+
+前14行每行都以"开始，表明该行是注释行，实际并不执行，只是方便读者阅读，只有最后两行才是真正的代码行。请注意：本例中的^M表示键盘上的回车键，并非^和M两个字符。为了讲述清楚，我把命令行分解开，逐一说明。
+
+首先将第一行置为当前行，然后执行map命令，将一大串VIM指令映像给字符=。这一大串VIM指令共分9步执行：
+
+   1.
+
+      ma 将数据文件一的第一行标记为a
+      1-----
+      2-----
+      3-----
+      !!!!!!!!!!!!!!!!!!!!!!!!
+      |--------1---------2---------3---------4---------5
+      1=====
+      2=====
+      3=====
+   2.
+
+      /!!!!!^M 找到标志行,置为当前行
+      1-----
+      2-----
+      3-----
+      !!!!!!!!!!!!!!!!!!!!!!!!
+      |--------1---------2---------3---------4---------5
+      1=====
+      2=====
+      3=====
+   3.
+
+      + 光标下移一行,即把标尺行置为当前行
+      1-----
+      2-----
+      3-----
+      !!!!!!!!!!!!!!!!!!!!!!!!
+      |--------1---------2---------3---------4---------5
+      1=====
+      2=====
+      3=====
+   4.
+
+      :.co 'a-1^M 把标尺行复制到标记行(数据文件一的第一行)的上方
+      |--------1---------2---------3---------4---------5
+      1-----
+      2-----
+      3-----
+      !!!!!!!!!!!!!!!!!!!!!!!!
+      |--------1---------2---------3---------4---------5
+      1=====
+      2=====
+      3=====
+   5.
+
+      /!!!!!^M 再次找到标志行,置为当前行
+      |--------1---------2---------3---------4---------5
+      1-----
+      2-----
+      3-----
+      !!!!!!!!!!!!!!!!!!!!!!!!
+      |--------1---------2---------3---------4---------5
+      1=====
+      2=====
+      3=====
+   6.
+
+      2+ 光标下移2行，即数据文件二的第一行置为当前行
+      |--------1---------2---------3---------4---------5
+      1-----
+      2-----
+      3-----
+      !!!!!!!!!!!!!!!!!!!!!!!!
+      |--------1---------2---------3---------4---------5
+      1=====
+      2=====
+      3=====
+   7.
+
+      :.m'a^M 把数据文件二的第一行移至标记行的下方
+      |--------1---------2---------3---------4---------5
+      1-----
+      1=====
+      2-----
+      3-----
+      !!!!!!!!!!!!!!!!!!!!!!!!
+      |--------1---------2---------3---------4---------5
+      2=====
+      3=====
+   8.
+
+      + 光标下移一行，即数据文件一的第二行置为当前行
+      |--------1---------2---------3---------4---------5
+      1-----
+      1=====
+      2-----
+      3-----
+      !!!!!!!!!!!!!!!!!!!!!!!!
+      |--------1---------2---------3---------4---------5
+      2=====
+      3=====
+   9.
+
+      = 这一步很关键，是典型的递归调用，重复完成以上步骤
+
+
+
+例四、在文件中置入行号
+
+工作中，我们有时希望把行号置入文件中，而VIM提供的功能 :set nu 只能显示行号，不能编辑或将其置入文件当中，下面的宏命令脚本row_num.vim可以完成此项功能。
+
+"------------------------------------------
+"Macro Function :  Source File Add Row_Num
+"          Date :  2001/12/01
+"        Author :  Yan Shi
+"------------------------------------------
+:%s/^/^I/
+:$
+:let end=line(".")
+:1
+"------------------------------------------
+:let num=1
+:while num<=end
+    :let  line=getline(".")
+    :let  temp=substitute(line,$,num,"")
+    :call setline(".",temp)
+    :+
+    :let  num=num+1
+:endwhile
+"------------------------------------------
+
+
+请注意：本例中的^I表示键盘上的TAB键，并非^和I两个字符。下面，我针对该宏命令脚本逐一讲解。
+
+:%s/^/^I/           每一行的行首添加一个TAB字符
+:$                  到文件的末行
+:let end=line(".")  末行的行号 ==〉变量 END，函数line的功能是取得指定行的行号，此处参数"."表示当前行
+:1                  到文件的首行
+"------------------------------------------
+:let num=1          1 ==〉计数器
+:while num<=end
+    :let  line=getline(".")    取当前行的内容 ==〉变量 LINE
+    :let  line=substitute(line,$,num,"")    在变量 LINE 的前面置入行号
+    :call setline(".",line)    将变量 LINE 的内容写回当前行
+    :+              下移一行
+    :let  num=num+1 计数器加一
+:endwhile           循环执行，直到文件结束
+"------------------------------------------
+
+
+有关正则表达式的使用
+
+UNIX/LINUX 下的很多工具之所以强大、灵活，关键是因为有了正则文法和元字符，这也是VIM乃至UNIX/LINUX系统的精华所在。正因为使用灵活，因此掌握起来比较吃力，如果不是真正理解，实际运用中会出现千奇百怪的错误。因此，有必要对这部分知识多花些气力。下面结合具体实例讲解。
+
+
+
+例五、有一文件，包含某外企的中国员工的资料，首先是姓名，然后是两个空格,其次是15位身份证号码。
+
+zhang.fei  430759701022003
+diao.chan  651302801225012
+guan.yu  342869680413001
+xi.shi  120638780214006
+liu.bei  210324650708001
+
+
+现在，有以下问题需要解决：
+
+   1. 按照外国人的习惯，应该是名在前，姓在后。因此，文件中的姓名字段需要修改。
+   2. 姓与名的首字母应该大写。
+   3. 根据身份证号码，还可以判断出生年月日，将其作为一个新字段添加。
+   4. 根据身份证号码，可以判断出性别。若为男性，添加male，若为女性，添加female 。
+   5. 将男女员工分开，男员工在前，女员工在后。
+   6. 将各字段数据左对齐
+
+最终结果如下：
+
+Fei.Zhang   430759701022003  1970/10/22  male  
+Yu.Guan     342869680413001  1968/04/13  male  
+Bei.Liu     210324650708001  1965/07/08  male  
+-----------------------------------------------
+Chan.Diao   651302801225012  1980/12/25  female
+Shi.Xi      120638780214006  1978/02/14  female
+
+
+为了完成上述功能，只需执行脚本employee.vim ，使用方法为 :so employee.vim 回车即可。
+
+脚本内容如下：
+
+:%s/  /          /
+:%s/\(............\)\(  *\)/\1/
+:%s/\([A-Za-z][A-Za-z]*\)\(\.\)\([A-Za-z][A-Za-z]*\)/\u\3\2\u\1/
+:%s/$/  xxxxxx/
+:%s/\([0-9]\{6}\)\([0-9]\{6}\)\([0-9]\{3}\)  \(xxxxxx\)/\1\2\3  \2/
+:%s/\(..\)\(..\)\(..\)$/19\1\/\2\/\3
+:%s/$/  xxxxxx/
+:%s/\([0-9]\{14}[13579]\)\(.*\)\(xxxxxx\)/\1\2male  /
+:%s/\([0-9]\{14}[02468]\)\(.*\)\(xxxxxx\)/\1\2female/
+:$
+:s/.*/&^M-----------------------------------------------
+:g/female/.m$
+
+
+在这个脚本中,使用了大量的正则表达式，这里仅对涉及到的正则表达式做一简要介绍。有关正则表达式的内容相当多，本文不可能占用大量篇幅叙述，请大家谅解。
+
+% 地址范围符号，代表文件中的所有行,作用等同于地址范围 1,$
+. 与任意单字符(换行符除外)匹配，例如 y.s 可以匹配 yas y.s 或 y s 等等。
+* 与前一字符的0次或多次出现匹配，例如 y*s 可以匹配 yys yyyyys 或 s 等等。
+$ 与行尾匹配。
+& 代表模式匹配中出现的字符串，例如 s/abc/&def 是把当前行的abc替换成abcdef 。
+[] 匹配[]中出现的字符，例如[abc]匹配字符 a，b 或 c ，[a-zA-Z]匹配所有的英文字符。
+\( \) \(和\)之间出现的内容可以由\num来替代。
+\1\2\3 替代\(和\)之间出现的内容。
+\u 将后续字符串的首字母大写。
+\{num} 与前一字符的num次出现匹配。
+
+现在，我们对脚本逐条讲解，希望能帮助大家理解正则文法。
+
+⑴:%s/ / /
+将文件中每行出现的2个空格替换为10个空格。
+
+zhang.fei          430759701022003
+diao.chan          651302801225012
+guan.yu          342869680413001
+xi.shi          120638780214006
+liu.bei          210324650708001
+
+
+⑵:%s/\(............\)\( *\)/\1/
+保留行首的12个字符，将其余的空格删除，这样，前两个字段就对齐了。
+
+zhang.fei   430759701022003
+diao.chan   651302801225012
+guan.yu     342869680413001
+xi.shi      120638780214006
+liu.bei     210324650708001
+
+
+⑶:%s/\([A-Za-z][A-Za-z]*\)\(\.\)\([A-Za-z][A-Za-z]*\)/\u\3\2\u\1/
+将文件中每行出现的雇员姓名互换，并将首字母大写。
+
+Fei.Zhang   430759701022003
+Chan.Diao   651302801225012
+Yu.Guan     342869680413001
+Shi.Xi      120638780214006
+Bei.Liu     210324650708001
+
+
+⑷:%s/$/ xxxxxx/
+在每一行的行尾添加2个空格和6个x
+
+Fei.Zhang   430759701022003  xxxxxx
+Chan.Diao   651302801225012  xxxxxx
+Yu.Guan     342869680413001  xxxxxx
+Shi.Xi      120638780214006  xxxxxx
+Bei.Liu     210324650708001  xxxxxx
+
+
+⑸:%s/\([0-9]\{6}\)\([0-9]\{6}\)\([0-9]\{3}\) \(xxxxxx\)/\1\2\3 \2/
+将xxxxxx替换成出生年月日。
+
+Fei.Zhang   430759701022003  701022
+Chan.Diao   651302801225012  801225
+Yu.Guan     342869680413001  680413
+Shi.Xi      120638780214006  780214
+Bei.Liu     210324650708001  650708
+
+
+⑹:%s/\(..\)\(..\)\(..\)$/19\1\/\2\/\3
+将年月日用/字符分隔，并在年前添加19。
+
+Fei.Zhang   430759701022003  1970/10/22
+Chan.Diao   651302801225012  1980/12/25
+Yu.Guan     342869680413001  1968/04/13
+Shi.Xi      120638780214006  1978/02/14
+Bei.Liu     210324650708001  1965/07/08
+
+
+⑺:%s/$/ xxxxxx/
+在每一行的行尾添加2个空格和6个x
+
+Fei.Zhang   430759701022003  1970/10/22  xxxxxx
+Chan.Diao   651302801225012  1980/12/25  xxxxxx
+Yu.Guan     342869680413001  1968/04/13  xxxxxx
+Shi.Xi      120638780214006  1978/02/14  xxxxxx
+Bei.Liu     210324650708001  1965/07/08  xxxxxx
+
+
+⑻:%s/\([0-9]\{14}[13579]\)\(.*\)\(xxxxxx\)/\1\2male /
+身份证号码末位是奇数的，将xxxxxx替换成male
+
+Fei.Zhang   430759701022003  1970/10/22  male  
+Chan.Diao   651302801225012  1980/12/25  xxxxxx
+Yu.Guan     342869680413001  1968/04/13  male  
+Shi.Xi      120638780214006  1978/02/14  xxxxxx
+Bei.Liu     210324650708001  1965/07/08  male  
+
+
+⑼:%s/\([0-9]\{14}[02468]\)\(.*\)\(xxxxxx\)/\1\2female/
+身份证号码末位是偶数的，将xxxxxx替换成female
+
+Fei.Zhang   430759701022003  1970/10/22  male  
+Chan.Diao   651302801225012  1980/12/25  female
+Yu.Guan     342869680413001  1968/04/13  male  
+Shi.Xi      120638780214006  1978/02/14  female
+Bei.Liu     210324650708001  1965/07/08  male  
+
+
+⑽:$ 到文件的最后一行
+
+⑾:s/.*/&^M-----------------------------------------------
+在文件的最末行插入一行 "-" 字符。
+
+Fei.Zhang   430759701022003  1970/10/22  male  
+Chan.Diao   651302801225012  1980/12/25  female
+Yu.Guan     342869680413001  1968/04/13  male  
+Shi.Xi      120638780214006  1978/02/14  female
+Bei.Liu     210324650708001  1965/07/08  male  
+-----------------------------------------------
+
+
+⑿:g/female/.m$
+将所有的女员工记录移至文件尾。
+
+Fei.Zhang   430759701022003  1970/10/22  male  
+Yu.Guan     342869680413001  1968/04/13  male  
+Bei.Liu     210324650708001  1965/07/08  male  
+-----------------------------------------------
+Chan.Diao   651302801225012  1980/12/25  female
+Shi.Xi      120638780214006  1978/02/14  female
+
+
+笔者目前正在为某外资公司从事大型机（IBM S/390）的软件开发，一切工作都在TSO环境中进行。为了对编写的程序进行测试，必须准备测试数据。有过大型机开发经验的人会知道，通过TSO，输入字符型数据还可以，如果要输入16进制数据，操作起来很麻烦。因为16进制数是纵向排列的，输入时既不方便，又很容易错位。怎么解决呢？我尝试了几种办法，实际证明，用VIM最方便。
+
+
+
+
+例六、下列数据 1234567890ABCDEF ，将其变成 13579ACE 24680BDF 的形式，这样，数据就可以很方便的粘贴到TSO环境中了。
+
+下面给出宏命令脚本change_d.vim
+
+"----------------------------------------------------
+"Macro Function :  Convert Char Arrange Direction
+"
+"        Sample :  40 50 60 ==> 4 5 6
+"                               0 0 0
+"          Date :  2001/12/01
+"        Author :  Yan Shi
+"----------------------------------------------------
+:s/.*/&^M/
+:1
+:map = malx+$p-`al=
+
+
+说明如下:
+
+⑴ :s/.*/&^M/             在数据行下方添加一空行。
+⑵ :1                     回到文件的首行的首字符。
+⑶ :map = malx+$p-`al=    将一大串VIM命令映像给字符=
+① ma  将首字符标记为a
+② l   光标右移一个字符
+③ x   删除光标处字符
+④ +   移至下一行
+⑤ $   到行尾
+⑥ p   将删除的字符粘贴
+⑦ -   回至上一行
+⑧ `a  返回到标记字符处
+⑨ l   光标右移一个字符
+⑩ =   递归调用,重复以上步骤，直到将该行所有的数据处理完。
+
+
+上面的这几个实例，展示了VIM强大的文本处理功能，但这远不能覆盖其全貌。VIM的命令很多，而且使用灵活，需要狠下一番气力才能熟练掌握。笔者年龄尚小，经验还很欠缺，希望本文能够起到抛砖引玉的作用。由于时间的原因，上述实例仅在DOS和WINDOWS环境下测试，没有在其他系统下进行进一步的测试，希望各位同行、前辈不吝赐教，谢谢！
+
+※ VIM 意为 VI Improved ，与VI99%向下兼容。而且，VIM提供了许多VI不具备的功能，内置了诸多函数，因此，建议有经验的VI用户对VIM有所了解，您会发现，转向VIM是明智之举。欲查询有关VIM的资料，请参考 http://www.vim.org
+
+注：本文使用 VIM 6.0 版本
+
+-----------------------------------------------------------------
+
+
+Vim Cookbook
+by Steve Oualline
+
+This is the Vim cookbook page. It contains short recipes for doing many simple and not so simple things in Vim. You should already know the basics of Vim, however each command is explained in detail.
+
+Each set of instructions is a complete package. Feel free to pick and choose what you need.
+Contents
+
+Character twiddling
+Interactively replacing one word with another
+Interactively replacing one word with another (command line method)
+Replacing one word with another using one command
+Moving Text (Vi style commands)
+Moving Text (Visual mode)
+Copying a block of text from one file to another
+Copying a block of text from one file to another (Visual Method)
+Sorting a section (Vi Style)
+Sorting a section (Visual Method)
+Dealing with Makefile and other SOB files
+Formatting a text paragraph
+Finding a procedure in a C program
+Drawing comment boxes
+Reading a man page
+Removing carriage returns from MS-DOS file
+Trimming the blanks off an end of line
+Oops, I left the file write protected
+Changing "Last, First" to "First Last"
+How to edit all the files containing a given word
+How to edit all the files containing a given word using the built-in grep
+Character twiddling
+
+If you type fast your fingers can easily get ahead of your mind. Frequently people transpose characters. For example the word "the" comes out "teh".
+
+To swap two characters, for example "e" with "h", put the cursor on the cursor on the "e" and type xp.
+
+The "x" command deletes a character (the "e") and the "p" pastes it after the cursor (which is now placed over the "h".)
+Interactively replacing one word with another (n. method)
+Suppose you want to replace every occurrence of the word "idiot" with the word "manager". But you want the chance to review each change before you do it.
+
+Here's what you do:
+
+1. 	1G 	Go to the top of the document
+2. 	/idiot<enter> 	Find the first occurrence of the word "idiot"
+3. 	cwmanager 	Change the word (cw) to manager.
+4. 	n 	Repeat the last search (find the next idiot.)
+5. 	. 	Repeat the last edit (change one word to manager)
+(If you do not want to change the word, skip this step.)
+
+Repeat steps 4 and 5 until you have replaced all occurred.
+
+    The Virgin What!?
+
+    A church had just bought their first computer and were learning how to use it. The church secretary decided to set up a form letter to be used in a funeral service. Where the person's name was to be she put in the word "<name>". When a funeral occurred she would change this word to the actual name of the departed.
+
+    One day, there were two funerals, first for a lady named Mary, then later one for someone named Edna. So the secretary used global replace to change "<name>" to "Mary." So far so good. Next she generated the service for the second funeral by changing the word "Mary" to "Edna." That was a mistake
+
+    Imagine the Minister's surprise when he started reading the part containing the Apostle's Creed and saw, "Born of the Virgin Edna." 
+
+Interactively replacing one word with another (command line method)
+Suppose you want to replace every occurrence of the word "idiot" with the word "manager". But you want the chance to review each change before you do it.
+
+Execute the command:
+
+:%s/\<idiot\>/manager/gc
+
+This command will make the change and pause after each change to give you a chance to confirm it. You can enter "y" to accept the change or "n" to not accept it.
+
+The parts of this command are:
+
+    : 	Enter command mode
+    % 	Perform this command on all lines (% is a synomim for the first to last line.)
+    s 	The short form of the :substitute command.
+    /\<idiot\>/ 	This text specifies the text we are looking for wand want. The \< tells Vim to match a word start and the \> tells Vim to match the end of a word.
+    /manager/ 	The replacement text
+    gc 	The flags. These are
+
+    g
+        Global -- Change every occurance, not use the first one on each line
+    c
+        Confirm -- Ask before making each change
+
+Replacing one word with another using one command
+Suppose you want to replace every occurrence of the word "idiot" with the word "manager". No confirmation needed because all idiots are managers.
+
+Use the command:
+
+:%s/\<idiot\>/manager/g
+
+The parts of this command are:
+
+    : 	Enter command mode
+    % 	Perform this command on all lines (% is a synomim for the first to last line.)
+    s 	The short form of the :substitute command.
+    /\<idiot\>/ 	This text specifies the text we are looking for wand want. The \< tells Vim to match a word start and the \> tells Vim to match the end of a word.
+    /manager/ 	The replacement text
+    g 	Global flag -- This flag tells Vim to change every occurance on the line, not use the first one.
+
+Moving Text (Vi style commands)
+
+Suppose you want to move a paragraphs from the top of the document to the bottom. There are several ways of doing this. In this example, we do it using Vi style command. In the next section Moving Text (Visual mode) we do it using using the Vim visual commands.
+
+To do the move the commands:
+Command 	Explaination
+1. 	  	Move the cursor to the top of the paragraph you want to move.
+2. 	ma 	Place a mark named "a" at this location. (Vim will give you no indication that this command has been executed. In other words, the screen will not change.)
+3. 	  	Move the cursor to the bottom of the paragraph to be moved.
+4. 	d'a 	Delete to mark "a". This puts the deleted text in a cut buffer.
+5. 	  	Move the cursor to line where the text is to go. The paragraph will be placed after this one.
+6. 	p 	Paste the text in below the cursor.
+Moving Text (Visual Method)
+
+Suppose you want to move a paragraphs from the top of the document to the bottom. There are several ways of doing this. In this example, we do it using the Vim Visual mode. In the previous section Moving Text (old method) we do it using using the Vi style commands.
+
+To do the move the commands:
+Command 	Explaination
+1. 	  	Move the cursor to the top of the paragraph you want to move.
+2. 	v 	Start visual mode. (If you want to move only full lines, use the V command which starts visual line mode.
+3. 	  	Move the cursor to the bottom of the paragraph to be moved. The text to be moved will be hightlighted.
+4. 	d 	Perform a visual delete. In other words delete the highlighted text.
+5. 	  	Move the cursor to line where the text is to go. The paragraph will be placed after this one.
+6. 	p 	Paste the text in below the cursor.
+Copying a block of text from one file to another (Vi Style)
+
+There is more than one way to copy text between files. In this section we use the more triditionally Vi commands. In the next section Copying using visual mode, we perform the same operations using the Visual mode.
+
+To copy a block of text between files execute the commands:
+Command 	Explaination
+1. 	  	Edit the file containing the text you want to copy.
+2. 	  	Go to the top line to be copied.
+3. 	ma 	Mark this line as mark "a".
+4. 	  	Go to the bottom line to be copied
+5. 	y'a 	Yank (y) the text from the current cursor location to the mark "a" ('a)
+6. 	:split second-file 	Open another window containing the second file. (This the file in which the text is to be inserted.)
+7. 	  	Go to the line where the insert is to occur. The text will be place after this line.
+8. 	p 	Put the text after the cursor.
+Copying a block of text from one file to another (Visual Method)
+
+There is more than one way to copy text between files. In this section we use the newer visual mode commands. See the previous section for the older Vi Style of doing things.
+
+To copy a block of text between files execute the commands:
+Command 	Explaination
+1. 	  	Edit the file containing the text to be copied.
+2. 	  	Go to the top line to be copied.
+3. 	v 	Start visual mode. If you want to copy a block of full lines, use V to go start Visual Line Mode
+4. 	  	Go to the bottom line to be copied. The text to be copied will be hightlighted.
+5. 	y 	Yank (y) the text.
+6. 	:split second-file 	Open another window containing the second file. (This the file in which the text is to be inserted.)
+7. 	  	Go to the line where the insert is to occur. The text will be place after this line.
+8. 	p 	Put the text after the cursor.
+Sorting a section (Vi Style)
+
+Frequently you will be editing a file with a list of names in it. For example, a list of object files that make up a program.
+
+For example:
+
+	version.o  	
+	pch.o		
+	getopt.o 	
+	util.o		
+	getopt1.o	
+	inp.o		
+	patch.o		
+	backupfile.o
+
+This list would be nice in alphabetical order. Or at least ASCII order. To alphabetize this list execute the commands:
+
+Command 	Explaination
+1. 	  	Move the cursor to the first line to be sorted.
+2. 	ma 	Mark the first line as mark a.
+3. 	  	Move to the bottom of the text to be sorted.
+4. 	!'asort 	The ! command tells Vim to run the text through UNIX command. The 'a tell the editor that the text to be worked on starts at the current line and ends at mark a. The command that the text is to go through is sort.
+
+The result looks like:
+
+	backupfile.o
+	getopt.o 	
+	getopt1.o	
+	inp.o	
+	patch.o		
+	pch.o		
+	util.o		
+	version.o  	
+
+Warning
+
+In actual practice what you in most Makefiles (file that are used by UNIX to control compilation) looks more like:
+
+OBJS = \
+        version.o       \
+        pch.o           \
+        getopt.o        \
+        util.o          \
+        getopt1.o       \
+        inp.o           \
+        patch.o         \
+        backupfile.o
+
+Notice that the backslash (\) is used to indicate a continuation line. After sorting this looks like:
+
+OBJS = \
+        backupfile.o
+        getopt.o        \
+        getopt1.o       \
+        inp.o           \
+        patch.o         \
+        pch.o           \
+        util.o          \
+        version.o       \
+
+The names are in order, but the backslashes are wrong. Don't forget to fix them using normal editing before continuing.
+
+OBJS = \
+        backupfile.o    \
+        getopt.o        \
+        getopt1.o       \
+        inp.o           \
+        patch.o         \
+        pch.o           \
+        util.o          \
+        version.o
+
+Sorting a section (Visual Method)
+
+Frequently you will be editing a file with a list of names in it. For example, a list of object files that make up a program.
+
+For example:
+
+	version.o  	
+	pch.o		
+	getopt.o 	
+	util.o		
+	getopt1.o	
+	inp.o		
+	patch.o		
+	backupfile.o
+
+This list would be nice in alphabetical order. Or at least ASCII order. To alphabetize this list execute the commands:
+
+Command 	Explaination
+1. 		Move the cursor to the first line to be sorted.
+2. 	V 	Enter visual line mode
+3. 		Move to the bottom of the text to be sorted.
+4. 	!sort 	The ! command tells Vim to run the hightlighted text through UNIX command. The command that the text is to go through is sort.
+Warning
+
+Check out the sort warning section for a short description of the problems that can result from using this command.
+
+Dealing with Makefile and other SOB files
+
+One problem with the file format used by the UNIX make command is that it's extremely fussy.
+
+For example, the following is correct:
+
+        prog: prog.c
+                cc -g -o prog prog.c
+
+The following is not:
+
+        prog: prog.c
+                cc -g -o prog prog.c
+
+At first glance you might think that these two are exactly. But look closer. The "cc" line of the first one begins with a tab. The second one begins with eight spaces. (You can't tell the difference between a space and a tab when it's printed on the screen! You need a better video card.)
+
+So how are you supposed to tell them apart especially when one the screen (or the printed page) they look exactly the same.
+
+The answer is you can't. You might think that's a bit unfair. Especially when make works on the first one but not the second. But who every said UNIX was fair.
+
+Fortunately Vim has a mode that tells you exactly what's in your file. Executing the command
+
+	:set list
+
+puts you into this mode. When the display is set into "list mode" all characters print. Tabs show up as "^I" and the end of line shows up as $. So in list mode, our two examples look like:
+
+        prog: prog.c$
+        ^Icc -g -o prog prog.c$
+
+and
+
+        prog: prog.c$
+                cc -g -o prog prog.c$
+
+From this it's easy to see which line has the tab.
+Formatting a text paragraph
+
+The Vim editor is not a word processor. Boy is it not a word processor. There are a couple of things you can do to make things better for you when editing text.
+
+Word processors automatically wrap when you type a line that's longer than the margins. The Vim editor lets make a line as long as you want. By executing the command:
+
+        :set wrapmargin=70
+
+you can tell Vim to automatically break lines when the run longer than 70 characters. (You can adjust this number to whatever line length you want.)
+
+This makes entering text much easier. It doesn't solve the problem of editing. If you enter a paragraph and then decide to delete half the words on the first line, Vim will not reformat the text.
+
+You can force a reformat of a paragraph by executing the commands:
+Command 	Explaination
+1. 	  	Move to the top of the paragraph.
+2. 	gq} 	The "!" command tells Vim to pipe a section of text through a filter. The } tells Vim that the section of text for the pipe command is a single paragraph.
+3. 	fmt -70 	The UNIX command fmt is a primitive formatter. It performs word-wrapping well enough for text documentation. The -70 tells fmt to format lines for 70 characters per line.
+Finding a procedure in a C program
+
+The Vim program was designed by programmers for programmers. You can use it to locate procedures within a set of C or C++ program files.
+
+But first you must generate a table of contest file called a "tags" file. (This file has been given the obvious name tags.) The ctags command generates this table of contents files.
+
+To generate a table of contents of all the C program files in your current working directory, use the command:
+
+        $ ctags *.c
+
+For C++ use the command:
+
+        $ ctags *.cpp
+
+If you use an extension other than .cpp for your C++ files, use it instead of .cpp.
+
+Once this file is generated, you tell Vim that you want edit a procedure, and it will find the file containing that procedure and position you there. For example if you want to edit the procedure write_file use the command:
+
+        $ vim -t write_file
+
+Now suppose as you are looking at the write_file procedure that it calls setup_data and you need to look at that procedure. To jump to that function, position the cursor at the beginning of the word setup_data and press Ctrl+]. This tells Vim to jump to the definition of this procedure. This repositioning will occur even if Vim has to change files to do so.
+
+Note:
+If you've edited the current file and not saved it, Vim will issue a warning and ignore the Ctrl+] command.
+Drawing comment boxes
+
+I like to put a big comment box at the top of each of my procedures. For example:
+
+	/*******************************************************
+	 * Program -- Solve it -- Solves the worlds problems.  *
+	 *     All of them.  At once.  This will be a great    *
+	 *   program when I finish it.                         *
+	 *******************************************************/
+
+Drawing these boxes like this is tedious at best. But Vim has a nice feature called abbreviations that makes things easier.
+
+First, you need to create a Vim initialization file called ~/.vimrc. (At first this may look like a ex initialization file. It is. The Vim command is actually a mode of the ex editor.)
+
+The ~/.vimrc file need to contain the lines:
+
+        :ab #b /************************************************
+        :ab #e ************************************************/
+
+These command define a set of Vim abbreviations. What's a Vim abbreviation? Its a word that stands for another word. When Vim see the abbreviation, it will expand it to the full word. In this case we've defined an abbreviation called #b that expands to the beginning line of a comment box. The #e abbreviation does the same thing.
+
+So to create a comment box enter #b<enter>. The screen looks like:
+
+        /************************************************
+
+Enter the comments, including the beginning and ending "*" characters. Finally end the comment by typing #e<enter>. This causes the ending comment to be entered.
+
+Note:
+
+This page was written in Vim. So how did we enter the #b and #e? Easy, we typed in #bb and the deleted a character. (We couldn't enter #b or it would have been expanded.)
+
+Some other useful commands that programmer may want to put in their ~/.exrc include:
+
+	:set autoindent
+	:set autowrite
+	:ab #d #define
+	:ab #i #include
+	:ab #b /************************************************
+	:ab #e ************************************************/
+	:ab #l /*----------------------------------------------*/
+	:set sw=4
+
+The autoindent setting causes Vim to indent new lines by a similar amount to the one next to them. This is very useful for entering programs. The autowrite setting tells Vim to write the old file out when switching from one file to another.
+
+The abbreviations #d, #i, and #l, define useful terms for programmers.
+
+Finally, the command set sw=4 sets the shift width (the number of characters text is moved sideways for the shift command (<< and >>)).
+
+This is very useful if you use a 4 space indentation for your C or C++ programs. (Studies at Rice University have shown this to be the best indentation size.)
+Reading a man page
+
+You can use the Vim editor to browse through text files. One of the most useful set of files to browse through is the man pages. To do this we assemble a pipeline of three command.
+
+The first is man which gets the page. The next one, ul turns the underline and bold escape codes into something readable, and finally we use Vim to broswe the file.
+
+So our command is:
+
+    $ man subject | ul -i | vim -
+
+The man page will be generated and then displayed in the Vim window. You can now use your normal editing commands to browse the files.
+Removing carriage returns from MS-DOS file
+
+If you ever try to edit a MS-DOS file, you'll notice that each line ends with a ^M character. This is caused by the funny way that MS-DOS treats the end-of-line. (For some background on this problem take a look at The EOL Story.
+
+To remove the ^M characters from a MS-DOS file, enter the command:
+
+	:1,$s/{Ctrl+V}{Ctrl+M}//{Enter}
+
+This command starts with a colon (:) to tell Vim to enter ex mode. All ex start with a line number range, in this case its from the first line (1) to the last ($). The slash indicates the start of the "from text". The {Ctrl+V} tells Vim to treat the next character as a regular character even if it's a special one. The next character is {Ctrl+M}. (This would be treated as {Enter} without the {Ctrl+V}.) The next slash ends the "from text". What follows is the "to text" enclosed by slashes. In this case it's nothing (//).
+Trimming the blanks off an end of line
+Some people find spaces and tabs at the end of a line useless, wasteful, and ugly. To remove whitespace at the end of every line, execute the command:
+
+	:1,$s/[ <tab>]*$//
+
+The colon (:) tells Vim to enter ex command mode. All ex commands start with a line range, in this case, the entire file (line 1 to the last line: $).
+
+The first set of slashes enclose the "from text". The square brackets indicate that either character can be a match. So [ <tab>] matches either space or tab. The star (*) means that the previous character specification (space or tab) can be repeated any of number times. The dollar ($ indicates an end of line.
+
+So [ <tab>]*$ tells Vim to look for any number of spaces or tabs followed by an end of line.
+
+These are then replaced by the text in the next set of slashes. This text is nothing, so the spaces and tabs are effectively removed.
+Oops, I left the file write protected
+
+Say your editing a file and you've made a lot of changes. This is a very important file and to preserve it from any casual changes, you've write protected it, even against yourself.
+
+The Vim editor allows you to edit a write protected file with little or no warning. The only trouble is that when you try to exit using "ZZ" you get the error:
+
+    file.txt	File is read only
+
+and Vim doesn't exit.
+
+So what can you do? You don't want to throw away all those changes, but you need to get out of Vim so you can turn on write permission.
+
+The trick is to execute the :shell command. This command takes you out of Vim by starting a command processor (shell) running under Vim
+
+You can then write enable the file:
+
+ 
+	$ chmod u+w file.txt
+
+and get out of the shell, returning to Vim
+
+	$ exit
+
+Finally you need to force Vim to write the file using the command:
+
+	:w!
+
+(It still thinks the file is write protected so we need to use the force option (!) to convince it to try writing.)
+
+Note:
+
+It is a good idea to only spend as short a time as possible in a command processor started by the :shell command. That's because it's easy to forget that you're running under Vim. It's possible to start a shell, that starts Vim, that starts a shell, that starts Vim, that .... Using this method you can easily consume a lot of resources and generate a lot of confusion.
+
+By keeping your :shell sessions short you can avoid lots of trouble.
+Changing "Last, First" to "First Last"
+
+You have a list of names in the form:
+
+	Last, First
+
+How to you change them to:
+
+	First Last
+
+It can be done with one command:
+
+    :1,$s/\([^,]*\), \(.*$\)/\2 \1/
+
+The colon (:) tells Vim that this is an ex style command.
+
+The line range for this command is the whole file as indicated by the range 1,$.
+
+The s (substitute) tells Vim to do a string substitution.
+
+The old text is a complex regular expression. The \( ... \) delimiters are used to inform the editor that the text that matches the regular expression side is to be treated special.
+
+The text in the first \( ... \) is assigned to \1 in the replacement text. The second set of text inside \( ... \) is assigned \2 and so on.
+
+In this case the first regular expression is any bunch of characters that does not include a comma. The [^,] means anything but a comma, the * means a bunch (zero or more characters).
+
+The second expression matches anything: .* up to the end of line: $.
+
+The result of this substitution is that the first word on the line is assigned to \1 and the second to \2. These values are used in the end of the command to reverse the word.
+
+The figure below shows the relationship between the \( \) enclosed strings and the \1, \2 markers.
+
+	:1,$s/\([^,]*\), \(.*$\)/\2 \1/
+	      ^^     ^^  ^^   ^^^ ^  ^            
+	      ||     ||  ||   ||| |  +-----  String matched by 
+	      ||     ||  ||   ||| |          first \( \)
+	      ||     ||  ||   ||| +--------- String matched by
+	      ||     ||  ||   |||            second \( \)
+	      ||     ||  ||   ||+----------- Slash separating 
+	      ||     ||  ||   ||             old/new strings
+	      ||     ||  ++---++------------ Second \( \) 
+	      ++-----++--------------------- First \( \)
+
+The next figure breaks out the various parts of the regular expressions used in this example.
+
+	:1,$s/\([^,]*\), \(.*$\)/\2 \1/
+		^^^^^  ^^  ^^^
+		|||||  ||  ||+--- The end of the line
+		|||||  ||  |+---- Repeated 0 or more time
+		|||||  ||  +----- Any character
+		|||||  ||  +++--- Any character, repeated,
+		|||||  ||             followed by EOL
+		|||||  |+-------- The character space
+		|||||  +--------- The character comma
+		||||+------------ Repeated 0 or more times
+		|||+------------- Closes the [] expression
+		||+-------------- The character comma
+		|+--------------- Match anything except the
+		|                 next character
+		+---------------- Starts a set of matches
+		++++------------- Match anything but comma
+		    +------------ Repeated 0 or more times
+		       +--------- Followed by comma
+
+How to edit all the files containing a given word
+
+This involves the fgrep as well as the special shell character backtick (`).
+
+To edit all the C program files that contain the word indentation_level execute the command:
+
+    $ vim `fgrep -l indentation_level *.c`
+
+The fgrep -l indentation_level *.c searches all the files ending with .c for the word and lists them out.
+
+Since this command is enclosed in backtick (`) characters the results of the command (a list of files) takes the place of the command on the command line.
+
+The Vim editor is then run on these files. The commands :n{Enter} and :rew{Enter} can then be used to browse through the files.
+How to edit all the files containing a given word using the built-in grep
+
+Start Vim.
+
+Execute the command:
+
+    :grep >word< >file-list<
+
+This finds the first location of word in the given files and positions the cursor on that line. You can use the command :cn to find the next occurance. 
+
+--------------------------------------------------------------------------
+
+vim插件编写中的<plug>和<SID>
+vim中的plugin还是比较好写的，就和平时输入的命令类似。但是其中的<plug>和<SID>比较难搞，我对着手册看了一遍一遍又一遍，就是搞不懂。最后还是做了几个小实验才弄清楚。以下本节中script均表示plugin。 
+
+<SID> 只在本script中有效，对于不同的script, <SID>是不同的值。 
+
+<plug> 是全局有效，一般使用方法 <plug>ScriptnameFunction .执行后，<plug>会替换成某些键盘敲不出的字符，对于不同的script来说，<plug>都是一样的。它的作用是用来区别其他变量。 
+
+<plug>ScriptnameFunction 是手册给出的命名方法，这样可以确保不会重复。其实如果能够确保不重复的话，可以用任意的字符串。但是既然写plugin, 就应该是发布到网上的，还是规规矩矩用这个命名方式好了。 
+
+综上所述， 映射快捷键到 <plug>ScriptnameFunction 可以在script内或者外部都可以。但是需要保证在本script内映射 <plug>ScriptnameFunction 到 <SID>function，以及其他涉及<SID>的映射。 
+
+-------------------------------------------------
+
+Use of <Plug>
+If you are developing a Vim plugin or script and you want to provide the user with the flexibility of assigning his own key map to invoke a function provided by your script, then you can prefix the map with <Plug>. 
+
+For example, let us say a plugin has a function s:VimScriptFn() and the user has to create a map to assign a key to invoke this function. The plugin can provide the following map to simplify this: 
+
+noremap <unique> <Plug>ScriptFunc :call <SID>VimScriptFn()<CR>
+Note that in the above map command, instead of the typical key sequence for the {lhs} of the map, the <Plug>ScriptFunc text is used. The <Plug> generates a unique key sequence that a user cannot enter from a keyboard. The above map is visible outside of the script where it is defined. 
+
+With the above command, the user can assign _p to invoke the script function as shown below: 
+
+:nmap _p <Plug>ScriptFunc

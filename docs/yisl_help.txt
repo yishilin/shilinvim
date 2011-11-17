@@ -1,0 +1,296 @@
+special config for yislvim:
+
+1. copy and past:
+  (linux) 
+  "" copy to system clipboard
+  vmap <C-c> "+y
+  "" cut to system clipboard
+  vmap <C-x> "+d 
+  "" <SHIFT-Insert> to Paste
+  map  <S-Insert>        <SID>Paste
+  imap <S-Insert>        x<Esc><SID>Paste"_s
+  cmap <S-Insert>        <C-R>+
+  vmap <S-Insert>        "-cx<Esc><SID>Paste"_x
+
+  "" make Y consistent with C and D
+  nnoremap Y y$
+
+  "" In visual modem, put / to search the selected word
+  vmap / y/<C-R>"<cr>
+
+
+2.  
+  "" 在GVim中绑定到切换菜单和工具栏
+  map <silent> <C-F2> :if &guioptions =~# 'T' <Bar>
+
+
+3.  
+  "" 搜索高亮切换
+  map <silent> <F3> :call SetHlsearch()<cr>
+
+4.
+  "" Switch to current dir
+  map <silent> cd  <esc>:cd %:p:h<cr>
+
+
+5.  
+  "" Fast reloading of the .vimrc
+  map <silent> <leader>ss :source $MYVIMRC<cr>
+  
+  "" Fast editing of .vimrc
+  map <silent> <leader>ee :e $MYVIMRC<cr>
+  
+  map <silent> <leader>eb :e $HOME/.NERDTreeBookmarks<cr>
+
+  
+6.visual select add html wrap tag
+"vmap <Leader>w <Esc>:call VisualHTMLTagWrap()<CR>
+
+
+7. file format switch 
+function! Dos2Unix()
+  set fileformat=unix 
+  write
+endfunction 
+
+function! Unix2Dos()
+  set fileformat=dos
+  write
+endfunction
+
+8.  
+  "" F5 to execute the script
+  autocmd BufRead,BufNewFile *.rb  map <F5>   <esc>:cd %:p:h<cr>:w!<cr>:!ruby -Ku %<cr>
+  autocmd BufRead,BufNewFile *.rb  map <C-F5> <esc>:cd %:p:h<cr>:w!<cr>:!ruby -Ku % 
+  
+  autocmd BufRead,BufNewFile *.sh map <F5>    <esc>:cd %:p:h<cr>:call Dos2Unix()<cr>:!bash %<cr>
+  autocmd BufRead,BufNewFile *.sh map <C-F5>  <esc>:cd %:p:h<cr>:call Dos2Unix()<cr>:!bash % 
+  
+  autocmd BufRead,BufNewFile *.vim map <F5>   <esc>:cd %:p:h<cr>:call Dos2Unix()<cr>
+  
+  autocmd BufRead,BufNewFile *.php map <F5>   <esc>:call CallCmd("php ".expand("%:p"))<cr>
+  
+  
+  autocmd BufRead,BufNewFile *.tcl,*.test map <F5>    <esc>:cd %:p:h<esc>:w!<cr>:!tclsh %<cr>
+  autocmd BufRead,BufNewFile *.tcl,*.test map <C-F5>  <esc>:cd %:p:h<esc>:w!<cr>:!tclsh % 
+  
+  
+  "" just for sed & awk learn
+  noremap <C-F3> :!sed -f % input_file
+  noremap <C-F4> :!gawk -f % input_file
+  
+
+
+9.在vim中执行脚本 
+"------------------------------------------------ 
+"" Bexec.vim setting
+"----------------------------
+
+nmap <silent> <F6> <esc>:w!<cr><esc>:cd %:p:h<cr><esc>:call Bexec()<cr><esc>:cd -<cr>
+vmap <silent> <F6> <esc>:w!<cr><esc>:cd %:p:h<cr><esc>:call BexecVisual()<cr><esc>:cd -<cr>
+
+nmap <silent> <C-F6> <esc>:call Bexec_Window_Toggle()<cr>
+"------------------------------------------------
+
+
+
+10. Tlist
+""新开一个window打开visual模式下的tag
+vmap <silent> <c-w>]   :call TagVisual()<cr> 
+map <silent> <F8> <esc>:Tlist<cr>
+map <silent> <C-F8> <esc>:TlistUpdate<cr>
+
+
+11.
+"" Open quickfix window
+map  <silent> <F9> :call QuickFixWin()<cr>
+
+
+
+12. cursor jump to each windo
+"" use Ctrl+x+[l|n|p|cc] to list|next|previous|jump to count the result
+map <C-x>l <esc>:cl<cr>
+map <C-x>n <esc>:cn<cr>
+map <C-x>p <esc>:cp<cr>
+map <C-x>c <esc>:cc 
+
+"" alt+n or alt+p to navigate between entries in QuickFix
+map <silent> <m-p> :cp <cr>
+map <silent> <m-n> :cn <cr>
+
+
+13.  
+"" Alt+j break the current line
+nmap <A-j> i<cr><Esc>k$ 
+map! <C-l> <DEL> 
+map <Space> <C-F>
+map <S-Space> <C-B>
+
+"" In insert and cmd modems to hjkl
+map! <A-j> <Down>
+map! <A-k> <Up>
+map! <A-h> <Left>
+map! <A-l> <Right>
+map! <A-w> <C-Right>
+map! <A-b> <C-Left>
+
+"" just works in gui :)
+map <C-H> <esc><C-W>h
+map <C-J> <esc><C-W>j
+map <C-K> <esc><C-W>k
+map <C-L> <esc><C-W>l
+
+
+14 
+"" search current word and show result in QuickFix
+nmap <silent> <F4> :call Grep_Word_Quickfix()<cr>
+"" search current selected andshow result in QuickFix
+vmap <silent> <F4> :call Grep_Visual_Quickfix()<cr>
+
+"" visual search mappings
+vnoremap * :<C-u>call <SID>VSetSearch()<cr>//<cr>
+vnoremap # :<C-u>call <SID>VSetSearch()<cr>??<cr>
+
+
+15.NERDtree 
+""  NERDTree render the exist tree
+map <silent> <F11> :NERDTreeToggle<cr>
+""  NERDTree init and render a new tree
+map <silent> <C-F11> :NERDTree<cr>
+"-------------------------------------------------------------------
+
+
+16.  
+" Open bufexplorer with <F7>
+map <silent> <F7> :BufExplorer<cr>
+
+
+
+17.FuzzyFinder 
+""mru.vim
+nmap <silent> mm <esc>:MRU<cr>
+
+"" map to fuzzy finder text mate stylez
+map <leader>f :FuzzyFinderTextMate<cr>
+map mr <esc>:FuzzyFinderTextMateChangeDir<cr>
+
+map mf  <esc>:FuzzyFinderFile<cr>
+map md  <esc>:FuzzyFinderDir<cr>
+map ma <esc>:FuzzyFinderAddBookmark<cr>
+map ml <esc>:FuzzyFinderBookmark<cr>
+map mb  <esc>:FuzzyFinderBuffer<cr>
+map <silent> <c-\> :FuzzyFinderTag! <c-r>=expand('<cword>')<cr><cr>
+
+nnoremap <C-p><C-t> :FuzzyFinderTag <C-R>=expand("<cword>")<cr><cr> 
+nnoremap <C-p><C-f> :FuzzyFinderFile <C-R>=expand('%:~:.')[:-1-len(expand('%:~:.:t'))]<cr><cr> 
+nnoremap <C-p><C-b> :FuzzyFinderBuffer <C-R>=expand("<cword>")<cr><cr> 
+
+
+
+18.  php setting
+"" Wuyou.vim setting 
+
+inoremap <C-P> <ESC>:call PhpDocSingle()<CR>i
+nnoremap <C-P> :call PhpDocSingle()<CR>
+vnoremap <C-P> :call PhpDocRange()<CR>
+
+
+
+19. auto complete 
+Ctrl-x Ctrl-n word自动完成
+Ctrl-x Ctrl-l 行自动完成
+Ctrl-x Ctrl-f 文件名自动完成
+Ctrl-x Ctrl-k 自动完成字典 
+
+
+20.  Calendar.vim 
+,cal 显示在左侧
+,caL 显示在下边
+
+
+
+21.  mark.vim
+,m  current mark/nomark(<nmap/vmap>)
+,n  clear all the mark(<nmap>)
+
+
+
+22. Vim motion
+c/d/v     i/a     /小括号/中括号/大括号/t(html tag)/</单引号/双引号/w(word)/s(句子)/b(block)
+:h text-objects
+
+wrapwithtag.vim
+ in visual mode: select some chars, then type `,w`, then enter the html/xml tag name
+,w
+
+
+
+23. 
+移动鼠标使用f/F 或 t/T 命令
+;  repeats the prior f or t 
+.  repeats the prior modification
+
+gi (nmap) 鼠标回到上次编辑的位置，并进入insert模式
+`.移动到你之前编辑过的行
+
+H 将光标移动到当前页的第一行 
+M 将光标移动到当前页的中间一行. 
+L 将光标移动到当前页的最后一行
+
+]p  和p相似, 但是它可以自动调整粘贴的代码和已有的代码缩进
+gd  把光标移动到当前光标所在位置的函数或者变量的定义(definition)(或声明(declaration)). 
+gf  goto file
+
+
+
+
+24.快捷键在命令模式下和search模式下
+<c-l>向右删除字符  
+<c-h>向左删除字符
+<c-u>向左删除到顶
+<c-w>向左删除word
+
+<c-n>  <c-p> history
+
+<c-f> show history list
+
+<c-[>  相当于<esc>
+
+
+
+25.
+Vim多行缩进技巧 
+
+按v进入visual状态，选择多行，用>或<缩进或缩出 
+=G 全部排版
+通常根据语言特征使用自动缩进排版：在命令状态下对当前行用== （连按=两次）, 或对多行用n==（n是自然数）表示自动缩进从当前行起的下面n行。你可以试试把代码缩进任意打乱再用n==排版，相当于一般IDE里的code format。使用gg=G可对整篇代码进行排版。
+
+
+26.NERD_commenter.vim
+[count],cc:光標以下count行逐行添加註釋(7,cc)
+[count],cu:光標以下count行逐行取消註釋(7,cu)
+[count],cm:光標以下count行嘗試添加塊註釋(7,cm)
+,c<space>
+
+
+27. 
+快速插入函数说明  
+php-doc.vim   for php
+DoxygenToolkit.vim  for c/cpp
+
+inoremap  <buffer>  <c-p> <esc>:call PhpDocSingle()<cr>
+nnoremap  <buffer>  <c-p> <esc>:call PhpDocSingle()<cr>
+vnoremap  <buffer>  <c-p> <esc>:call PhpDocRange()<cr>
+
+
+28.  Git mapping
+nnoremap <Leader>gd :GitDiff<Enter>
+nnoremap <Leader>gD :GitDiff --cached<Enter>
+nnoremap <Leader>gs :GitStatus<Enter>
+nnoremap <Leader>gl :GitLog<Enter>
+nnoremap <Leader>ga :GitAdd<Enter>
+nnoremap <Leader>gA :GitAdd <cfile><Enter>
+nnoremap <Leader>gc :GitCommit<Enter>
+nnoremap <Leader>gp :GitPullRebase<Enter>
+
+

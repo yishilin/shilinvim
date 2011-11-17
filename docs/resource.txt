@@ -1,0 +1,8 @@
+
+vim resource
+
+http://easwy.com/blog/archives/vim-tips-advanced-substitute-1/
+
+http://www.kuqin.com/developtool/20080601/9135.html
+
+http://vim.wikia.com/wiki/Easily_switch_between_source_and_header_file

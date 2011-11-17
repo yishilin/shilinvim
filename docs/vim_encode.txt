@@ -1,0 +1,121 @@
+vim 编码方式的设置
+
+
+和所有的流行文本编辑器一样，Vim 可以很好的编辑各种字符编码的文件，这当然包括UCS-2、UTF-8 等流行的 Unicode 编码方式。然而不幸的是，和很多来自 Linux 世界的软件一样，这需要你自己动手设置。
+
+Vim 有四个跟字符编码方式有关的选项，encoding、fileencoding、fileencodings、termencoding (这些选项可能的取值请参考 Vim 在线帮助 :help encoding-names)，它们的意义如下:
+
+* encoding: Vim 内部使用的字符编码方式，包括 Vim 的 buffer (缓冲区)、菜单文本、消息文本等。默认是根据你的locale选择.用户手册上建议只在 .vimrc 中改变它的值，事实上似乎也只有在.vimrc 中改变它的值才有意义。你可以用另外一种编码来编辑和保存文件，如你的vim的encoding为utf-8,所编辑的文件采用cp936编码,vim会自动将读入的文件转成utf-8(vim的能读懂的方式），而当你写入文件时,又会自动转回成cp936（文件的保存编码).
+
+* fileencoding: Vim 中当前编辑的文件的字符编码方式，Vim 保存文件时也会将文件保存为这种字符编码方式 (不管是否新文件都如此)。
+
+* fileencodings: Vim自动探测fileencoding的顺序列表，启动时会按照它所列出的字符编码方式逐一探测即将打开的文件的字符编码方式，并且将 fileencoding 设置为最终探测到的字符编码方式。因此最好将Unicode 编码方式放到这个列表的最前面，将拉丁语系编码方式 latin1 放到最后面。
+
+* termencoding: Vim 所工作的终端 (或者 Windows 的 Console 窗口) 的字符编码方式。如果vim所在的term与vim编码相同，则无需设置。如其不然，你可以用vim的termencoding选项将自动转换成term的编码.这个选项在 Windows 下对我们常用的 GUI 模式的 gVim 无效，而对 Console 模式的Vim 而言就是 Windows 控制台的代码页，并且通常我们不需要改变它。
+
+好了，解释完了这一堆容易让新手犯糊涂的参数，我们来看看 Vim 的多字符编码方式支持是如何工作的。
+
+1. Vim 启动，根据 .vimrc 中设置的 encoding 的值来设置 buffer、菜单文本、消息文的字符编码方式。
+
+2. 读取需要编辑的文件，根据 fileencodings 中列出的字符编码方式逐一探测该文件编码方式。并设置 fileencoding 为探测到的，看起来是正确的 (注1) 字符编码方式。
+
+3. 对比 fileencoding 和 encoding 的值，若不同则调用 iconv 将文件内容转换为encoding 所描述的字符编码方式，并且把转换后的内容放到为此文件开辟的 buffer 里，此时我们就可以开始编辑这个文件了。注意，完成这一步动作需要调用外部的 iconv.dll(注2)，你需要保证这个文件存在于 $VIMRUNTIME 或者其他列在 PATH 环境变量中的目录里。
+
+4. 编辑完成后保存文件时，再次对比 fileencoding 和 encoding 的值。若不同，再次调用 iconv 将即将保存的 buffer 中的文本转换为 fileencoding 所描述的字符编码方式，并保存到指定的文件中。同样，这需要调用 iconv.dll由于 Unicode 能够包含几乎所有的语言的字符，而且 Unicode 的 UTF-8 编码方式又是非常具有性价比的编码方式 (空间消耗比 UCS-2 小)，因此建议 encoding 的值设置为utf-8。这么做的另一个理由是 encoding 设置为 utf-8 时，Vim 自动探测文件的编码方式会更准确 (或许这个理由才是主要的 ;)。我们在中文 Windows 里编辑的文件，为了兼顾与其他软件的兼容性，文件编码还是设置为 GB2312/GBK 比较合适，因此 fileencoding 建议设置为 chinese (chinese 是个别名，在 Unix 里表示 gb2312，在 Windows 里表示cp936，也就是 GBK 的代码页)。
+
+----------------------------------------------------
+
+ DOS、Mac 和 Unix 文件格式互转
+
+相信很多朋友都碰到过这三种文件格式的互换问题，今日又碰到这个问题，忽然想寻根问底，于是整理了本文档。
+
+文件格式区别
+
+我们先看看这三个家伙有啥区别。很久以前，人们用老式的电传打字机作为输入设备，它使用两个字符来另起新行。一个字符把滑动架移回首位 (称为回车，)，另一个字符把纸上移一行(称为换行，)。
+当计算机问世后，由于存储器曾经非常昂贵。有些人就认定没必要用两个字符来表示行尾。于是UNIX 开发者决定他们可以用 一个字符来表示行尾。Apple 开发者规定了用 。开发 MS-DOS (以及微软视窗) 的那些家伙则决定沿用老式的 。三种行尾格式如下:
+
+unix 
+dos 
+mac 
+
+这意味着，如果你试图把一个文件从一种系统移到另一种系统，那么你就有换行符方面的麻烦。
+
+转换
+
+有需求就会有动力。在Windows平台，有强大的UltraEdit，它支持DOS、Mac 和 Unix 三种文件格式的任意互换。在【文件】->【转换】选项卡下有相应的对应选项，很傻很强大。下面我们看看在Unix/Linux平台该如何做呢？
+
+方法一：强大的dos2unix
+
+dos2unix filename
+
+方法二：强大的脚本
+sed 's/^M//' filename > tmp_filename
+其中^M是同时Ctrl+V+M按出来的，表示回车。
+或
+tr -d "\r" filename
+或
+cat filename | perl -pe '~s/\r//g' > tmp_filename
+
+方法三：强大的vim
+vim filename
+:set fileformat=unix
+:w
+或
+vim filename
+:%s/^M//g
+:w 
+
+与vi不同，vim具有自动识别功能，只需如下设置就可以自动进行转换。不过由于Mac格式比较特殊，vim对mac格式的自动探测可能会出错。请参考：http://vimcdoc.sourceforge.net/doc/usr_23.html
+vim filename
+:set fileformats=unix,dos,mac
+
+执行下面这个命令可以显示你当前 使用的文件格式:  :set fileformat? 
+
+
+批量转换
+有时候我们可能希望对这种转换进行批量处理。在Windows下有强大的UltraEdit，用全局replace的方法或者建立工程的方法可以批量转换，请参考http://tech.ddvip.com/2007-10/119380983936863.html。Windows平台下还有很多相关的小工具，如MultiU2D等，google一下吧。
+
+在Unix/Linux平台下我们就要借助脚本文件或者通道了，实质上是上述几种方法的自动化。下面举几个简单例子，来源自http://bbs.chinaunix.net/viewthread.php?tid=412957&extra=&page=1：
+
+脚本1：
+ls -l | awk '{print $8}' > filename.txt
+N=1
+NN=`wc -l filename.txt | awk '{print $1}'`
+while [ "$N" -le "$NN" ]; do
+TempLine=`sed -n "$N"p "filename.txt"`
+if [ -n "$TempLine" ]; then
+tmpfilename=$TempLine
+dos2ux $tmpfilename > file
+mv file $tmpfilename
+fi
+N=$(($N + 1))
+done
+
+脚本2：
+for XFILE in $(egrep -l ^M `find . -name "*.txt";find . -name "*.sql"`)
+do
+echo "开始处理文件"$XFILE
+if [ -s $XFILE ]
+then
+TMPFILE=$XFILE.tmp
+mv $XFILE $TMPFILE
+tr -d "\r" < $TMPFILE > $XFILE
+rm $TMPFILE
+else
+continue
+fi
+done
+
+通道法：
+
+find . -type f |xargs -i dos2unix {}
+
+后记
+对于Mac格式转换到其他两种格式的方法类似，在类Unix环境下有dos2unix/mac2unix工具。
+在计算机世界，格式转换无处不在，如字符格式、压缩格式、网络协议格式、音视频格式等等。所以进行相关工作时，应该多多留意。
+ 
+
+
+ 
+ 
+

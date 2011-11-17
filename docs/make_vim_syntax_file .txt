@@ -1,0 +1,97 @@
+
+vim下的asreml语法高亮文件
+
+
+众所周知，Vim 是一个优秀的编辑器，说它风靡全世界一点都不夸张，但是它的学习曲线也是令人生畏。
+
+ASReml是一个优秀的遗传参数估计软件，学习曲线与Vim相比有异曲同工之妙。
+
+最近一直在用Vim写asreml程序，用vim的好处是可以直接在vim下运行写好的asreml程序而不用退出. 直接调用!aseml *.as即可，*.as是写好的asreml文件。或者也可以用r!asreml *.as 直接在vim中获得asreml运行返回信息。
+
+但是….，有一个不爽处是，vim中找不到asreml文件的语法高亮配置文件。这样用VIM的好处就体现不出来了，生活在一个黑白世界中，我哭泣。
+
+没办法，只好自力更生了。可是vim如此的博大精深，能行吗？拿出做实验的劲头来试试吧。
+
+1.       建立asreml文件类型：
+
+步骤如下（取自帮助文件中，:help new-filetype即可查到）
+
+如果你想使用的文件没检测到文件类型，有四种方法。不管如何，最好不要修改
+
+$VIMRUNTIME/filetype.vim 文件。再安装新的 Vim 版本的时候它会被覆盖。
+
+在此处，直接采用了第一种。
+
+A. 如果你想否决所有的缺省文件类型检查。这里，每种文件类型需要写一个文件。缺点就是，你需要很多文件。优点就是，你只 需要把文件放到合适的目录就可以了。
+
+建立你自己的运行时目录。通常，你会用 'runtimepath' 选项的第一项。然后，      在其中建立 "ftdetect" 目录。由于我vim安装在了D盘，因此，我在D:\Program Files\Vim\vim70下建立了"ftdetect" 目录
+
+B. 建立包含检测文件类型的自动命令的文件。
+
+au BufRead,BufNewFile *.as            set filetype=asreml
+
+把该文件保存为 "asreml.vim"，并把它放在D:\Program Files\Vim\vim70\ ftdetect 下。
+
+C.重新启动 Vim，就可以使用新的文件类型检测。
+
+Ps：如果你的装上了注释插件NERD_commenter，重新启动vim它会报错，出现”Unknow filetype等信息，让你联系作者。哈哈，开源的好处就是你可以修改源代码，用vim打开NERD_commenter.vim，然后查找出错信息，你会发函数SetUpForNewFiletype(filetype)有一个大的elseif循环，定义每一中文件类型的注释符号，把asreml添加上就可以了。加入如下两行就可以了：
+
+elseif a:filetype == "asreml"
+
+call s:MapDelimiters('#','')
+
+2.       建立语法配置文件。这个比较麻烦
+
+所有的asreml语法配置文件需要的参数，直接取自Luis Apiolaza为Context编辑器写的ASReml语法配置文件.
+
+建立的vim语法配置文件如下：
+
+syntax clear
+
+syntax case match
+
+syntax keyword asPreProc           !ADJUST !AILOADINGS !AISINGULARITIES !ALPHA !AOD !ARCSIN !ARGS !ASK !ASMV !ASUV !AVERAGE B !BINOMIAL !BLUP !BMP !BRIEF C !CINV !COLFAC !COMPLOGLOG !CONTINUE !CONTRAST !CSV !CYCLE !DATAFILE !DDF !DEBUG !DEC !DENSE !DEVIANCE !DF !DIAG !DISPLAY !DISP !DOPART !DOPATH !EMFLAG !EPS !EXCEPT !EXTRA !FACPOINTS !FCON !FILTER !FINAL !FLOAT !FORMAT !GAMMA !GIV !GKRIGE !GRAPHICS !GROUPS !G !HARDCOPY !HPGL !IDENTITY !IGNORE!INBRED !INCLUDE !INTERACTIVE !JOIN !KNOTS !LAST !LOGARITHM !LOGFILE !LOGIT !LOGIT !LOG !L !MAKE !MATCH !MAXIT !MBF !MERGE !MGS !MVREMOVE !M !NEGBIN !NOCHECK !NOGRAPHS !NOREORDER !NORMAL !NOSCRATCH !OFFSET !ONERUN !OWN !PARALLEL !PEARSON !POISSON !POLPOINTS !PPOINTS !PRESENT !PRINT !PROBIT !PS !PVAL !PVR !PVSFORM !PVW !PRWTS !P !QUIET !READ !RECODE !RENAME !REPEAT !REPORT !RESIDUALS !RESPONSE !ROWFAC !RREC !RSKIP S !S2= !SAVE !SCALE !SCORE !SCREEN !SECTION !SEED !SELECT !SELF !SETN !SETU !SKIP !SLNFORM !SLOW !SMX !SORT !SPATIAL !SPLINE !SQRT !STEP !SUBSET !SUM !TABFORM !TOLERANCE !TOTAL !TWOSTAGEWEIGHTS !TWOWAY !TXTFORM U !UNIFORM !VCC !VGSECTORS !VRB !WMF !WORKSPACE !WORK !X !YHTFORM !YSS !YVAR !Y ? $A $B $C $D $E $F $G $H $I $J $1 $2 $3 $4 $5 $6 $7 $8 $9
+
+syntax keyword asStatement      !A !I !L !P !M !D !DATE !DMY !MDY !G !* !- !+ !/ !^ !^0 != !<> !> !< !== !<= !>= !ABS !COS !DOM !SIN !EXP !Jddm !Jmmd !Jyyd !MAX !MIN !MOD !MM !NA !REPLACE !RESCALE !SET !SUB !SEQ ! 
+
+syntax keyword asType           a and at c con cos fac g giv h i ide inv l leg lin log ma1 mbf mu mv out p pol pow qtl s sin spl sqrt uni units xfa !bin !comp !logit !probit !total !r !f ~ Tr Trait AEXP AGAU AINV ANTE AR AR2 AR3 ARMA CHOL CORB CORGB CORGH CORR CORU DIAG EXP F FA FACV GAU GIV GIV1 GIV2 GIV3 GIV4 GIV5 GIV6 ID IDEN IDH IEUC IEXP IGAU ISP ISP2 LVR LVR2 MA MA2 MAT OWN POW SAR SAR2 SPH SPH2 US XFA !GF !GU !GP !GZ !S2    
+
+setlocal iskeyword+=!
+
+setlocal iskeyword+=$
+
+syntax keyword asPreProc asType asStatement when-not    
+
+syntax match asComment /#.*/
+
+syntax match asConstant /\d*/
+
+syntax match asVariant /\_^\s\a*/
+
+syntax match asUnderlined /\%^\S.*\_$/
+
+syntax region asString start=/{/ end=/}/ 
+
+
+highlight link asStatement Statement
+
+highlight link asPreProc PreProc
+
+highlight link asType Type
+
+highlight link asComment Comment
+
+highlight link asConstant Constant
+
+highlight link asString String
+
+highlight link asVariant Identifier
+
+highlight link asUnderlined Underlined
+
+
+拷贝另存为asreml.vim 存储位置放在相应的syntax目下就可以，我的是D:\Program Files\Vim\vim70\syntax。
+
+然后重新运行就可以了。如下所示：
+
+

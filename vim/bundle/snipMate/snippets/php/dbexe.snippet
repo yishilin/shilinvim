@@ -1,0 +1,7 @@
+
+$db = Wuyou_Database_Pdo::getInstance();
+
+$sql_cmd = sprintf("${1}", ${2});
+
+$rt = $db->execute($sql_cmd);
+

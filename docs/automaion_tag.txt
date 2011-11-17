@@ -1,0 +1,187 @@
+:!ctags --languages=tcl --langmap=tcl:.tcl.test -R .
+:%s/^:://g
+:sort u
+
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+php5 ctags:
+#!/bin/bash
+cd /path/to/framework/library
+exec ctags-exuberant -f ~/.vim/mytags/framework \
+-h ".php" -R \
+--exclude="\.svn" \
+--totals=yes \
+--tag-relative=yes \
+--PHP-kinds=+cf \
+--regex-PHP=/abstract\s+class\s+([^ ]+)/\1/c/
+--regex-PHP=/interface\s+([^ ]+)/\1/c/
+--regex-PHP=/(public\s+|static\s+|abstract\s+|protected\s+|private\s+)function\s+\&?\s*([^ (]+)/\2/f/
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+ctags -R --c++-kinds=+p --fields=+iaS --extra=+q your_src_dir_path
+ctags -R  --c-kinds=+px --languages=c --langmap=c:.c.h.cpp  --exclude="lost+found" --excmd=number --extra=+q /vobs/fsn
+---------------------------------------
+–<LANG>-kinds=[+|-]kinds
+为特定的编程语言指定一个与语言相关的标签种类 (或类型) 的列表，这些内容会被包含在输出文
+件中，在这里 <LANG> 不区分大小写，并且是内建语言名的一种 (见 –list-languages 选项以获
+得完整列表)。kinds 参数是一组单字母标记，用来指明 (特定于这种语言的) 标签类型是包含在输
+出中，还是不包含。这些特定标记集基于每种程序语言被识别，它们的含义以及缺省值可以由
+–list-kinds 选项列出。每个字母或组合可以以 "+" 做前缀，表示在缺省值中加入它，或者以 "-"
+做前缀，表示在缺省值中排除它。如果不以 "+" 或 "-" 为前缀，只有在 kinds 中明确列出的类型
+被包含在输出中 (就是说，覆盖这种编程语言的缺省值)。
+
+做为 C 语言的一个例子，要想在缺省标签类型中加入函数原型和外部变量定义，但是排除宏定义，
+使用 –c-kinds=+px-d；要想只包含函数的标签，使用 –c-kinds=f。
+
+
+–fields=[+|-]flags
+定义标签文件表项中的有效扩展字段 (见下面的 TAG FILE FORMAT，以获得更多信息)。flags 参数
+是一组单个字母标记， 每一个代表一种类型的扩展字段，具有如下含义 (缺省为禁用，除非下面有
+注明)：
+
+a 类成员的访问控制信息
+f 作用域局部于文件 [使能]
+i (关于)继承的信息
+k 使用一个字符表示的标签类型 [使能]
+K 标签类型的完整名称
+l 包含该标签的源文件的编程语言类型
+m (关于)实现的信息
+n 标签出现的行号
+s 标签的范围 [使能]
+S 函数的指纹 (例如，原型或参数列表)
+z 在 kind 字段中包含 "kind:" 关键字
+t 把变量或 typedef 的类型和名字做为 "typeref:" 字段 [使能] (*3)
+
+每个字母或字母组合的前面可以为 "+" ，表示将它加到缺省集合，或者为 "-"，表示排除它。如果
+既没有 "+" 前缀也没有 "-"前缀，只有在 flags 中明确列出的类型被包含在输出中 (也就是说，
+覆盖缺省集合)。如果 –format=1 选项定义了，此选项被忽略。此选项缺省值为 "fkst"。
+
+
+----------------
+
+–extra=[+|-]flags
+指定是否为特定类型的信息增加额外的标签条目。flags 参数是一组单字母标记，每个代表标签文
+件中的一种额外的标签条目。如果 flags 前带 "+" 或 "-" 字符，会向当前生效的标记中加入，或
+删除这些标记。否则 flags 替代当前的设置。每个标记的含义如下：
+
+f 为每个源文件的文件名包含一个条目 (例如，"example.c")，它定位到文件的第一行。
+
+q 为每个类成员包含一个额外的类修饰符条目 (为那些支持这类信息的编程语言；当前包括
+C++, Eiffel 和 Java)。修饰符标签的实际格式取决于定义该标签的语言 (使用这种语言中
+修饰符被定义的那种格式)。对 C++来说，格式为 "class::member"；对 Eiffel 和 Java，
+格式为 "class.member"。当标签文件中一个标签的名字出现多次时，这将更容易的定位到
+特定的标签。然而需注意，这有可能使标签文件的大小不止增加一倍。
+----------------
+–langmap=map[,map[...]]
+控制文件名如何被映射到程序语言 (见 –list-maps 选项)。每个以逗号分隔的映射中，包含语言
+的名字 (内建语言或用户自定义语言)，一个冒号，以及一个文件扩展名和/或文件名模式的列表。
+要定义一个文件扩展名，在此扩展名前加上句号 (例如，".c")。要定义一个文件名模式，把这个模
+式用括号括起来 (例如，"([Mm]ake-file)")。如果你的 C 编译器的运行库支持，那么文件名模式
+中可以包含 Unix 中通用的 shell 通配符 (确保用引号把参数括起来，以保护通配符在传给 ctags
+之前不会被 shell 扩展)。 你可以通过检查 –version 选项的输出来确定在你的平台上 shell 通
+配符是否可用，(如果可用，) 在编译的特性表中将包含 "+wildcards"；否则将通过简单的文本比
+较来检查文件名模式与文件名的匹配。要映射一个 (已经使用的) 文件扩展名，首先要取消它与其
+它语言的映射关系。
+
+如果映射的第一个字符是一个 "+"，那么这个映射中的扩展名和文件名模式将加到这种语言的当前
+映射中；否则，这个映射将替换当前映射。例如，为了指定只有扩展名为 .c 和 .x 的文件被当做
+C 语言文件，使用 "–langmap=c:.c.x"；想同时把扩展名为 .j 的文件加到 Java 语言文件，定义
+"–langmap=c:.c.x,java:+.j"。为了把 makefiles (例如，文件名为 "Makefile"，"makefile"，
+或具有扩展名 ".mak") 映射到一种称为 "make" 的语言，定义 "–langmap=make:([Mm]akefile).mak"。
+想映射没有扩展名的文件，定义一个句号，后面不包含句号以外字符 (例如，"."，"..x"，".x.")。
+想要为一种特定的语言清除映射 (这会防止自动为这个语言生成标签)，定义一个空的扩展名列表
+(例如， "–langmap=fortran:")。想为特定的语言恢复缺省的映射，将映射定义为default。想为
+所有的语言恢复缺省的映射，定义 "–langmap=default"。
+注意，在判别文件的程序语言时，文件扩展名先于文件名模式被判断。
+
+----------------
+
+--excmd=type
+定义在源文件中定位标签时所用的 EX 命令的类型。[在 etags 模式中忽略]
+
+type 的有效值为 (用整个单词或用第一个字母都可以)：
+
+number 在标签文件中只使用行号来定位标签。这有4个优点：
+1. 明显减小最终标签文件的大小。
+2. 消除因为定义标签的行被修改而导致使用 pattern 查找标签失败的情况，导致模式
+匹配失败 (注意，有些编辑器，例如vim， 够在很多这样的情况中恢复)。
+3. 消除在查找雷同的匹配时，找到不正确的源码行的情况 (见下面的 BUGS)。
+4. 在标签文件中为内容相同的行保留多个不同的表项。在 pattern 模式，重复的表项
+被丢弃，因为它们产生的查找字串是相同的，保存重复的表项没有意义。
+
+但是，这个选项有一个显著的缺点：对源文件的更改会导致标签文件中的行号记录不再对
+应源文件的行号，导致跳转到某些标签时偏离标签定义位置一行或多行。大体上讲，这个
+选项最好用在那些不打算更改的源文件上。选择这个选项导致下面的选项被忽略：-BF。
+
+pattern 对所有标签只使用搜索字串，与行号不同，行号通常用于宏定义。优点是标签文件产生后，
+增加或删除行不会引用 到旧的行号。
+
+mixed 在这个模式，除少数例外，通常都使用搜索字串。对 C 语言，行号用于宏定义标签。这
+是原始的 ctags 生成的缺省格式，因此，保留这个选项的缺省值。对 Fortran，common
+块使用行号，因为它们的源码行通常都相同，使搜索模式在查找所有匹配时没有用处。
+
+----------------
+
+-n 同 --excmd=number。
+
+-N 同 --excmd=pattern。
+
+
+++++++++++++++++++++++++++++
+
+# some of my js files kill ctags altogether, better skip them.
+--exclude="*.js" \ 
+
+# I use git
+--exclude=".git" \
+
+++++++++++++++++++++++++++++
+
+ctags -R --c++-kinds=+p --fields=+iaS --exclude="lost+found"  --extra=+q /vobs/fsn
+ctags -R  --c-kinds=+px --languages=c  --exclude="lost+found"  --extra=+q /vobs/fsn --languages=c --langmap=c:.h.c -R .
+
+++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++
+
+gen_csfile.sh
+
+#!/bin/bash
+CSIndex_Saved_Dir=/local/indexdir/
+
+#Code_Path=(\
+# /opt/project/bant8742/fsn/app \
+# /opt/project/bant8742/fsn/lib/voice \
+#)
+Code_Path=(\
+/cm4/fsn/app    \
+/cm4/fsn/tools  \
+/cm4/fsn/vdsl   \
+)
+
+echo "=====>CSIndex_Saved_Dir is:$CSIndex_Saved_Dir"
+
+echo "=====>rm indexfiles"
+rm ${CSIndex_Saved_Dir}cscope.* ${CSIndex_Saved_Dir}tags
+
+echo "=====>add files to cscope.files"
+for i in ${Code_Path[*]}
+do
+  echo "=====>search dir:$i"
+  find $i -name "*.h" -o -name "*.c" -o -name "*.cpp" >> ${CSIndex_Saved_Dir}cscope.files
+done
+
+echo "=====>create cscope index"
+cscope -Rbqk -i ${CSIndex_Saved_Dir}cscope.files -f ${CSIndex_Saved_Dir}cscope.out
+echo "=====>create ctags index"
+ctags -R -L ${CSIndex_Saved_Dir}cscope.files -f ${CSIndex_Saved_Dir}tags
+
+
+++++++++++++++++++++++++++++++++
+
+http://cscope.sourceforge.net/

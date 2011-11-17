@@ -1,0 +1,39 @@
+Using the git to access google code sample:
+
+1) get the svn current version(282)
+user@shilinMAC/local/yisl/yislvim
+$svn info https://yislvim.googlecode.com/svn/trunk/yislvim
+Path: yislvim
+URL: https://yislvim.googlecode.com/svn/trunk/yislvim
+Repository Root: https://yislvim.googlecode.com/svn
+Repository UUID: 412769ca-8625-11de-bdfc-c94c2ab25652
+Revision: 282
+Node Kind: directory
+Last Changed Author: yishilin@gmail.com
+Last Changed Rev: 281
+Last Changed Date: 2010-12-16 09:58:44 +0800 (四, 16 12 2010)
+
+2) git clone the code
+user@shilinMAC/local/yisl/yislvim
+$git svn clone -r281:HEAD  https://yislvim.googlecode.com/svn/trunk/yislvim
+./yislVimDir --username yishilin@gmail.com
+Initialized empty Git repository in /local/yisl/yislvim/yislvim/.git/
+A_vimrc
+Apixmaps/tagindicator.bmp
+Apixmaps/tagindicator.xpm
+A_gvimrc
+user@shilinMAC/local/yisl/yislvim
+$ll yislvim/
+total 88
+drwxr-xr-x  10 user  admin    340 12 21 13:11 ./
+drwxr-xr-x   3 user  admin    102 12 21 13:07 ../
+drwxr-xr-x  12 user  admin    408 12 21 13:11 .git/
+-rw-r--r--   1 user  admin    540 12 21 13:11 _gvimrc
+-rw-r--r--   1 user  admin  34211 12 21 13:11 _vimrc)
+
+3. develop
+git add
+git rm
+git comment
+git svn dcommit --username yishilin@gmail.com 
+

@@ -1,0 +1,254 @@
+rails.vim如何使用呢
+
+1:新建项目,打开vim，在命令模式输入：Rails 项目名
+2.打开原有项目：只有用vim编辑任何项目内的文件，插件将自动识别项目。
+
+
+启动webrick服务器：Rserver 关闭: Rserver!
+预览: Rpreview （在相关环境下将预览当前编辑的方法)
+
+
+MVC的切换：
+最简单的就是：R命令在MVC中切换
+比如在controller的medias/list方法中按:R将换到list.rhtml（就是方法的视图文件去了，是不是很方便不用一个个文件去找了吧）
+
+还可以通过:Rcont controller_name编辑某个controller,Rmodel,Rview,Rlayout等。
+
+如果编辑其它文件：可以用Redit database等
+
+还有Rfind之类的命令。。。Rextract则是把某个view中的代码extract到某个partial文件中去,相当方便。
+详细说明参见安装目录docs下的rails的帮助。
+
+其它插件参考：
+(1) http://biodegradablegeek.com/2007/12/using-vim-as-a-complete-ruby-on-rails-ide/
+(2) :help rails
+(3) http://giantrobots.thoughtbot.com/2008/12/19/thoughtbot-is-filled-with-vim-and-vigor
+
+
+
+rails.vim命令记
+
+
+:Rake <tab> 列出所有rake task
+:Redit <tab> 列出所有文件，相对路径
+:Rlog  <tab> 列出所有日志文件
+:Rpreview<cr> 打开浏览器，并根据当前向下文 跳到相关rul:http://localhost:3000
+:Rtags 生成一个tag file，要求ctags
+:Rrefresh 刷新rails.vim的设置(如语法高亮缓存)
+:Rfind  <tab>列出文件，可以不写.rb后缀
+
+
+gf 这个命令超强，根据当前光标处内容跳转到文件，以下是详细例子(*代表光标)：
+Pos*t.find(:first)
+=>    app/models/post.rb
+
+has_many :c*omments
+=>  app/models/comment.rb
+
+link_to “Home”, :controller => :bl*og
+=>    app/controllers/blog_controller.rb ~
+
+<%= render :partial => ’sh*ared/sidebar’ %>
+=>    app/views/shared/_sidebar.rhtml
+
+<%= stylesheet_link_tag :scaf*fold %>
+=>   public/stylesheets/scaffold.css
+
+class BlogController < Applica*tionController
+=>   app/controllers/application.rb
+
+class ApplicationController < ActionCont*roller::Base
+=>   …/action_controller/base.rb
+
+fixtures :pos*ts
+=> test/fixtures/posts.yml
+
+layout :pri*nt
+=>  app/views/layouts/print.rhtml
+
+(In the Blog controller)
+def li*st
+=>   app/views/blog/list.rhtml
+
+
+
+:A :R 也是跳文件的
+Current file              Alternate file          Related file ~
+----------------------------------------------------------------------------
+model                     unit test               related migration
+controller (in method)    functional test         template (view)
+template (view)           helper                  controller (jump to method)
+migration                 previous migration      next migration
+config/routes.rb          config/database.yml     config/environment.rb
+
+
+
+直接列出相关文件夹下的文件(空格 + <tab>)
+:Rmodel
+:Rmigration
+:Robserver
+:Rfixtures
+:Runittest
+:Rcontroller
+:Rhelper
+:Rview
+:Rlayout
+:Rapi
+:Rfunctionaltest
+:Rstylesheet
+:Rjavascript
+:Rplugin
+:Rlib
+:Rtask
+:Rintegrationtest
+
+
+:Rnavcommand [options] {name} [{path} ...]
+:Rnavcommand yisl      app/apis -glob=**/* -suffix=_api.rb -default=haha.rb
+                                           使用:Ryisl <tab>会list app/apis/ 下面所有符合选项要求的文件
+
+
+:Rscript
+:Rconsole
+:Rgenerate
+:Rserver
+:Rserver! 强制运行，杀掉前面那个，相当于重启
+
+重构：
+:Rextract 简单说就是把rhtml中的一段提出来，变成子页面
+
+项目结构
+:Rproject 看上去有个左边项目结构树
+
+surroud: 这个不是命令，而是一个插件，装好后就可以在rhtml中自动关闭<%%>
+
+taglist: 这个插件相当于outline，但是它可以同时放多个文件
+
+NERD_tree：这个插件就是浏览文件，有点项目的感觉。
+
+_________________________________
+
+gem包管理工具
+一、gem介绍：
+      gem是ruby管理包的工具，是ruby安装后自带工具，在安装包时会经常用到该工具
+
+格式：
+windows:
+set HTTP_PROXY=http://username:password@www.proxy.com:port
+  set HTTP_PROXY=http://yisl:china,123@10.19.0.7:80
+  gem update rails -p
+
+linux:
+export HTTP_PROXY=http://yisl:china,123@10.19.0.7:80
+gem update --system
+
+二、gem相关命令：
+
+显示gem的帮助：gem -h
+
+显示gem版本号：gem -v
+
+更新gem版本：gem update --system
+
+安装watir包：gem install watir
+
+运行build子命令构建gem包：gem build package.gemspec
+
+列出安装的gems：gem list
+
+检查已安装的gem包：gem check
+
+卸载已安装的gem包：gem uninstall GEMNAME
+
+________________________________
+
+
+Using rails.vim
+By Amanda & Michael Morin, About.com
+
+1.
+Editing a Rails application is a challenge for any text editor, since Rails applications are spread across multiple files of different types and have different rules for highlighting and indenting. A good editor for Rails applications will have the ability to highlight and indent all files used by Rails, switch easily between files, search for files quickly and run scripts and rake tasks without leaving the editor.
+
+2. Installing rails.vim
+Installing rails.vim is about the same as installing any other Vim script.
+
+Locate your vimfiles directory. On Windows, this is C:\Documents and Settings\your username\vimfiles or on Linux or OS X ~/.vim.
+Extract the zip file downloaded from the rails.vim download page into this directory. Be sure to preserve the directory structure.
+Start Vim in your Rails project directory.
+To load rails.vim's help files, run the command :helptags ~/.vim/doc on Linux or OS X, or :helptags ~/vimfiles/doc on Windows.
+To access the rails.vim help file, run the command :help rails.
+
+
+3. Editing Rails Applications in Vim
+Though it is possible to edit Rails applications in Vim without the help of any specialized scripts, the rails.vim script makes many tasks simpler. A good example is editing a controller file. Assuming your current directory is the application's base directory and you want to edit the Posts controller, a typical vim command might be :e app/controllers/posts_controller.rb. Though vim helps you out with tab completion, the rails.vim scripts makes it even easier. Simply run the command :Rcontroller posts.
+
+The rails.vim script also gives easy access to scripts, generators and rake tasks. Some commands are very difficult to run in Vim, especially script/server. Since script/server never exits until you exit the server, running !script/server will never allow you to take control of Vim until you end the script. The rails.vim script gives you an :Rserver command that solves this problem.
+
+
+4. Jumping Between Files
+The biggest problem to solve when editing Rails applications is jumping between many files. Without any scripts, this is a difficult task in Vim. The following commands will help switch between files.
+
+:Rmodel, :Rmigration, :Robserver, :Rfixtures and :Runittest
+
+These commands will quickly switch to their respective model-related files based on any arguments given. For example, to edit the Post model, you can simply type the command :Rmodel post and rails.vim will find the file for you.
+
+:Rcontroller, :Rhelper, :Rview, :Rlayout, :Rfunctionaltest
+
+These commands will switch quickly to their respective controller-related files. For example, to edit the Posts controller simply type the command :Rcontroller posts. Some commands, such as the Rview command must have both a controller name and view name. To edit the edit.html.erb template for the posts controller, type the command :Rview posts/edit.
+
+Jumping to Other Files
+
+The :Rfind command can be used to jump to various other files. For instance, to switch to routes.rb you can use the command :Rfind routes or to switch to database.yml you can use :Rfind database.
+
+In addition to the commands above, rails.vim also integrates with the project.vim script. Issuing the :Rproject command while in the base directory of a Rails application will open a project window organized by models, views, controllers, etc. This can be used for graphical navigation instead of command-based navigation.
+
+
+5. Running Scripts
+Running Generators
+
+The :Rgenerate command can be used to run generators. To generate a new Post model, for example, run the :Rgenerate model post.
+
+Running the Server
+
+The :Rserver command will run any servers configured to run. The server will run in the background, returning control of Vim to you.
+
+Running Rake Tasks
+
+Rake tasks can be run with the :Rake command. So, to run the db:create:all task, run the :Rake db:create:all command.
+
+Running Scripts
+
+Any of the scripts in the scripts/ directory can be run with the :Rscript command. This can be used to run any scripts that don't have specific commands associated with them. If, for example, you wanted to destroy the Post model, you can run the command :Rscript destroy model post.
+
+
+6. Tip of the Iceberg
+The features outlined here are only the tip of the iceberg. The remaining features can be read about in the rails.vim help file. The rails.vim help file can be accessed with the :help rails command.
+
+The rails.vim script can interact with several other scripts. Vim scripts in general can be downloaded from the Vim scripts archive.
+
+Another important, but often overlooked, thing setting up Vim is setting the color scheme and fonts. Using the graphical Vim frontends instead of the console versions gives you better control over this. Choose a font that's readable, unambiguous (a capital O shouldn't be mistaken for a zero) and with which you're comfortable. Color schemes are also very subjective, but Vim comes with a variety of color schemes for experimenting. There are also other color schemes available in the Vim scripts archive.
+
+
+_______________________________________________
+
+tail -f log/development.log 
+
+查了一下，其实现的功能是：使用tail命令的-f选项可以方便的查阅正在改变的日志文件，tail -f filename会把filename里最尾部的内容显示在屏幕上，并且不但刷新，使你看到最新的文件内容。 
+
+但我运行时系统找不到这个命令，感觉windows下很多命令都还有一些印象的，但却对这个没印象，再一查发现果然不是windows下的命令，而是Unix/Linux上的命令，那么在在Windows下能使用tail命令吗？网上无意间发现Cygwin可以实现这样的目的
+
+下载安装好以后将其bin目录添加到系统path里即可，如果大家嫌它占空间可以从Cygwin的安装目录下的bin目录中取出tail.exe, cygwin1.dll, cygintl-3.dll, cygiconv-2.dll放在同一目录下并将该目录放到Path环境变量中即可正常使用tail命令(注：后面种抽取4个文件的方法我未试验过，请读者自行试验，相信现在硬盘也不贵的情况下大家也不会在乎这点空间的)。 
+
+
+另外: windows下有tail4win 可以与tail -f 替换
+_______________________________________________
+
+另外几个强力插件:
+1. http://eigenclass.org/hiki/rcodetools 
+   rcodetools是一个Ruby代码工具的集合。它包含xmpfilter和一个编辑器无关的Ruby开发帮助器，同时支持emacs和vim。
+2. http://github.com/astashov/vim-ruby-debugger/tree/master  
+   (1). It can debug any Ruby application (Rails, by default), using ruby-debug-ide gem
+   (2). The debugger looks like in the Netbeans - you can go through the code, watch variables, breakpoints in separate window, set and remove breakpoints.
+   (3). It supports command-line rdebug commands. E.g., you can execute ':RdbCommand p User.all' in command line of VIM and it will display result like usual echo VIM command.
+
+

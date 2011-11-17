@@ -1,0 +1,431 @@
+
+
+说明，这里收集vim技巧，一般时不需要进行任何配置就能用的技巧
+
+1. Vim多行缩进技巧
+
+一个重要技巧: "."表示重复进行上一次的修改
+
+(1) normal下
+>>  整行向右移一個 shiftwidth（預設是 8 個字元，可重設）。
+<<  整行向左移一個 shiftwidth（預設是 8 個字元，可重設）。
+:set shiftwidth 可得知目前的設定值。
+:set shiftwidth=4 可馬上重設為 4 個字元
+
+(2) visual(V)下
+>>  整行向右移一個 shiftwidth（預設是 8 個字元，可重設）。
+<<  整行向左移一個 shiftwidth（預設是 8 個字元，可重設）。
+
+(3)根据语言特征使用自动缩进排版：
+在Normal下对当前行用== （连按=两次）, 
+或对多行用n==（n是自然数）表示自动缩进从当前行起的下面n行。你可以试试把代码缩进任意
+打乱再用n==排版，相当于一般IDE里的code format。
+使用gg=G可对整篇代码进行排版。
+
+可以visual模式下使用'='进行缩进(等同与visual下的gq命令)
+
+(4)命令“:retab”。在设定了 expandtab 选项时，该选项
+会把所有的制表符转换成空格。详细信息请参看“:help :retab”。
+
+
+2. 如何让VIM到80个字符后自动换行，效果和手动按回车一样
+
+:set tw=78 fo+=Mm 
+
+这样正常写的文件到78个字符就会换行，对于已经存在的段落，只要选中它们，然后按gq
+就可以了。
+
+:help ins-textwidth 
+
+3.vi中怎么全选
+gg 跳到首行 
+V visual行选中模式 
+G 跳到末行（除了最后一行没有全部选中之外，其他的内容应该都选中了） 
+$ 跳到行末 或 j 再下一行 
+y 复制
+
+ggVG 
+gg"+yG 
+dG
+19G相当于:19 跳转到19行
+
+:%d
+:%c
+
+
+4.Vim motion
+将光标移至括号内，
+在normal模式下，后可以跟i
+d v c 后可以跟
+
+i：不包括
+a：包括
+
+{ [ ( t " ' <
+s(句子) b(block) w(word) p(段落)
+
+:h text-objects
+
+如果在选择之后，再用zf组合把它们缩成一行(folder)，啊，大量的html就很好伺候了～～还有大段的php function，不在话下。
+
+(3) Vim's ability to highlight sections of text, for example by pressing vt< it will highlight (v = "visual mode") to (t = "to", ) the next < symbol (from the current position to the beginning of the end tag of the current HTML element).
+vt<
+vT<
+
+(4)wrapwithtag.vim
+ in visual mode: select some chars, then type `,w`, then enter the html/xml tag name
+,w
+
+
+ `CTRL-W ]`.
+
+ `;` repeats the prior f or t
+ 
+ `.` repeats the prior modification
+
+5.imTip 6:百分号"%"的用途
+-----------------
+
+"%"可以用来：
+
+1.跳转到一个成对出现的左半边或者右半边的圆括号()、方括号[]或者大括号{} 
+2.跳转到一个C语言风格注释的开头或结尾
+3.跳转到完整出现的C预处理条件从句:#if，#ifdef,#else,#elif,#endif
+
+如果需要关于"%"的详细信息，请在VIM的命令状态下输入：
+:help %
+
+通过修改"matchpairs"选项，"%"可以被扩展到定位其他的成对出现的符号。输入
+:help matchpairs  获得更多的帮助。
+
+注意，当当前位置不是左半边（时，他会向有查找左半边"（"，并跳到与之对应地右半边"）"，
+if(!aips_get_qos_cb(curstream, &adst.def_prio, &adst.ack_prio, &adst.flags))  
+当光标位于get上时，按下c%,上述内容会变成：
+if(!ips_get)
+
+6.c命令
+分别是c、C和cc。它们修改文本的范围是由光标位置和光标移动命令二者限定的。下面分别介绍这三种修改命令。
+　　c命令:　　c后紧跟光标移动命令，删除从光标当前位置开始到指定的位置为止，再进入insert模式
+    C 、c$    删除从光标当前位置开始到该行末尾或从光标当前位置开始到某行末尾范围内的内容，再进入insert模式
+    3C命令就表示把光标所在位置的字符之后（注意不是整行），直到下面两个整行的内容删除，再进入insert模式
+
+7.折疊的操作
+
+zo  將游標所在處的折疊打開。open。
+zc  將游標所在處已打開的內容再度折疊起來。close。
+zr  將全文的所有折疊依層次通通打開。reduce。
+zm  將全文已打開的折疊依層次通通再折疊起來。more。
+zi  這是個切換，是折疊與不折疊指令間的切換。
+zn  打開全文的所有折疊。fold none。
+zN  這是 zn 的相對指令，回復所有的折疊。
+zf
+
+8.vimdiff 
+启动方法
+# vimdiff    FILE_LEFT    FILE_RIGHT
+或
+# vim -d    FILE_LEFT    FILE_RIGHT
+
+ctrl+w ctrl+w - switch windows
+do - diff obtain 把另一个文件的内容复制到当前行中
+dp - diff put 把一个差异点中当前文件的内容复制到另一个文件里，可以使用命令
+[c - 跳转到上一个差异点
+]c - 跳转到下一个差异点
+:diffupdate - 重新比较文件
+:syntax off - syntax off
+zo - open folded text
+zc - close folded text
+zi
+
+There is also possibility to run
+vimdiff file1 directory2
+and vimdiff will try to open directory2/file1 as second file.
+ 
+vim会尽力保证两侧文件的对齐。在行间移动光标，可以看到左右两侧的屏幕滚动是同步的。
+如果不想要这个特性，可以设置：
+:set noscrollbind
+
+
+9.vim font
+copy font file to dir:  %windir%\fonts
+
+For the Win32 GUI
+  - takes these options in the font name:
+    hXX - height is XX (points, can be floating-point)
+    wXX - width is XX (points, can be floating-point)
+    b   - bold
+    i   - italic
+    u   - underline
+    s   - strikeout
+    cXX - character set XX.  Valid charsets are: ANSI, ARABIC,
+          BALTIC, CHINESEBIG5, DEFAULT, EASTEUROPE, GB2312, GREEK,
+          HANGEUL, HEBREW, JOHAB, MAC, OEM, RUSSIAN, SHIFTJIS,
+          SYMBOL, THAI, TURKISH, VIETNAMESE ANSI and BALTIC.
+          Normally you would use "cDEFAULT".
+
+    Use a ':' to separate the options.
+  - A '_' can be used in the place of a space, so you don't need to use
+    backslashes to escape the spaces.
+  - Examples:
+ :set guifont=courier_new:h12:w5:b:cRUSSIAN
+ :set guifont=Andale_Mono:h7.5:w4.5
+ 
+  set guifont=ProggyClean:h13:w7.5:cDEFAULT
+  set guifont=MONACO:h9:w7:cDEFAULT
+  set guifont=Consolas:h12:cDEFAULT
+
+10. The loading order can be seen by entering ":script". 
+
+visual mode can change to select mode: <c-g>
+
+11.PuTTY 中文乱码
+http://dzh001.blog.51cto.com/2767/40624
+
+PuTTY 的默认字体和字符集并不适合中文显示， 在窗口标题上点击右键，选择 Change Settings...
+在打开的配置窗口左边选择 Appearance，在右边点 Font settings 里面的 Change 按钮，选择好中文字体，比如：宋体、新宋体之类的
+字体选择好了，还要确定字符集。
+选择配置窗口左边的 Translation，在右边的 Received data assumed to be in which character set 下拉列表中选择最后一个“Use font encoding”，最后点下面的 Apply 按钮就生效了。
+如果还是乱码的话，就执行以下命令，看看系统的字符集
+echo $LANG $LANGUAGE
+哦，原来系统的字符集是 UTF-8 呀。重新返回上面选择字符集的那一步， 选择配置窗口左边的 Translation，在右边的 Received data assumed to be in which character set 下拉列表中选择“UTF-8”
+这下99%的情形下，汉字是不会有乱码了。
+
+最后，总之一下 PuTTY 中乱码的解决办法：
+先看看系统的字符集，如果是 UTF-8 的，那就简单了，选择好中文字体，然后编码选择 UTF-8 就行了。
+如果编码是 GB2312、GBK、GB18030，当然也包括 BIG5这些，在 PuTTY 的编码选择中看不到这些编码，那就选择最后一个“Use font encoding”，绝大部分情况下这样就没啥问题了
+
+
+12.vim 命令的记录与回放
+(1)使用`q{register}`命令开始, 后续的动作将被记录进名为{register}的 
+寄存器中. 给出的寄存器名字必需是a到z之间的一个字母(译注: 包括a和z) 
+示例:  qb
+(2). 象往常一样执行你要执行的操作. 
+(3). 按下q以结束对命令的记录(注意仅仅是q一个字符, 不要键入多余的字符). 
+(4). 现在你可以通过`@{register}`命令或者`13@{register}`来执行刚刚记录下来的记录宏了. 
+在执行过程中按<C-c>中断执行
+(注意,所有命令都不是在命令行下执行,而是在normal下执行) 
+
+
+13.VIM 如何切换buffer
+
+:ls 可查看当前已打开的buffer
+:b<num> 可切换buffer (num为buffer list中的编号)
+:bn -- buffer列表中下一个 buffer
+:bp -- buffer列表中前一个 buffer
+:b# -- 你之前所在的前一个 buffer(相当于 <C-^> )
+
+
+14.
+motions -- 光标定位
+命令  功能
+$ 当前行的末尾
+0 当前行的开头
+gg  文件头
+G 文件尾
+10gg
+10G 跳到第10行
+``  (这是两个 back quote，在键盘上是ESC下边那个键)回到光标跳转前的位置
+H 跳到屏幕上的第一行
+M 跳到屏幕的中间行
+L 跳到屏幕上的最后一行
+gk  屏幕所见的上一行
+gj  屏幕所见的下一行
+
+ 
+在Vim的命令模式下，有很多移动光标的命令，带给我们很大的便利。最常用的莫过于0 和$ ，把光标定位在行头和行尾。
+常用的还有G 把光标定位在文件尾，gg 回到文件头。在这两个命令前面加一个数字就可以去到那一行，例如10gg 会带你去到第10行。
+`` 的作用是回到光标跳转前的位置。例如，假设光标现在在第10行，按 G 去到文件尾，再按 `` 就可以回到第10行。
+如果你发觉有时候k 和j 不是很好用（按一下就跨越屏幕上的几行），可以试一下用gk 和gj 。
+ 
+scrolling -- 滚屏与翻页
+命令  功能
+zt
+z回车 把光标所在行移到 屏幕顶端
+z.  把光标所在行移到 屏幕中间
+zb  把光标所在行移到 屏幕底部
+CTRL-E  向下滚屏一行（往下阅读文档）
+CTRL-Y  向上滚屏一行（往上阅读文档）
+CTRL-F  往前翻一页
+CTRL-B  往后翻一页
+光标定位命令给文档编辑操作带来方便，而滚屏和翻页命令则让我们在阅读文档时感到舒适。
+强烈推荐 以下几个按键映射：
+:map <Space> <C-F>
+:map <S-Space> <C-B>
+:map <CR> <C-E>
+:map <UP> <C-Y>
+:map <DOWN> <C-E>
+特别是第一个映射:map <Space> <C-F> ，设置后就可以用空格键翻页了，很是方便。另外几个映射的作用是：用Shift-Space向上翻页，按回车键向下滚屏一行、按上下箭头进行向上向下滚屏。
+ 
+ 
+yank, put, delete, registers -- 复制、粘贴、剪切
+
+命令  功能
+cc  删除当前行后进入insert模式
+dd  删除当前行
+yy  复制当前行
+d$  删除从光标位置到行尾的内容
+yt< 复制从光标位置到下一个“<”前的内容
+（另外，ct< 修改从光标至“<”前的内容，在编辑HTML、XML文件时很方便）
+"x复制  把复制内容放进寄存器x
+（x可以是26个英文字母之一，区分大小写）
+"xp 粘贴寄存器x的内容
+"+  特殊寄存器，读写系统剪贴板
+:reg  查看各个寄存器的内容
+复制、粘贴、剪切，是编辑文档时常用的招数。在Vim里所有删除的内容都会进入Vim的寄存器(registers)，所以可以把删除操作看成是剪切操作。
+x , dd , yy 是很常用的命令，在这里就不多说了。复制或剪切多行内容可以在 dd 或 yy 前面加数字，例如可以用5yy 复制5行。
+不过我更喜欢借助可视模式 (Visual mode)来进行复制剪切操作。先按v 或V 进入可视模式，然后移动光标选中要复制或剪切的内容，最后按d 剪切或者按y 复制。
+在复制前可以先指定一个寄存器，方法是在双引号后跟一个字母，例如"a 指定了寄存器a，"B 指定了寄存器B。所以，"ayy 把当前行放进了寄存器a，以后就可以用"ap 来粘贴寄存器a里的内容了。如果不确定寄存器里放了什么内容，可以使用:reg 来查看。
+Vim提供了一个很有用的特殊寄存器"+ ，它的内容就是系统剪贴板的内容。比如，在 firefox 里用 Ctrl-C 复制的内容就会出现在 "+ 里，可以在Vim里用"+p 粘贴出来。也可以在Vim里把复制或剪切的内容放进 "+ 里，然后在其它GUI程序里用 Ctrl-V 进行粘贴。
+
+[p  在游標前面貼
+]p  在游標之後貼上
+de  从当前游标删除到本单词结尾
+
+search, substitute - 查找、替换 （未完成 ）
+
+查找、替换(search, substitute) -- 精选命令
+命令  功能
+* 查找光标所在的单词
+（这里的单词是指以空白字符或标点符号分隔开的字符串）
+:set ignorecase 不区分大小写
+:set ignorecase smartcase 自动区分大小写。输入全是小写时不区分大小写，输入中只要有大写字母就区分大小写。
+:set hlsearch 打开 高亮显示匹配字串
+:nohlsearch 暂时关闭高亮，下次查找时自动高亮
+:set nohlsearch 关闭 高亮显示匹配字串
+
+:[range]s/pattern/string/[flags]
+range 就是要取代的範圍，格式是:(開始行),(結束行)
+舉例來說，如要取代 1 到 4 行的 foo 為 bar  :1,4s/foo/bar/g
+
+下面说一些实例。
+/http://\f* 可以匹配一个普通的网址（不含 ? & 等符号的网址），所以:s%http://\f*%<a href="&">&</a> 可以把http://kikistar.com 替换成<a href="http://kikistar.com">http://kikistar.com</a> 。
+如果网址中含有 ? & 等符号，例如http://www.newsmth.net/bbscon.php?bid=731&id=16603 ，把正则表达式稍微修改一下就行了： :s%http://\(?\|&\|\f\)*%<a href="&">&</a>
+
+
+<c-g>   简单描述信息
+g<c-g>  详细描述信息
+
+
+<c-^> edit the previous file
+
+15 :ab 替代符 原始信息
+    (1)示例如下：
+    :ab makmail maklive2010@google.com
+  执行之后，在输入模式任何地方录入“makmail”，再敲任意字母符号或者回车空格，利马就变成“maklive2010@google.com”
+
+  :iab  only insert mode
+  :cab  only cmd mode
+  :!ab  both in cmd mode or insert mode
+
+  (2)  autocmd User Rails.controller*    iabbr <buffer> arf( around_filter
+   定义了一个自动执行命令, 条件(event)是User Rails.controller*,含义:当前buffer的状态行匹配模式Rails.controller*
+   动作iabbr <buffer> arf( around_filter
+
+16. window
+<C-w> s 把当前窗口水平分割成两个，结果是两个窗口显示同一个文件
+<C-w> v 把当前窗口垂直分割成两个，结果是两个窗口显示同一个文件
+
+<C-w> n
+
+17.
+CTRL-v jjjjj[...] I     :If you select a rectangular block and then type I, you can then insert text in front of the block on each line.
+CTRL-v jjjjj[....] A    :If you select a rectangular block and then type A, you can then append text at the end of the block on each line.
+CTRL-v $ jjjjj[....] A  :If you put a $ at the beginning vim will "remember" you've selected to the end of the line. This will allow you to append text at the end of each line even if the lines are of varying length.
+
+
+18.
+设定tab的位置 :set tabstop=4  
+输入tab时自动将其转化为空格  :set expandtab  
+如果此时需要输入真正的tab，则输入Ctrl+V, tab，在windows下是Ctrl+Q, tab 
+将已存在的tab都转化为空格 :retab  
+定编辑模式下tab的视在宽度 :set softtabstop  
+将tab显示为可见字符 :set list listchars=tab:>-    (tab将被显示为>—-的形式)
+只在编辑特定类型的文件时展开tab    
+   1. autocmd FileType * set tabstop=4|set shiftwidth=4|set noexpandtab  
+   2. autocmd FileType python set tabstop=4|set shiftwidth=4|set expandtab  
+   
+19.
+The Wildmenu
+(1)Enter :e in the command line and press ^D. Vim will show you all possibitilites in a nice little window
+(2)By entering the start of a filename and pressing tab it completes for you then. If it was a folder you can now press ^D again to get the contents
+
+20.
+hi Pmenu guifg=#ffffff guibg=#cb2f27 
+
+
+21. insert mode:
+<c-w> 从当前位置删除到当前word开始处
+<c-u> 从当前位置删除到当前line开始处
+<c-h> 从当前位置向左删除一个字符
+<c-l> 从当前位置向右删除一个字符
+
+22.
+
+insert 模式,输入<C-R>=后即可输入表达式进行计算，如下例子：
+ :map <F2> a<C-R>=strftime("%c")<CR><Esc>
+
+
+ 
+ 操作符等待映射可以用来定义和任何操作符一起使用的移动命令。简单例子:
+:omap { w
+ 会使 "y{" 等同于 "yw"，"d{" 也等同于 "dw"。
+
+要忽略光标原来所在的位置并选择另外的文本，你可以使 omap 进入可视模式来选择要操
+作的文本。例如，要在位于当前行的函数名上操作:
+        onoremap <silent> F :<C-U>normal! 0f(hviw<CR>
+CTRL-U (<C-U>) 用于删除命令行上 Vim 可能插入的范围。普通模式命令寻找第一个 '('
+字符并选择之前的第一个单词。通常那就是函数名了。
+
+
+23.输入外部程序的结果
+    :[range]!{program} 
+    将外部程序的运行结果替换到range的位置.
+    如果是对当前行操作,可以直接输入.!,例如:
+    :.!date     在当前行插入时间
+
+	
+24. Visual Block的操作    
+    在多行的行尾追加
+		选中Visual Block后按下$A
+        如果只是按下A,则不是行尾而是该BLOCK后面追加
+    水平移动文本块
+        选中文本块后按下>,会使文本块右移一个shiftwidth
+        左移可以按<,但是如果没有空白区域,左移不会成功.
+    连接多行内容
+        选中文本块后按下J.如果要保留每行前后的空格,可以用gJ.
+		
+	normal模式下，gv命令可以重复前一次可视化模式时选中的文本；
+	如果我们已经在可视化模式状态下,执行这个命令时会选中前一次选中的文本，而如果我们重复执gv命令,就会在当前选中的文本和前一次选中的文本之间进行切换.
+
+	visual模式下，
+	3aw       选中3个单词以及其后的空格.
+    3iw       仅仅是选中3个单词.
+	a{        选择{}内的文本,包括{}
+    i{        选择{}内的文本,不包括{}
+	o         光标移动选中文本的另一个结尾处
+    ~         来实现大小写的转换.
+	U         使得选中的文本变成大写的形式
+	u         将选中的文本变为小写的形式	
+	J         将这些选中的行合并为一行并用空格来分隔这些行.如果我们希望在合并以并没有空格来分隔，用gJ.
+   gq         格式化可视化模式下选中的文本
+   g?         加密高亮显示的文本,在这个命令中我们采用的是Vim中所采用的rot 13加密算法.如果我们对同一个文本进行两次加密操作即解密操作
+   :'<,'>write ~/block.txt     将选择的文本写入~/block.txt 
+   :'<,'>!sort     将选择的文本进行排序并替换掉原先的文本 
+   
+   
+25. 在替换中匹配部分字符
+    例如:替换ABCDEFG_12345中的12345为54321
+        :s/ABCDEFG_\zs12345\ze/54321/g
+        \zs   \ze 表示替换内容的开始和结束
+		
+26.
+:!sh－－不退出文档，转到shell界面
+d/text   删除从文本中出现“text”中所指定字样的位置，一直向前直到下一个该字样所出现的位置（但不包括该字样）之间的内容 
+dfc      删除从文本中出现字符“c”的位置，一直向前直到下一个该字符所出现的位置（包括该字符）之间的内容 
+dtc      删除当前行直到下一个字符“c”所出现位置之间的内容 
+dG       删除直到工作缓存区结尾的内容 
+
+27.
+在:set wrap设置的情况下，长行会分多行显示，为了跳到下一个显示行（其实还是在一行内），可以用gj， 上一行用gk
+
+28

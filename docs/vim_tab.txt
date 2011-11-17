@@ -1,0 +1,56 @@
+Vim里面显示TAB键 
+
+1、文件中有 TAB 键的时候，你是看不见的。要把它显示出来
+
+:set list
+
+现在 TAB 键显示为 ^I，而 $显示在每行的结尾，以便你能找到可能会被你忽略的空白 
+字符在哪里。 
+
+2、方法1中这样做的一个缺点是在有很多 TAB 的时候看起来很丑。如果你使用一个有颜色的 
+终端，或者使用 GUI 模式，Vim 可以用高亮显示空格和TAB。 使用 'listchars' 选项： 
+:set listchars=tab:>-,trail:-
+
+现在，TAB会被显示成 ">---" 而行尾多余的空白字符显示成 "-"。 
+
+:-) 
+
+1.设定tab的位置
+
+:set tabstop=4
+
+2.输入tab时自动将其转化为空格 
+:set expandtab
+
+如果此时需要输入真正的tab，则输入Ctrl+V, tab，在windows下是Ctrl+Q, tab 
+
+3.将已存在的tab都转化为空格 
+:retab  
+
+
+4.设定编辑模式下tab的视在宽度 
+ 
+:set softtabstop  
+
+
+这不改变tabstop，但让编辑的时候tab看起来是指定的宽度，输入tab时会插入的tab和空格的混合，比如tabstop=4， softtabstop=10，那么插入tab时会将光标移动10个字符，可能会是两个tab加两个空格，这对backspace也有效。 
+
+5.解决shiftwidth和tabstop不等时的麻烦
+ 
+:set smarttab  
+
+
+在行首输入tab时插入宽度为shiftwidth的空白，在其他地方按tabstop和softtabstop处理 
+
+6.将tab显示为可见字符
+ 
+:set list listchars=tab:>-  
+
+tab将被显示为>—-的形式 
+
+7.只在编辑特定类型的文件时展开tab 
+
+将如下代码加入~/.vimrc 
+autocmd FileType * set tabstop=4|set shiftwidth=4|set noexpandtab   
+autocmd FileType python set tabstop=4|set shiftwidth=4|set expandtab
+

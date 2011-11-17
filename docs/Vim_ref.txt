@@ -1,0 +1,287 @@
+
+
+current vim config:
+
+1.
+<F8>  :Tlist 函数列表
+
+<F7>  Buffer列表
+
+2.
+ccase.vim 相关的clearcase命令插件
+
+3.
+<F9> Quickfix window
+use Ctrl+x+[l|n|p|cc] to list|next|previous|jump to count the result
+
+4. 
+(1).in insert and cmd mode, 
+  use <A-j/k/h/l/w/b> to move
+
+
+(2).
+  Y :to copy from current to the end of line
+  D :delete from current to the end of the line, and stay in normal mode
+  C :same as D, but stay in insert mode
+
+(3).当你使用了cscope时，:ta命令会先检索cscope的tags文件，如果这不是你的意愿，请关掉cscope ！
+
+(4)vimrc 操作
+  ,ee  编辑vimrc
+  ,ss  重新加载应用新的vimrc
+
+
+
+5.
+ref: $HOME/.vimfuzzyfinder 
+
+map <leader>f :FuzzyFinderTextMate<CR>
+map fr <esc>:FuzzyFinderTextMateRefreshFiles<cr>
+
+map fm  <esc>:MRU<cr>
+
+map ff  <esc>:FuzzyFinderFile<cr>
+map fd  <esc>:FuzzyFinderDir<cr>
+map fa <esc>:FuzzyFinderAddBookmark<cr>
+map fl <esc>:FuzzyFinderBookmark<cr>
+map fb  <esc>:FuzzyFinderBuffer<cr>
+
+6.
+(1).为了保持段落的形状，用 "gq" 操作符。下面我们首先结合一个可视选中区来使用它。 
+从第一行开始，键入 v4jgq
+"v" 用来进入可视模式，"4j" 用来向下移动4行并进行选择，接下来是 "gq" 操作符进行对其。
+
+(2)."switch the CWD to the current buffer's dir
+cd
+
+(3).vim 和其他程序互相copy/paste:
+  windows中:
+    通过 "* 寄存器(已经映射到OS的剪切板)，vim中的y/d都会copy到"*, 
+    从OS的剪切板到vim只要p即可
+
+  linux中:
+  "copy to system clipboard
+  vmap <C-c> "+y
+  "cut to system clipboard
+  vmap <C-x> "+d
+  vim中的<C-c> <c-x>都会copy到"+,也就是Linux的剪切板 
+  从OS的剪切板到vim只要p即可
+
+(4). 
+  可以在visual模式下选择一些字符如 C:\automation\tags ,按“gf”会跳转到该文件中
+  可以在visual模式下选择一些字符如 ::AX4000::CreateStream ,按 <C-]> 会跳转到该tag定义处
+  可以在visual模式下选择一些字符如 xyz ,按 / 会进行搜索/xyz/, 业可按 * 或者 #进行搜索
+   
+(5). 自动补全
+  <Tab> 使用'context'自动补全
+  <S-Tab> 使用tag文件中的tag自动补全
+
+  在某些情况下，<Tab>自动补全 会和 snipMate代码模板 冲突，这时可用<A-v>调出 snipMate代码模板
+
+(6).高亮
+  <F3> 搜索高亮开关
+  在visual/normal模式下用*/# 搜索当前单词
+  在visual模式下选择一些字符如 xyz ,按 / 会进行搜索/xyz/, 业可按 * 或者 #进行搜索
+  在visual模式下，选择一些字符，按",m"进行单词高亮，岸",n"取消高亮
+  按",r"后在@后输入正则表达式，进行高亮
+
+7.
+EasyGrep:
+
+<leader>vv- Grep for the word under the cursor
+<leader>va - Like vv, but add to existing list
+<leader>vo - Select the files to search in and set grep options
+:Grep SearchString
+
+<leader>对应到","。
+
+map f/ <esc>:Grep
+let g:EasyGrepCommand = 1
+let g:EasyGrepFileAssociations = "C:\\Program Files\\Vim\\vim72\\plugin\\EasyGrepFileAssociations"
+let g:EasyGrepRecursive = 1
+let g:EasyGrepHidden = 0
+let g:EasyGrepExtraWarnings=0
+let g:EasyGrepIgnoreCase= 1
+
+8.
+(1) ZoomWin:
+<c-w>o
+
+(2) Bexec.vim
+normal模式下，<F6> 执行当前脚本，执行结果在当前vim中显示
+visual模式下选中脚本后，<F6>执行
+
+<C-F6> 调出/关闭Bexec输出窗口
+
+<F5> 执行当前脚本，执行结果在DOS中显示
+
+9.
+如果要删除Bookmark等请参照: $HOME/.NERDTreeBookmarks
+
+" NERDTree ignore 
+let NERDTreeIgnore=['^CVS$']
+" NERDTree render the exist tree
+map <F11> :NERDTreeToggle<CR>
+" NERDTree init and render a new tree
+map <C-F11> :NERDTree<CR>
+
+on file node:
+<Tab>  open in new split
+t  open in new tab
+
+:tabe filename 在新标签页打开文件
+:tabc 关闭标current签页
+:tabo 关闭other标签页
+:tabn next标签页 或是 gt, C-PageDown
+:tabp pre标签页 或是 gT, C-PageUp
+:tabr first标签页
+:tabl last标签页
+:tabs showall标签页
+:tabm [N] 移动到第N顺位
+还可以 :set tabline 来定义tab的显示方式
+
+10. ctags
+
+win32下 ctags.exe 如何指定扫描文件类型
+
+ctags --languages=asm  --langmap=asm:.asm.inc -R .
+ctags --languages=tcl  --langmap=tcl:.tcl.test  --exclude=CVS -R .
+ctags --langmap=c:.c.h.ho.hem.het.hec.hev.him.hit.hic.hiv -R .
+
+后面那一大堆该语言的文件类型，是我发现实际上ctags的参数是不认通配符的，所以只能把没一种头文件后缀都加上
+
+–exclude=[pattern]
+将 pattern 加到排除文件/目录列表中。这个选项可以被指定任意多次。对每一个 ctags 处理的文
+件名，都会把该文件的完整路径 (例如 /some/path/base.ext) 以及文件名 (例如，base.ext) 与
+此选项定义的每个 pattern 进行比较，这允许 pattern 只匹配一个给定的文件名而不管其路径，
+或者只匹配一个指定的路径。如果你所用的 C 编译器的运行库支持，那么 pattern 中可以包含
+Unix 上通用的 shell 通配符 (不是正则表达式) (确保把这个选项的参数用引号括起来，以保证通
+配符在传给 ctags 之前不会被 shell 扩展；另外，要知道通配符可以匹配 "/" 字符)。 你可以通
+过检查 –version 选项的输出来确定在你的平台上 shell 通配符是否可用，(如果可用，) 在编译
+的特性表中将包含 "+wildcards"；否则将通过简单的文本比较来检查 pattern 与文件名的匹配。
+
+如果 pattern 以字符 "@" 开始，那么剩余的字符串将被解释成一个文件的名字，由此文件中读取
+排除模式字串，每行一个。如果 pattern 为空，排除列表将被清空。注意，在程序启动时，缺省的
+排除列表包含"EIFGEN"，"SCCS"，"RCS"，和"CVS"，这些是在处理 –recurse 选项时不想意外进入
+的目录名。
+
+ctags-php () {
+	ctags -h ".inc" -R \
+		--exclude="\.svn" \
+		--exclude="\.git" \
+		--totals=yes \
+		--languages="php" \
+		--PHP-kinds=+cf \
+		--regex-PHP='/abstract\s+class\s+([^ ]+)/\1/c/' \
+		--regex-PHP='/interface\s+([^ ]+)/\1/c/' \
+		--regex-PHP='/(public\s+|static\s+|abstract\s+|protected\s+|private\s+)function\s+\&?\s*([^ (]+)/\2/f/' \
+		"$@" # Including extra paremeters
+}
+ctags-php () {
+	ctags -f tags --recurse --totals \
+	 --exclude=blib \
+	 --exclude=.svn \
+	 --exclude='*~' \
+	 --languages=Perl --langmap=Perl:+.t
+}
+
+(1) 在插入模式下,<c-o>暂时进入普通模式，可以执行一个命令如:w，后又自动进入插入模式
+(2) <c-w> ]  打开一个子窗口跳转到该tag
+(3) gd  跳转到当前局部变量（不是tag）的定义处
+
+11. vim分割窗口
+关闭窗口   :close
+分割窗口   :[v]split [another_file.c]
+在窗口间跳转
+    CTRL-W h     跳转到左边的窗口
+    CTRL-W j     跳转到下面的窗口
+    CTRL-W k     跳转到上面的窗口
+    CTRL-W l     跳转到右边的窗口
+
+    CTRL-W t     跳转到最顶上的窗口
+    CTRL-W b     跳转到最底下的窗口
+    CTRL-W w     跳转下一个窗口
+移动窗口   CTRL-W K
+这里使用大写的 K。这样窗口将被移到最上面。你可以注意到，这里有用 K 表示向上
+移动了。
+
+:wall 这表示 "write all"（全部保存）
+:wqall
+
+Vim 会尽可能保持两个文件对齐，以便你可以并排看到文件的区别。
+  如果暂时想关闭这个特性，使用如下命令：
+    :set noscrollbind
+
+12. cscope
+在vim中用了一阵子ctags，确实美中不足。ctags只能根据调用函数的地方查找定义该函数的地方，不能根据定义函数的地方查找都有哪些地方调用了该函数。于是又学习了cscope。Cscope在主页上说他具备毋庸置疑的UNIX血统，早在PDP-11的时代就已在贝尔实验室研发出来了。我的Linux是SuSE10.0，系统自带的有cscope软件。
+一、将http://cscope.sourceforge.net/cscope_maps.vim
+另存为文档~/.vim/plugin/cscope_maps.vim
+二、因为cscope将“ctrl+空格”作为映射键，但是这样会调出输入法，因此将~/.vim/plugin/cscope_maps.vim文档中的替换为（或是您没有映射过的您喜欢的快捷键）
+三、进入C语言源代码目录，建立符号表:
+mishuang@msh:~/linux/linux0.11/source-0.11> cscope -R
+ctr-D退出后，当前目录会多一个文档cscope.out，这个文档比tags大多了。
+四、使用指南
+1）使用下面的命令直接进入main函数定义的地方，假如有多个的话，输入索引号，回车。
+mishuang@msh:~/linux/linux0.11/source-0.11> vi -t main
+2）将光标停留在一个函数或变量上，"ctrl+]"，将直接跳转到定义该函数的地方。
+3）将光标停留在一个函数或变量上，"ctrl+＼"再输入s，这样就会出现任何调用、定义该函数的地方，输入索引号，回车即可。
+4）将光标停留在一个函数或变量上，再输入s，这样就会出现任何调用、定义该函数的地方，输入索引号，回车后会以水平方式在另外一个窗口显示。
+5）将光标停留在一个函数或变量上，再输入s，这样就会出现任何调用、定义该函数的地方，输入索引号，回车后会以垂直方式在另外一个窗口显示。
+6）ctrl+t回到原来跳转前的地方，连续按两下’’能够再回去。
+
+
+13.
+注释: ,cc
+取消注释: ,ci 
+
+14. mru.vim
+:MRU打开window(map: fm)
+<cr> :open in previous window
+o : open in new window
+t : open in new tab
+q : exit
+u : update the window
+___________________________________________________________________________ 
+
+15. NERD_commenter.vim
+Vim的插件The NERD Commenter管理注释非常有效。
+
+使用了The NERD Commenter后，要为一段代码逐行添加注释，只需进入按V可视模式，选
+择要注释的行后，按下[count],cc即可。The NERD Commenter的其它常用命令还有：
+
+[count],cc:光标以下count行逐行添加注释(7,cc)
+[count],cu:光标以下count行逐行取消注释(7,cu)
+[count],cm:光标以下count行尝试添加块注释(7,cm) 
+
+jcommenter.vim
+autocmd FileType java map <M-c> :call JCommentWriter()<CR> 
+
+___________________________________________________________________________ 
+
+
+
+___________________________________________________________________________ 
+
+
+
+___________________________________________________________________________ 
+
+
+
+___________________________________________________________________________ 
+
+
+
+___________________________________________________________________________ 
+
+
+
+___________________________________________________________________________ 
+
+
+
+___________________________________________________________________________ 
+
+
+
+___________________________________________________________________________ 

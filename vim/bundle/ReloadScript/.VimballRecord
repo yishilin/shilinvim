@@ -1,0 +1,1 @@
+ReloadScript.vba: call delete('/Users/shilin/.vim/bundle/ReloadScript//plugin/ReloadScript.vim')|call delete('/Users/shilin/.vim/bundle/ReloadScript//doc/ReloadScript.txt')

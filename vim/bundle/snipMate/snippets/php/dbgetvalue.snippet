@@ -1,0 +1,9 @@
+
+$db = Wuyou_Database_Pdo::getInstance();
+
+$sql_select = sprintf("${1}", ${2});
+$value = $db->getValue($sql_select);
+if (empty($value)) {
+	//get nothing
+}
+

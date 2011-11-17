@@ -1,0 +1,72 @@
+﻿编译Vim 7.0
+
+
+Linux上编译方法，如果你想在windows上编译vim，可以参考这篇文档：Vim: Compiling HowTo: For Windows。
+
+[ 下载vim源代码 ]
+
+首先我们需要下载vim的源码。到vim主页下载当前最新的vim 7.1的源代码，假设我们把代码放到~/install/目录，文件名为vim-7.1.tar.bz2。
+7.1主要有两个包 vim-7.1.tar.bz2， vim-7.1-lang.tar.gz （多国语言包)
+
+前者是bz2格式的，用 tar xvfj vim-7.1.tar.bz2 解压 ( j表示解压bz2)
+后者用  tar xzvf vim-7.1.lang.tar.gz 解压
+
+[ 定制vim的功能 ]
+
+缺省的vim配置已经适合大多数人，但有些时候你可能需要一些额外的功能，这时就需要自己定制一下vim。定制vim很简单，进入~/install/vim71/src文件，编辑Makefile文件。
+
+
+
+修改编译选项应该可以通过修改src/下的Makefile进行，
+改好后make config一下；
+这是一个注释很好的文档，根据注释来选择：
+    * 如果你不想编译gvim，可以打开–disable-gui选项；
+    * 如果你想把perl, python, tcl, ruby等接口编译进来的话，打开相应的选项，例如，我打开了–enable-tclinterp选项；
+    * 如果你想在vim中使用cscope的话，打开–enable-cscope选项；
+    * 我们刚才打的vimgdb补丁，自动在Makefile中加入了–enable-gdb选项；
+    * 如果你希望在vim使用中文，使能–enable-multibyte和–enable-xim选项；
+    * 可以通过–with-features=XXX选项来选择所编译的vim特性集，缺省是–with-features=normal；
+    * 如果你没有root权限，可以把vim装在自己的home目录，这时需要打开prefix = $(HOME)选项； 
+
+(编辑好src/Makefile文件后，就可以编辑安装vim了。如果你需要更细致的定制vim，可以修改config.h文件，打开/关闭你想要的特性。)
+
+
+不过我们推荐这个方式：
+./configure --with-features=huge \
+--enable-cscope \
+--enable-multibyte \
+--enable-xim \
+--enable-fontset \
+--enable-rubyinterp \
+--enable-gui=gnome2
+
+就是加huge特性，加cscope，多字节支持，xim输入法等。config时如果前面进行过，会在src/auto/config.cache中保留，再次配置时应该删除这个文件。
+
+加上gui支持之后，编译时间比没有gui的要长一倍，不过应该没什么错误。
+
+缺省安装目录在/usr/local，一般不用动。debian的PATH变量中local还在/usr/bin前面，所以也不用改，再敲命令vim出来的就是vim 7.0了:
+
+:version
+VIM - Vi IMproved 7.0 (2006 May 7, compiled May 9 2006 23:15:24)
+编译者 qi@cathayan.org
+巨型版本 带 GTK2 图形界面。
+
+
+[ 编译安装 ]
+
+编译和安装vim非常简单，使用下面两个命令：
+
+make
+make install 
+
+你不需要手动运行./configure命令，make命令会自动调用configure命令。
+
+上面的命令执行完后，vim就安装成功了。
+
+我在编译时打开了”prefix = $(HOME)”选项，因此我的vim被安装在~/bin目录。这时需要修改一下PATH变量，以使其找到我编辑好的vim。在~/.bashrc文件中加入下面这两句话：
+
+PATH=$HOME/bin:$PATH
+export PATH 
+
+退出再重新登录，现在再敲入vim命令，发现已经运行我们编译的vim了。
+
