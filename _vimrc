@@ -87,11 +87,6 @@ else
 endif
 
 
-
-
-"" 设定启动时CWD
-cd $VIM_PLUGIN
-
 let mapleader = "," 
 "let maplocalleader = ","
 
