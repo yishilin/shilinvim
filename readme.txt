@@ -6,5 +6,7 @@
   ln -s /local/yisl/yislvim/Vim/vimfiles/ .vim
   ln -s /local/yisl/yislvim/Vim/_vimrc .vimrc
 
-2. 
+2. install command-t(if you use rvm)
+first make sure the "rvm system --default", let the system ruby version to
+install the command-t
          

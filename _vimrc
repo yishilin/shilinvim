@@ -473,6 +473,8 @@ function! CurDir()
    return curdir
 endfunction
 
+
+source $VIM_PLUGIN/bundle/LargeFile/plugin/LargeFile.vim
 source $VIM_PLUGIN/bundle/git/plugin/git.vim
 
 
@@ -625,9 +627,9 @@ map <c-x>n <esc>:cn<cr>
 map <c-x>p <esc>:cp<cr>
 map <c-x>c <esc>:cc 
 
-"" alt+n or alt+p to navigate between entries in QuickFix
-map <silent> <m-p> :cp <cr>
-map <silent> <m-n> :cn <cr>
+"" to navigate between entries in QuickFix
+map <silent> gp :cp <cr>
+map <silent> gn :cn <cr>
 
 "------------------------------------------------------
 

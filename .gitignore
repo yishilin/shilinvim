@@ -7,4 +7,5 @@ tmp/*
 coverage
 .project
 *.swp
+.rvmrc
 .DS_Store

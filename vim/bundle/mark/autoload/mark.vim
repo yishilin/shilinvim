@@ -314,12 +314,12 @@ endfunction
 function! mark#Toggle()
 	if s:enabled
 		call s:MarkEnable(0)
-		echo 'Disabled marks'
+		"echo 'Disabled marks'
 	else
 		call s:MarkEnable(1)
 
 		let l:markCnt = len(filter(copy(s:pattern), '! empty(v:val)'))
-		echo 'Enabled' (l:markCnt > 0 ? l:markCnt . ' ' : '') . 'marks'
+		"echo 'Enabled' (l:markCnt > 0 ? l:markCnt . ' ' : '') . 'marks'
 	endif
 endfunction
 
