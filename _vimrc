@@ -364,10 +364,13 @@ set autoindent
 "------------------------------------------------ 
 "" rails.vim
 "---------------------------- 
+"How to create project based rvmrc:
+" cd myproject
+" rvm --rvmrc --create 1.8.7@myproject
+
 function! Set_rails_project_root()
   let g:project_root = CurDir()
 endfunction
-
 
 
 "" Switch to current dir

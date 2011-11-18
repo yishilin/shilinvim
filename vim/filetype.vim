@@ -46,6 +46,11 @@ if exists("did_load_filetypes")
 endif
 
 
+function! SetHamlSpace()
+  ":match SpellBad /^\s\+/
+endfunction
+
+
 augroup filetypedetect
   autocmd BufEnter * :syntax sync fromstart " ensure every file does syntax highlighting (full)
   au! BufRead,BufNewFile *.test           setfiletype tcl
@@ -54,6 +59,7 @@ augroup filetypedetect
   au! BufEnter,BufRead,BufNewFile *.vim   set filetype=vim
   au! BufRead,BufNewFile *_spec.rb        set filetype=ruby.spec
   au! FileType ruby,eruby,yaml,cucumber call g:SetTab(1, 2)
+  au! FileType haml call SetHamlSpace()
   au! BufNewFile,BufRead *.as  setf actionscript 
   au BufRead,BufNewFile *.txt  set syntax=txt 
 augroup END
