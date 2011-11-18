@@ -368,6 +368,31 @@ function! Set_rails_project_root()
   let g:project_root = CurDir()
 endfunction
 
+
+
+"" Switch to current dir
+"" and NERDTree init and render a new tree
+
+
+function! Map_cd()
+  if exists("b:rails_root") 
+    let g:project_root=b:rails_root
+    execute ':cd ' . b:rails_root
+    Rtree
+  else
+    let g:project_root=expand("%:p:h")
+    cd %:p:h
+    NERDTreeFind
+  end
+endfunction
+
+
+"" Switch to current dir
+"" and NERDTree init and render a new tree
+map <silent> cd  <esc>:call Map_cd()<cr>
+map <silent> lcd  <esc>:cd %:p:h<cr><esc>:NERDTreeFind<cr>
+
+autocmd User Rails		silent! Rlcd
 autocmd User Rails		call Set_rails_project_root()
 "------------------------------------------------ 
 
@@ -741,9 +766,6 @@ let NERDTreeIgnore=['^CVS$', 'phpMyAdmin', 'svn$', 'git$', '^Thumbs.db$', '.clas
 ""  NERDTree render the exist tree
 map <silent> mv :NERDTreeToggle<cr>
 
-"" Switch to current dir
-"" and NERDTree init and render a new tree
-map <silent> cd  <esc>:cd %:p:h<cr><esc>:NERDTreeFind<cr>
 
 "-------------------------------------------------------------------
 
