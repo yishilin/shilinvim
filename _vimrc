@@ -380,8 +380,14 @@ endfunction
 function! Map_cd()
   if exists("b:rails_root") 
     let g:project_root=b:rails_root
-    execute ':cd ' . b:rails_root
-    Rtree
+    let current_cwd = getcwd()
+    if current_cwd ==? g:project_root
+      NERDTreeFind
+      execute ':cd ' . b:rails_root
+    else
+      execute ':cd ' . b:rails_root
+      Rtree
+    endif
   else
     let g:project_root=expand("%:p:h")
     cd %:p:h
@@ -393,7 +399,6 @@ endfunction
 "" Switch to current dir
 "" and NERDTree init and render a new tree
 map <silent> cd  <esc>:call Map_cd()<cr>
-map <silent> lcd  <esc>:cd %:p:h<cr><esc>:NERDTreeFind<cr>
 
 autocmd User Rails		silent! Rlcd
 autocmd User Rails		call Set_rails_project_root()
