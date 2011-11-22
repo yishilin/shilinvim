@@ -135,6 +135,11 @@ call s:initVariable("g:NERDTreeMapToggleFiles", "F")
 call s:initVariable("g:NERDTreeMapToggleFilters", "f")
 call s:initVariable("g:NERDTreeMapToggleHidden", "I")
 call s:initVariable("g:NERDTreeMapToggleZoom", "A")
+
+call s:initVariable("g:NERDTreeMapZoom", "w")    "add by shilin
+call s:initVariable("g:NERDTreeMaxed", 0)    "add begin by shilin
+                                      
+
 call s:initVariable("g:NERDTreeMapUpdir", "u")
 call s:initVariable("g:NERDTreeMapUpdirKeepOpen", "U")
 
@@ -3554,7 +3559,12 @@ function! s:bindMappings()
     exec "nnoremap <silent> <buffer> ". g:NERDTreeMapRefresh ." :call <SID>refreshCurrent()<cr>"
 
     exec "nnoremap <silent> <buffer> ". g:NERDTreeMapHelp ." :call <SID>displayHelp()<cr>"
-    exec "nnoremap <silent> <buffer> ". g:NERDTreeMapToggleZoom ." :call <SID>toggleZoom()<cr>"
+    exec "nnoremap <silent> <buffer> ". g:NERDTreeMapToggleZoom ." :call <SID>toggleZoom()<cr>" 
+
+    "add begin by shilin
+    exec "nnoremap <silent> <buffer> ". g:NERDTreeMapZoom. " :call <SID>Tree_Window_Zoom()<cr>"  
+    "add end by shilin 
+
     exec "nnoremap <silent> <buffer> ". g:NERDTreeMapToggleHidden ." :call <SID>toggleShowHidden()<cr>"
     exec "nnoremap <silent> <buffer> ". g:NERDTreeMapToggleFilters ." :call <SID>toggleIgnoreFilter()<cr>"
     exec "nnoremap <silent> <buffer> ". g:NERDTreeMapToggleFiles ." :call <SID>toggleShowFiles()<cr>"
@@ -4054,6 +4064,37 @@ function! s:upDir(keepState)
         call oldRoot.putCursorHere(0, 0)
     endif
 endfunction
+
+
+
+"Add begin by shilin
+
+" Tree_Window_Zoom
+" Zoom (maximize/minimize) the tree window
+function! s:Tree_Window_Zoom()
+    let nr = winnr()
+    if g:NERDTreeMaxed
+        " Restore the window back to the previous size
+        exe nr . "wincmd w"
+        exe "vert resize " . g:NERDTreeWinSize
+        let g:NERDTreeMaxed = 0
+    else
+        " Set the window size to the maximum possible without closing other
+        " windows
+        exe nr . "wincmd w"
+        exe "vert resize 70" 
+        let g:NERDTreeMaxed = 1
+    endif
+endfunction
+
+
+function! s:Tree_Window_Zoom_in()
+    let g:NERDTreeMaxed = 1
+    call s:Tree_Window_Zoom()
+endfunction
+
+"Add end by shilin
+                   
 
 
 "reset &cpo back to users setting

@@ -1,4 +1,6 @@
 
+Top Vim Plugins:
+  http://www.youtube.com/watch?v=_galFWwSDt0
 
 要正确使用所有这些插件，前提：
 
