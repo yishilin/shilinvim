@@ -383,9 +383,9 @@ function! Map_cd()
     let current_cwd = getcwd()
     if current_cwd ==? g:project_root
       NERDTreeFind
-      execute ':cd ' . b:rails_root
+      execute 'cd ' . b:rails_root
     else
-      execute ':cd ' . b:rails_root
+      execute 'cd ' . b:rails_root
       Rtree
     endif
   else
@@ -870,6 +870,18 @@ let MRU_Exclude_Files .= '\|.*BExec_output.*\|.*NERD_tree_.*\|.*__MRU_Files__.*'
 let MRU_Add_Menu = 0 
 
 
+" Autocommands to detect the most recently used files
+autocmd BufRead * call g:MRU_AddFile(expand('<abuf>'))
+autocmd BufNewFile * call g:MRU_AddFile(expand('<abuf>'))
+autocmd BufWritePost * call g:MRU_AddFile(expand('<abuf>'))
+autocmd BufWritePre,FileWritePre,BufWriteCmd   *NERD_tree_* call CancelSave()
+fun! CancelSave()
+    echomsg "![E+] Can not save \""expand("%:p")."\""
+    return 0
+endfun          
+
+
+
 " The ':vimgrep' command adds all the files searched to the buffer list.
 " This also modifies the MRU list, even though the user didn't edit the
 " files. Use the following autocmds to prevent this.
@@ -877,6 +889,11 @@ autocmd QuickFixCmdPre *vimgrep* let g:mru_list_locked = 1
 autocmd QuickFixCmdPost *vimgrep* let g:mru_list_locked = 0
 
 au BufRead,BufNewFile *__MRU_Files__*  setlocal  cursorline
+
+" Command to open the MRU window
+command! -nargs=? -complete=customlist,g:MRU_Complete MRU
+            \ call g:MRU_Cmd(<q-args>)    
+
 "---------------------------------------------------------------------
 
 

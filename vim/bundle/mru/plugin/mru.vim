@@ -85,9 +85,12 @@
 " the cursor is moved to that tab. Otherwise, a new tab is opened.
 "
 " You can open multiple files from the MRU window by specifying a count before
-" pressing '<Enter>' or 'v' or 'o' or 't'. You can also visually select
+" pressing '<Enter>' or 'v' or 'o', 'O', or 't'. You can also visually select
 " multiple filenames and invoke the commands to open the files. Each selected
 " file will be opened in a separate window or tab.
+"
+" 'O' means open in a new window verticality
+" 'o' means open in a new window horizontal
 "
 " You can press the 'u' key in the MRU window to update the file list. This is
 " useful if you keep the MRU window open always.
@@ -282,7 +285,7 @@ endif
 
 " Control to temporarily lock the MRU list. Used to prevent files from
 " getting added to the MRU list when the ':vimgrep' command is executed.
-let s:mru_list_locked = 0
+let g:mru_list_locked = 0
 
 " MRU_LoadList                          {{{1
 " Loads the latest list of file names from the MRU file
@@ -319,11 +322,35 @@ function! s:MRU_SaveList()
     call writefile(l, g:MRU_File)
 endfunction
 
+
+"" shilin
+""Input: getUserName
+""Return: GetUserName
+function! s:CamelName(source_name)
+  let name = a:source_name
+  if has("win32")
+    let name = substitute(name, '^\([A-Za-z]\)', '\u\1', "")
+  endif
+  return name 
+endfunction
+
+"" shilin
+""Input: GetUserName
+""Return: getUserName
+function! s:camelName(source_name)
+  let name = a:source_name
+  if has("win32")
+    let name = substitute(name, '^\([A-Za-z]\)', '\l\1', "")
+  endif
+  return name 
+endfunction
+
+
 " MRU_AddFile                           {{{1
 " Adds a file to the MRU file list
 "   acmd_bufnr - Buffer number of the file to add
-function! s:MRU_AddFile(acmd_bufnr)
-    if s:mru_list_locked
+function! g:MRU_AddFile(acmd_bufnr)
+    if g:mru_list_locked
         " MRU list is currently locked
         return
     endif
@@ -333,6 +360,9 @@ function! s:MRU_AddFile(acmd_bufnr)
     if fname == ''
         return
     endif
+
+    " shilin
+    let fname = s:CamelName(fname)
 
     " Skip temporary buffers with buftype set. The buftype is set for buffers
     " used by plugins.
@@ -452,8 +482,10 @@ endfunction
 "                         opened in a tab, then jump to that tab.
 function! s:MRU_Window_Edit_File(fname, multi, edit_type, open_type)
     let esc_fname = s:MRU_escape_filename(a:fname)
-
-    if a:open_type == 'newwin'
+    if a:open_type == 'vnewwin'
+        " Edit the file in a new window
+        exe 'vert new ' . esc_fname
+    elseif a:open_type == 'newwin'
         " Edit the file in a new window
         exe 'leftabove new ' . esc_fname
     elseif a:open_type == 'newtab'
@@ -662,9 +694,10 @@ function! s:MRU_Open_Window(...)
     endif
 
     " Mark the buffer as scratch
-
-    " Mark the buffer as scratch
-
+    "" add by shilin begin
+    setlocal cursorline
+    "" add by shilin end
+    
     setlocal buftype=nofile
     setlocal bufhidden=delete
     setlocal noswapfile
@@ -678,6 +711,11 @@ function! s:MRU_Open_Window(...)
     set cpoptions&vim
 
     " Create mappings to select and edit a file from the MRU list
+    nnoremap <buffer> <silent> O
+                \ :call <SID>MRU_Select_File_Cmd('edit,vnewwin')<CR>
+    vnoremap <buffer> <silent> O
+                \ :call <SID>MRU_Select_File_Cmd('edit,vnewwin')<CR>
+
     nnoremap <buffer> <silent> <CR>
                 \ :call <SID>MRU_Select_File_Cmd('edit,useopen')<CR>
     vnoremap <buffer> <silent> <CR>
@@ -690,9 +728,8 @@ function! s:MRU_Open_Window(...)
                 \ :call <SID>MRU_Select_File_Cmd('edit,newtab')<CR>
     vnoremap <buffer> <silent> t
                 \ :call <SID>MRU_Select_File_Cmd('edit,newtab')<CR>
-    " shilin
-    " nnoremap <buffer> <silent> v
-    "             \ :call <SID>MRU_Select_File_Cmd('view,useopen')<CR>
+    nnoremap <buffer> <silent> r
+                \ :call <SID>MRU_Select_File_Cmd('view,useopen')<CR>
     nnoremap <buffer> <silent> u :MRU<CR>
     nnoremap <buffer> <silent> <2-LeftMouse>
                 \ :call <SID>MRU_Select_File_Cmd('edit,useopen')<CR>
@@ -724,7 +761,7 @@ endfunction
 
 " MRU_Complete                          {{{1
 " Command-line completion function used by :MRU command
-function! s:MRU_Complete(ArgLead, CmdLine, CursorPos)
+function! g:MRU_Complete(ArgLead, CmdLine, CursorPos)
     if a:ArgLead == ''
         " Return the complete list of MRU files
         return s:MRU_files
@@ -737,7 +774,7 @@ endfunction
 " MRU_Cmd                               {{{1
 " Function to handle the MRU command
 "   pat - File name pattern passed to the MRU command
-function! s:MRU_Cmd(pat)
+function! g:MRU_Cmd(pat)
     if a:pat == ''
         " No arguments specified. Open the MRU window
         call s:MRU_Open_Window()
@@ -899,21 +936,21 @@ call s:MRU_LoadList()
 
 " MRU autocommands {{{1
 " Autocommands to detect the most recently used files
-autocmd BufRead * call s:MRU_AddFile(expand('<abuf>'))
-autocmd BufNewFile * call s:MRU_AddFile(expand('<abuf>'))
-autocmd BufWritePost * call s:MRU_AddFile(expand('<abuf>'))
+autocmd BufRead * call g:MRU_AddFile(expand('<abuf>'))
+autocmd BufNewFile * call g:MRU_AddFile(expand('<abuf>'))
+autocmd BufWritePost * call g:MRU_AddFile(expand('<abuf>'))
 
 " The ':vimgrep' command adds all the files searched to the buffer list.
 " This also modifies the MRU list, even though the user didn't edit the
 " files. Use the following autocmds to prevent this.
-autocmd QuickFixCmdPre *vimgrep* let s:mru_list_locked = 1
-autocmd QuickFixCmdPost *vimgrep* let s:mru_list_locked = 0
+autocmd QuickFixCmdPre *vimgrep* let g:mru_list_locked = 1
+autocmd QuickFixCmdPost *vimgrep* let g:mru_list_locked = 0
 
 " Command to open the MRU window
-command! -nargs=? -complete=customlist,s:MRU_Complete MRU
-            \ call s:MRU_Cmd(<q-args>)
-command! -nargs=? -complete=customlist,s:MRU_Complete Mru
-            \ call s:MRU_Cmd(<q-args>)
+command! -nargs=? -complete=customlist,g:MRU_Complete MRU
+            \ call g:MRU_Cmd(<q-args>)
+command! -nargs=? -complete=customlist,g:MRU_Complete Mru
+            \ call g:MRU_Cmd(<q-args>)
 
 " }}}
 

@@ -137,7 +137,7 @@ call s:initVariable("g:NERDTreeMapToggleHidden", "I")
 call s:initVariable("g:NERDTreeMapToggleZoom", "A")
 
 call s:initVariable("g:NERDTreeMapZoom", "w")    "add by shilin
-call s:initVariable("g:NERDTreeMaxed", 0)    "add begin by shilin
+call s:initVariable("g:NERDTreeMaxed", 0)    "add by shilin
                                       
 
 call s:initVariable("g:NERDTreeMapUpdir", "u")
@@ -4082,7 +4082,7 @@ function! s:Tree_Window_Zoom()
         " Set the window size to the maximum possible without closing other
         " windows
         exe nr . "wincmd w"
-        exe "vert resize 70" 
+        exe "vert resize 80" 
         let g:NERDTreeMaxed = 1
     endif
 endfunction
