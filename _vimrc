@@ -705,12 +705,12 @@ map! <c-l> <DEL>
 "map <S-Space> <c-B>
 
 "" In insert and cmd modems to hjkl
-map! <a-j> <Down>
-map! <a-k> <Up>
-map! <a-h> <Left>
-map! <a-l> <Right>
-map! <a-w> <c-Right>
-map! <a-b> <c-Left>
+cnoremap <C-a> <Home>
+cnoremap <C-e> <End>
+cnoremap <C-p> <Up>
+cnoremap <C-n> <Down>
+cnoremap <C-b> <Left>
+cnoremap <C-f> <Right>
 
 
 "" just works in gui :)
