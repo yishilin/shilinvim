@@ -369,8 +369,34 @@ set autoindent
 " rvm --rvmrc --create 1.8.7@myproject
 
 function! Set_rails_project_root()
-  let g:project_root = CurDir()
+  let g:project_root = CurDir() 
 endfunction
+
+au! BufRead,BufNewFile *_spec.rb       nmap  tt :call g:TRailsTest()<cr>
+au! BufRead,BufNewFile *.feature       nmap  tt :call g:TRailsTest()<cr>
+
+
+function! g:TRailsTest()
+  let file_path_name = expand("%:p")
+  let line_num = line('.') 
+
+  let cmd_name = "bundle exec spec"
+  if -1 != match(file_path_name, "_spec.rb$")
+      let cmd_name = "bundle exec rspec"
+  endif 
+  if -1 != match(file_path_name, "feature$")
+      let cmd_name = "bundle exec cucumber"
+  endif
+  
+  let line_str = ":" . line_num
+  if line_num < 3
+     let line_str = ""
+  endif
+
+  let command = cmd_name . " ". file_path_name . line_str
+  call g:AsynCommand(command)
+endfunction 
+                                                                
 
 
 "" Switch to current dir
