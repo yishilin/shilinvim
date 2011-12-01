@@ -831,7 +831,8 @@ map <silent> mv :NERDTreeToggle<cr>
 "" Resources:
 ""   http://betterthangrep.com/
 ""   http://amaslov.wordpress.com/2009/04/23/vim-ack-instead-of-grep/ 
-let g:ackprg="ack -H --nocolor --nogroup --column"
+"let g:ackprg="ack -H --nocolor --nogroup --column"
+let g:ackprg="ack"
 
 "-------------------------------------------------------------------
 
@@ -896,6 +897,7 @@ nmap <silent> mm <esc>:MRU<cr>
 let MRU_Max_Entries = 60
 let MRU_Exclude_Files = '.*\.pdf$\|.*\.zip$\|.*\.rar$\|.*\.7z$\|.*\.class$'
 let MRU_Exclude_Files .= '\|.*BExec_output.*\|.*NERD_tree_.*\|.*__MRU_Files__.*'
+let MRU_Exclude_Files .= '\|.*favex/favlist'
 let MRU_Add_Menu = 0 
 
 
