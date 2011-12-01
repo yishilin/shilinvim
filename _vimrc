@@ -535,6 +535,7 @@
 
   source $VIM_PLUGIN/bundle/LargeFile/plugin/LargeFile.vim
   source $VIM_PLUGIN/bundle/mygit/plugin/mygit.vim 
+  source $VIM_PLUGIN/bundle/fugitive/plugin/fugitive.vim 
 
 
   "" Format the statusline
@@ -897,7 +898,9 @@ nmap <silent> mm <esc>:MRU<cr>
 let MRU_Max_Entries = 60
 let MRU_Exclude_Files = '.*\.pdf$\|.*\.zip$\|.*\.rar$\|.*\.7z$\|.*\.class$'
 let MRU_Exclude_Files .= '\|.*BExec_output.*\|.*NERD_tree_.*\|.*__MRU_Files__.*'
-let MRU_Exclude_Files .= '\|.*favex/favlist'
+let MRU_Exclude_Files .= '\|.*favex/favlist\|.*\.fugitiveblame'
+
+
 let MRU_Add_Menu = 0 
 
 
