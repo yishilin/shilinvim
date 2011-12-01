@@ -534,7 +534,7 @@
 
 
   source $VIM_PLUGIN/bundle/LargeFile/plugin/LargeFile.vim
-  source $VIM_PLUGIN/bundle/git/plugin/git.vim
+  source $VIM_PLUGIN/bundle/mygit/plugin/mygit.vim 
 
 
   "" Format the statusline
@@ -799,7 +799,7 @@ let g:NERDTreeWinPos="right"
 let g:NERDTreeMapMenu="M"
 
 ""  NERDTree ignore ['expression-a', 'expression-b']
-let NERDTreeIgnore=['^CVS$', 'phpMyAdmin', 'svn$', 'git$', '^Thumbs.db$', '.class$']
+let NERDTreeIgnore=['^CVS$', 'phpMyAdmin', 'svn$', '\.git$', '^Thumbs.db$', '.class$']
 ""  NERDTree render the exist tree
 map <silent> mv :NERDTreeToggle<cr>
 
