@@ -587,6 +587,14 @@
   " @ -> 所有字母, 48-57 -> 数字0-9
   au BufRead,BufNewFile *.tcl,*.test  setlocal  iskeyword=@,48-57,_
   au BufRead,BufNewFile *.php         setlocal  iskeyword=@,48-57,_
+  au BufRead,BufNewFile *.mkd         setlocal spell
+
+  au! BufRead,BufNewFile *.scala       nmap  tt :call g:RunScala()<cr>
+
+  function! g:RunScala()
+    let command = "scala ". expand("%:p")
+    call g:AsynCommand(command)
+  endfunction 
 
 
 
@@ -1030,12 +1038,12 @@ endfunction
 ""-------------------------
 
 if bufwinnr(1)
-  map + 5<C-W>+
-  map = 5<C-W>+
-  map - 5<C-W>-
-  map _ 5<C-W>-
-  map < 5<C-W><
-  map > 5<C-W>>
+  map + 8<C-W>+
+  map = 8<C-W>+
+  map - 8<C-W>-
+  map _ 8<C-W>-
+  map < 8<C-W><
+  map > 8<C-W>>
 endif
 
 ""--------------------------------------------

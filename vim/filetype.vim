@@ -64,5 +64,3 @@ augroup filetypedetect
   au BufRead,BufNewFile *.txt  set syntax=txt 
 augroup END
 
-
-
