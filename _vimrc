@@ -43,6 +43,7 @@
   set autowriteall
   set t_Co=256
 
+  set noswapfile
 
 
   if 'windows' == g:platform
@@ -230,22 +231,23 @@
   endif
 
 
-
   "---------------------------------------------
-  "" command-t.vim
+  "" http://kien.github.com/ctrlp.vim/
   "----------------------------------
-
-  nmap <silent> <Leader>t :CommandT<CR>
-  nmap <silent> <Leader>f :CommandT<CR>
-  let g:CommandTCancelMap=['<C-[>','<C-]>', '<C-o>', '<C-c>','<Esc>']
-  let g:CommandTBackspaceMap = ['<C-h>', '<BS>']
-  let g:CommandTDeleteMap=['<C-l>', '<Del>']
-  let g:CommandTCursorLeftMap=['<Left>', '<C-b>']
-  let g:CommandTCursorRightMap=['<Right>', '<C-f>']
-  let g:CommandTSelectNextMap=["<C-n>", "<C-j>", "<Down>"]
-  let g:CommandTSelectPrevMap=["<C-p>", "<C-k>", "<Up>"]
+    set runtimepath^=~/.vim/bundle/ctrlp
+    let g:ctrlp_map = '<Leader>t'
+    let g:ctrlp_cmd = 'CtrlP'
+    nmap <silent> <Leader>t :CtrlP<CR>
+    set wildignore+=*/tmp/*,*.so,*.swp,*.zip  " MacOSX/Linux
+    
+    let g:ctrlp_custom_ignore = {
+      \ 'dir':  '\.git$\|\.hg$\|\.svn$',
+      \ 'file': '\.exe$\|\.so$\|\.dll$',
+      \ 'link': 'some_bad_symbolic_links',
+      \ }
 
   "---------------------------------------------
+
 
 
 
@@ -359,6 +361,46 @@
   set autoindent
 
 
+ 
+  "---------------------------------------------------------------------
+  "" MRU.vim Setting
+  "----------------------------------------- 
+  
+  nmap <silent> mm <esc>:MRU<cr>
+  let MRU_Max_Entries = 60
+  let MRU_Exclude_Files = '.*\.pdf$\|.*\.zip$\|.*\.rar$\|.*\.7z$\|.*\.class$'
+  let MRU_Exclude_Files .= '\|.*BExec_output.*\|.*NERD_tree_.*\|.*__MRU_Files__.*'
+  let MRU_Exclude_Files .= '\|.*favex/favlist\|.*\.fugitiveblame'
+  
+  
+  let MRU_Add_Menu = 0 
+  
+  
+  " Autocommands to detect the most recently used files
+  autocmd BufRead * call g:MRU_AddFile(expand('<abuf>'))
+  autocmd BufNewFile * call g:MRU_AddFile(expand('<abuf>'))
+  autocmd BufWritePost * call g:MRU_AddFile(expand('<abuf>'))
+  autocmd BufWritePre,FileWritePre,BufWriteCmd   *NERD_tree_* call CancelSave()
+  fun! CancelSave()
+      echomsg "![E+] Can not save \""expand("%:p")."\""
+      return 0
+  endfun          
+  
+  
+  
+  " The ':vimgrep' command adds all the files searched to the buffer list.
+  " This also modifies the MRU list, even though the user didn't edit the
+  " files. Use the following autocmds to prevent this.
+  autocmd QuickFixCmdPre *vimgrep* let g:mru_list_locked = 1
+  autocmd QuickFixCmdPost *vimgrep* let g:mru_list_locked = 0
+  
+  au BufRead,BufNewFile *__MRU_Files__*  setlocal  cursorline
+  
+  " Command to open the MRU window
+  command! -nargs=? -complete=customlist,g:MRU_Complete MRU
+              \ call g:MRU_Cmd(<q-args>)    
+  
+  "---------------------------------------------------------------------
 
 
   "------------------------------------------------ 
@@ -894,50 +936,6 @@ set guicursor=a:block-blinkon0,i-ci:ver25-Cursor/lCursor,v-ve:ver25-Cursor/lCurs
 ""  might want to set it again in your |gvimrc|, or in the end of your $VIMRUNTIME/menu.vim.
 ""  see :help gvimrc for more detail
 set vb t_vb=
-
-
-
-
-"---------------------------------------------------------------------
-"" MRU.vim Setting
-"----------------------------------------- 
-
-nmap <silent> mm <esc>:MRU<cr>
-let MRU_Max_Entries = 60
-let MRU_Exclude_Files = '.*\.pdf$\|.*\.zip$\|.*\.rar$\|.*\.7z$\|.*\.class$'
-let MRU_Exclude_Files .= '\|.*BExec_output.*\|.*NERD_tree_.*\|.*__MRU_Files__.*'
-let MRU_Exclude_Files .= '\|.*favex/favlist\|.*\.fugitiveblame'
-
-
-let MRU_Add_Menu = 0 
-
-
-" Autocommands to detect the most recently used files
-autocmd BufRead * call g:MRU_AddFile(expand('<abuf>'))
-autocmd BufNewFile * call g:MRU_AddFile(expand('<abuf>'))
-autocmd BufWritePost * call g:MRU_AddFile(expand('<abuf>'))
-autocmd BufWritePre,FileWritePre,BufWriteCmd   *NERD_tree_* call CancelSave()
-fun! CancelSave()
-    echomsg "![E+] Can not save \""expand("%:p")."\""
-    return 0
-endfun          
-
-
-
-" The ':vimgrep' command adds all the files searched to the buffer list.
-" This also modifies the MRU list, even though the user didn't edit the
-" files. Use the following autocmds to prevent this.
-autocmd QuickFixCmdPre *vimgrep* let g:mru_list_locked = 1
-autocmd QuickFixCmdPost *vimgrep* let g:mru_list_locked = 0
-
-au BufRead,BufNewFile *__MRU_Files__*  setlocal  cursorline
-
-" Command to open the MRU window
-command! -nargs=? -complete=customlist,g:MRU_Complete MRU
-            \ call g:MRU_Cmd(<q-args>)    
-
-"---------------------------------------------------------------------
-
 
 
 

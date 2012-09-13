@@ -1,4 +1,10 @@
 let g:netrw_dirhistmax  =10
-let g:netrw_dirhist_cnt =2
-let g:netrw_dirhist_1='/local/github/shilinvim/vim/bundle/scala'
-let g:netrw_dirhist_2='/local/github/shilinvim/vim/bundle/scala/ftdetect'
+let g:netrw_dirhist_cnt =8
+let g:netrw_dirhist_1='/Users/shilin/.sbt'
+let g:netrw_dirhist_2='/local/yottaa/system-api'
+let g:netrw_dirhist_3='/local/yottaa/system-api/controllers'
+let g:netrw_dirhist_4='/Users/shilin/.rvm/gems/ruby-1.8.7-p352@dpu/gems/hoptoad_notifier-2.4.11/lib'
+let g:netrw_dirhist_5='/local/yottaa/dns_made_easy/lib/dns_made_easy'
+let g:netrw_dirhist_6='/local/yottaa'
+let g:netrw_dirhist_7='/local/yottaa/system-api/doc'
+let g:netrw_dirhist_8='/local/yottaa/api_handler'
