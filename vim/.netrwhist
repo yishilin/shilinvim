@@ -1,5 +1,5 @@
 let g:netrw_dirhistmax  =10
-let g:netrw_dirhist_cnt =8
+let g:netrw_dirhist_cnt =9
 let g:netrw_dirhist_1='/Users/shilin/.sbt'
 let g:netrw_dirhist_2='/local/yottaa/system-api'
 let g:netrw_dirhist_3='/local/yottaa/system-api/controllers'
@@ -8,3 +8,4 @@ let g:netrw_dirhist_5='/local/yottaa/dns_made_easy/lib/dns_made_easy'
 let g:netrw_dirhist_6='/local/yottaa'
 let g:netrw_dirhist_7='/local/yottaa/system-api/doc'
 let g:netrw_dirhist_8='/local/yottaa/api_handler'
+let g:netrw_dirhist_9='/local/yottaa/framework-web/script/github'
