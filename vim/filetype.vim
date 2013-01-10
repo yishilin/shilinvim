@@ -62,5 +62,7 @@ augroup filetypedetect
   au! FileType haml call SetHamlSpace()
   au! BufNewFile,BufRead *.as  setf actionscript 
   au BufRead,BufNewFile *.txt  set syntax=txt 
+  au BufWritePost *.coffee silent CoffeeMake!
+  au BufWritePost *.coffee :CoffeeCompile watch vert
 augroup END
 
