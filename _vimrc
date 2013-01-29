@@ -883,7 +883,7 @@ map <silent> mv :NERDTreeToggle<cr>
 ""   http://betterthangrep.com/
 ""   http://amaslov.wordpress.com/2009/04/23/vim-ack-instead-of-grep/ 
 "let g:ackprg="ack -H --nocolor --nogroup --column"
-let g:ackprg="ack"
+let g:ackhighlight=1
 
 "-------------------------------------------------------------------
 
@@ -1055,4 +1055,3 @@ endif
 
 syntax on
 set runtimepath+=$VIM_PLUGIN
-
