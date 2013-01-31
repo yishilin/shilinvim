@@ -420,8 +420,8 @@ function! Set_rails_project_root()
   let g:project_root = CurDir() 
 endfunction
 
-au! BufRead,BufNewFile *_spec.rb       nmap  tt :call g:TRailsTest()<cr>
-au! BufRead,BufNewFile *.feature       nmap  tt :call g:TRailsTest()<cr>
+"au! BufRead,BufNewFile *_spec.rb       nmap  tt :call g:TRailsTest()<cr>
+"au! BufRead,BufNewFile *.feature       nmap  tt :call g:TRailsTest()<cr>
 
 
 function! g:TRailsTest()
@@ -1053,6 +1053,11 @@ endif
 ""--------------------------------------------
 
 
+"insert
+"1/31 13:46:04 2013
+iab <expr> idate strftime("%c")
+
+
 if filereadable($MYVIMRC2)
   source $MYVIMRC2
 else
@@ -1061,3 +1066,6 @@ endif
 
 syntax on
 set runtimepath+=$VIM_PLUGIN
+
+
+
