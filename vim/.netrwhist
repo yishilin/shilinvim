@@ -1,5 +1,9 @@
 let g:netrw_dirhistmax  =10
-let g:netrw_dirhist_cnt =3
+let g:netrw_dirhist_cnt =7
 let g:netrw_dirhist_1='/local/yottaa/site/platform-manufacturing'
 let g:netrw_dirhist_2='/Users/shilin/.rvm/gems/ruby-1.9.2-p290@dpu/bundler/gems/plurl-47a3af9e899a'
 let g:netrw_dirhist_3='/local/github/shilinvim/vim/bundle/TxtBrowser'
+let g:netrw_dirhist_4='/Users/shilin/phantonjs/loading.js'
+let g:netrw_dirhist_5='/local/code/shopqi/data/themes/1'
+let g:netrw_dirhist_6='/local/code/shopqi/data/themes/1/current'
+let g:netrw_dirhist_7='/local/code/shopqi/data/themes/1/current/assets'

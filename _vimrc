@@ -891,6 +891,10 @@ map <silent> mv :NERDTreeToggle<cr>
 "let g:ackprg="ack -H --nocolor --nogroup --column"
 let g:ackhighlight=1
 
+"https://github.com/ggreer/the_silver_searcher
+"The Silver Searcher based on ack but 3x faster than ack
+let g:ackprg = 'ag --nogroup --nocolor --column'
+
 "-------------------------------------------------------------------
 
 

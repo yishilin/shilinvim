@@ -11,6 +11,8 @@ if !exists("g:ackprg")
   let g:ackprg=s:ackcommand." -H --nocolor --nogroup --column"
 endif
 
+let g:ackprg = 'ag --nogroup --nocolor --column'
+
 if !exists("g:ack_apply_qmappings")
   let g:ack_apply_qmappings = !exists("g:ack_qhandler")
 endif
