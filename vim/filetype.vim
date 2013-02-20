@@ -53,15 +53,15 @@ endfunction
 
 augroup filetypedetect
   autocmd BufEnter * :syntax sync fromstart " ensure every file does syntax highlighting (full)
+  au! FileType ruby,eruby,yaml,cucumber call g:SetTab(1, 2)
+  au! FileType haml call SetHamlSpace()
   au! BufRead,BufNewFile *.test           setfiletype tcl
   au! BufRead,BufNewFile *.tpl            setfiletype php
   au! BufRead,BufNewFile *.json           setfiletype json
-  au! BufEnter,BufRead,BufNewFile *.vim   set filetype=vim
   au! BufRead,BufNewFile *_spec.rb        set filetype=ruby.spec
-  au! FileType ruby,eruby,yaml,cucumber call g:SetTab(1, 2)
-  au! FileType haml call SetHamlSpace()
   au! BufNewFile,BufRead *.as  setf actionscript 
-  au BufRead,BufNewFile *.txt  set syntax=txt 
+  au! BufEnter,BufRead,BufNewFile *.vim   set filetype=vim
+  au! BufEnter,BufRead,BufNewFile *.txt  set syntax=txt 
   au BufWritePost *.coffee silent CoffeeMake!
   au BufWritePost *.coffee :CoffeeCompile watch vert
 augroup END
