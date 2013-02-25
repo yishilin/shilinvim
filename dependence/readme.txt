@@ -8,8 +8,14 @@ Top Vim Plugins:
 1. fonts setup
 
 
-2. ctags.exe(windows中)
+2. ctags.exe
+The taglist plugin will work only with the exuberant ctags tool
+
+windows中:
 copy ctags.exe to $VIMRUNTIME/ 
+
+in mac:
+brew install ctags-exuberant
 
 
 3. 要安装cscope,则必须要有cscope扩展支持

@@ -479,7 +479,8 @@ autocmd User Rails		call Set_rails_project_root()
 "------------------------------------------------ 
 
 
-
+"MAC Ctags http://ctags.sourceforge.net/
+let g:Tlist_Ctags_Cmd='/usr/local/Cellar/ctags/5.8/bin/ctags'
 
 
 "------------------------------------------------ 
@@ -1055,11 +1056,6 @@ if bufwinnr(1)
 endif
 
 ""--------------------------------------------
-
-
-"insert
-"1/31 13:46:04 2013
-iab <expr> idate strftime("%c")
 
 
 if filereadable($MYVIMRC2)
