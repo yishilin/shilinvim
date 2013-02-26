@@ -13,7 +13,7 @@
 ":helptags
 call pathogen#infect()
 syntax on   " Enable syntax highlighting
-filetype plugin indent on
+filetype plugin indent on " Enable filetype-specific indenting and plugins
 
 ""--------------------------------------------
 
@@ -45,7 +45,7 @@ if 'mac' == g:platform && has("gui_running")
 endif 
 
 
-set autoread
+set autoread    " 自动载入,用于不同编辑器处理同一文件时
 set autowriteall
 set t_Co=256
 
@@ -97,15 +97,13 @@ endif
 let mapleader = "," 
 "let maplocalleader = ","
 
-set wildmenu 
+set wildmenu         "enable ctrl-n and ctrl-p to scroll thru matches
 
 
 "" make Y consistent with C and D
 nnoremap Y y$
 
 
-"" 删除当前组里_所有_的自动命令
-autocmd! 
 "" 使得 Vim 在执行自动命令时回显之
 "" set verbose=9
 
@@ -117,34 +115,20 @@ autocmd BufNewFile * call SetUtf8WhenNew()
 function! SetUtf8WhenNew() 
   set modifiable
   if &modifiable
-    set nobomb 
-    set fileformat=unix
-    set fileformats=unix,dos,mac
+    set nobomb                              "BOM(字节顺序标记)
+    set fileformat=unix                     "设置缓冲区换行符格式  
+    set fileformats=unix,dos,mac            "设置换行符格式   
     set encoding=utf-8
-    set fileencoding=utf-8
+    set fileencodings=utf-8,ucs-bom,gb18030,gbk,gb2312,cp936
     set termencoding=utf8
   endif
 endfunction
 
-
-
-set fileformat=unix                     "设置缓冲区换行符格式  
-set fileformats=unix,dos,mac            "设置换行符格式   
-set nobomb                              "BOM(字节顺序标记)
-
-set termencoding=utf8
-set encoding=UTF-8
-set fileencoding=UTF-8
-set fileencodings=utf-8,ucs-bom,gb18030,gbk,gb2312,cp936
 set langmenu=en
 
-
-
-
+call SetUtf8WhenNew() 
 set showcmd
-set ambiwidth=double  "防止特殊符号无法正常显示(五角星“★”等符号只能显示一半)
-
-
+set ambiwidth=double  "防止特殊符号如五角星无法正常显示
 
 
 if has('eval')
@@ -165,8 +149,6 @@ if has('eval')
   let html_dynamic_folds = 1
   let html_number_lines = 0
 endif
-
-
 
 
 
@@ -323,7 +305,6 @@ set foldnestmax=3       "deepest fold is 3 levels
 set nofoldenable        "dont fold by default
 
 set wildmode=list:longest   "make cmdline tab completion similar to bash
-set wildmenu                "enable ctrl-n and ctrl-p to scroll thru matches
 set wildignore=*.dll,*.o,*.obj,*.bak,*.exe,*.pyc,*.swp,*.jpg,*.gif,*.png,*~    "stuff to ignore when tab completing
 
 "" vertical/horizontal scroll off settings
@@ -337,7 +318,6 @@ set sidescroll=1
 set cf          " Enable error files & error jumping.
 
 set autowrite   " Writes on make/shell commands
-set autoread    " 自动载入,用于不同编辑器处理同一文件时
 set ruler       " Ruler on
 set number      " Line numbers on
 set nowrap      " Line wrapping off
@@ -540,7 +520,6 @@ set mat=5         " Bracket blinking.
 "" gvim specific
 set mousehide     " Hide mouse after chars typed
 "set mouse=a      " Use mouse everywhere 
-filetype plugin indent on " Enable filetype-specific indenting and plugins
 source $VIM_PLUGIN/filetype.vim
 
 
@@ -1064,7 +1043,6 @@ else
 "  echoerr 'the customer vimrc#'. $MYVIMRC2 ' is no exist!, pls refer vimrc_bk.vim'.
 endif
 
-syntax on
 set runtimepath+=$VIM_PLUGIN
 
 

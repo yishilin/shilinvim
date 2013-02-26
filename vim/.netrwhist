@@ -1,8 +1,10 @@
 let g:netrw_dirhistmax  =10
-let g:netrw_dirhist_cnt =6
+let g:netrw_dirhist_cnt =8
 let g:netrw_dirhist_1='/local/code/learning_rails32/public/my_assets'
 let g:netrw_dirhist_2='/Users/shilin/.oh-my-zsh'
 let g:netrw_dirhist_3='/Users/shilin/.oh-my-zsh/plugins'
 let g:netrw_dirhist_4='/Users/shilin/.oh-my-zsh/plugins/vi-mode'
 let g:netrw_dirhist_5='/Users/shilin/.oh-my-zsh'
 let g:netrw_dirhist_6='/local/code/learning_rails32'
+let g:netrw_dirhist_7='/local/code/learning_rails32/config'
+let g:netrw_dirhist_8='/local/code/learning_rails32/config/initializers'
