@@ -1,0 +1,7 @@
+1. install oh-my-zsh
+https://github.com/robbyrussell/oh-my-zsh
+
+2.  
+ln -s /yourvim-path/bash/zshrc ~/.zshrc
+ln -s /yourvim-path/bash/shilin_alias ~/.shilin_alias
+

@@ -1,0 +1,8 @@
+
+alias ..='cd ..'
+alias ...='cd ../..'
+
+alias dir='ls -a'
+
+alias cdvim='cd /local/github/shilinvim/'
+

@@ -1,0 +1,14 @@
+http://tech.myemma.com/textmates-features-vim/
+
+
+Replace TextMate with Vim
+NERDTree: Load a direc­tory tree on the left side of the screen. It will open high­lighted files on the cur­rent screen or in a new tab. (Pro tip: use the leader key to map some key­strokes to avoid hav­ing to type :NERDTree /path/to/my/code/ every time.)
+Command-T: For addicts of TextMate’s ⌘-T smart-filtering file launcher, this plu­gin recre­ates that func­tion­al­ity using the leader key.
+Snipmate: TextMate lovers can’t live with­out snip­pets, so why should Vim fans have to? In a few key­strokes, gen­er­ate HTML stubs, Python func­tions and other repet­i­tive, often-used bits of code. It’s stocked with snip­pet libraries for many lan­guages, and adding your own is easy.
+Make Vim do things TextMate can’t
+SuperTab: In insert mode, the Tab key will cycle through a list of words to auto-complete what you’re typing.
+TComment: Typing gcc will tog­gle com­ments for the cur­rent line of code in nor­mal mode. In visual mode, gc tog­gles com­ments for any high­lighted rows. It works in most com­mon pro­gram­ming languages.
+VIM Surround: A few key­strokes will add, change or remove brack­ets, quotes and HTML tags around the cur­rent word, line or high­lighted text. It takes some time to get the hang of this one, but it is flex­i­ble and powerful.
+Vim Indent Guides: Trace tab inden­ta­tions in your code. Very use­ful for long nested if/else state­ments and loops, mak­ing sure you close HTML tags and for read­ing lengthy chunks of indented code.
+Jellybeans: Jellybeans is a dark color scheme that’s easy on the eyes. Put it in your ~/.vim/colors/ direc­tory (or $HOME/vimfiles/colors in Windows) and run :colorscheme jellybeans or put colorscheme jellybeans in your .vimrc.
+Of course, these plu­g­ins only scratch the sur­face of what Vim can do. If you want TextMate’s code col­laps­ing, Vim can do that. If you want to com­pile or run code you just wrote, no prob­lem. If you are a Pythonista who lives by PEP 8 for­mat­ting, there’s a plu­gin (and a .vimrc hack) for that. Point being: TextMate is great, but with a lit­tle pok­ing around, Vim can do as much or more, often with half the keystrokes.

@@ -1,0 +1,23 @@
+
+vimrc:
+https://wincent.com/products/command-t
+http://stackoverflow.com/questions/9052646/ruby-command-t-segv
+http://blog.hugeaim.com/2012/05/03/fix-command-t-segv-fault-in-vim/
+
+"---------------------------------------------
+"" command-t.vim
+"----------------------------------
+
+nmap <silent> <Leader>t :CommandT<CR>
+nmap <silent> <Leader>f :CommandT<CR>
+let g:CommandTCancelMap=['<C-[>','<C-]>', '<C-o>', '<C-c>','<Esc>']
+let g:CommandTBackspaceMap = ['<C-h>', '<BS>']
+let g:CommandTDeleteMap=['<C-l>', '<Del>']
+let g:CommandTCursorLeftMap=['<Left>', '<C-b>']
+let g:CommandTCursorRightMap=['<Right>', '<C-f>']
+let g:CommandTSelectNextMap=["<C-n>", "<C-j>", "<Down>"]
+let g:CommandTSelectPrevMap=["<C-p>", "<C-k>", "<Up>"]
+
+"---------------------------------------------
+
+ 

@@ -1,0 +1,9 @@
+
+Aligning text with Tabular.vim 
+http://vimcasts.org/episodes/aligning-text-with-tabular-vim/
+
+http://www.drchip.org/astronaut/vim/align.html#Examples
+
+http://net.tutsplus.com/tutorials/other/vim-essential-plugin-surround/
+
+https://peepcode.com/products/peepopen
