@@ -1,7 +1,18 @@
 1. install oh-my-zsh
 https://github.com/robbyrussell/oh-my-zsh
 
+
+[ubuntu]
+http://monangik.wordpress.com/2011/04/21/install-zsh-shell-on-ubuntu/
+https://gist.github.com/tsabat/1498393 :
+
+sudo apt-get update && sudo apt-get install zsh
+wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O – | sh
+chsh -s `which zsh`
+sudo shutdown -r 0
+
 2.  
 ln -s /yourvim-path/bash/zshrc ~/.zshrc
 ln -s /yourvim-path/bash/shilin_alias ~/.shilin_alias
+ln -s /yourvim-path/bash/shilin.zsh-theme ~/.oh-my-zsh/themes/shilin.zsh-theme
 

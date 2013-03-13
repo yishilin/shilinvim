@@ -1,5 +1,5 @@
 let g:netrw_dirhistmax  =10
-let g:netrw_dirhist_cnt =7
+let g:netrw_dirhist_cnt =8
 let g:netrw_dirhist_1='/Users/shilin/.rvm/gems/ruby-1.9.3-p362@eshop/gems/bootbox-rails-0.0.1'
 let g:netrw_dirhist_2='/Users/shilin/.rvm/gems/ruby-1.9.3-p362@eshop/gems/bootbox-rails-0.0.1/vendor'
 let g:netrw_dirhist_3='/Users/shilin/.rvm/gems/ruby-1.9.3-p362@eshop/gems/bootbox-rails-0.0.1/vendor/assets'
@@ -7,3 +7,4 @@ let g:netrw_dirhist_4='/Users/shilin/.rvm/gems/ruby-1.9.3-p362@eshop/gems/bootbo
 let g:netrw_dirhist_5='/local/yottaa/com.yottaa.dpu/har/ruby/1.9.1/bundler/gems/dns_made_easy-ae89e2abed51'
 let g:netrw_dirhist_6='/local/yottaa/com.yottaa.dpu/har/ruby/1.9.1/bundler/gems/dns_made_easy-ae89e2abed51/lib'
 let g:netrw_dirhist_7='/local/yottaa/com.yottaa.dpu/har/ruby/1.9.1/bundler/gems/dns_made_easy-ae89e2abed51/lib/dns_made_easy'
+let g:netrw_dirhist_8='/local/github/shilinvim/.git'
