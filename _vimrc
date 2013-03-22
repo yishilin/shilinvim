@@ -69,7 +69,7 @@ if 'windows' == g:platform
   "" for windows setting
   "" in windows register '+' is the same with '*' 
   set clipboard+=unnamed  " Yanks go to clipboard instead.
-elseif 'mac' == g:platform
+elseif 'mac' == g:platform && $TMUX == ''
   "" for mac setting
   "" in windows register '+' is the same with '*' 
   set clipboard=unnamed  " Yanks go to clipboard instead.
@@ -90,6 +90,7 @@ else
   imap <S-Insert>        x<Esc><SID>Paste"_s
   cmap <S-Insert>        <c-r>+
   vmap <S-Insert>        "-cx<Esc><SID>Paste"_x
+  imap <c-v>        x<Esc><SID>Paste"_s
   "---------------------------------------------
 endif
 
