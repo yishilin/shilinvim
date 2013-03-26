@@ -1,0 +1,7 @@
+<% if ${1:list}.present? -%>
+	<% $1.each do |${2:item}| -%>
+		${3}
+	<% end -%>
+<% else -%>
+	${4}
+<% end -%>
