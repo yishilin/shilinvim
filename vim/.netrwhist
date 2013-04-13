@@ -1,5 +1,7 @@
 let g:netrw_dirhistmax  =10
-let g:netrw_dirhist_cnt =3
-let g:netrw_dirhist_1='/local/yottaa/com.yottaa.dpu/har/ruby/1.9.1/bundler/gems/dns_made_easy-ae89e2abed51/lib'
-let g:netrw_dirhist_2='/local/code/env_set'
-let g:netrw_dirhist_3='/local/code/env_set/bash'
+let g:netrw_dirhist_cnt =5
+let g:netrw_dirhist_1='/Users/shilin/.rvm/gems/ruby-1.9.3-p362@github_commit/gems/github_api-0.9.6/lib/github_api'
+let g:netrw_dirhist_2='/Users/shilin/.rvm/gems/ruby-1.9.3-p362@github_commit/gems/github_api-0.9.6'
+let g:netrw_dirhist_3='/Users/shilin/.rvm/gems/ruby-1.9.3-p362@github_commit/gems/soap4r-1.5.8'
+let g:netrw_dirhist_4='/Users/shilin/.rvm/gems/ruby-1.9.3-p362@github_commit/gems/soap4r-1.5.8/lib'
+let g:netrw_dirhist_5='/Users/shilin/.rvm/gems/ruby-1.9.3-p362@github_commit/gems/soap4r-1.5.8/lib/xsd'
