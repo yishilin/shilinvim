@@ -566,10 +566,17 @@ source $VIM_PLUGIN/bundle/LargeFile/plugin/LargeFile.vim
 source $VIM_PLUGIN/bundle/mygit/plugin/mygit.vim 
 source $VIM_PLUGIN/bundle/fugitive/plugin/fugitive.vim 
 
+function! GetCurrPasteMode()
+ return g:CurrPasteMode
+endfunction
 
 "" Format the statusline
 "set statusline=\ %f%m%r%h\ \ %=[%{GitBranch()}]\ %w\ \ CWD:\ %{CurDir()}%h\ \ %=%-40(line=%l,col=%c%V,totlin=%L%)\%P
-set statusline=\ %f%m%r%h\ \ %=[%{GitBranch()}]\ %w\ \ CWD:\ %{CurDir()}%h
+"set statusline=\ %f%m%r%h\ \ %=[%{GitBranch()}]\ %w\ \ CWD:\ %{CurDir()}%h
+set statusline=\ %f%m%r%h\ \ %=[%{GitBranch()}]\ %w\ %{GetCurrPasteMode()}%h\ CWD:\ %{CurDir()}%h
+"set statusline=\ %f%m%r%h\ \ %=[%{GitBranch()}]\ %w\ %{()} \ CWD:\ %{CurDir()}%h\ %{GetCurrPasteMode()}%h
+
+
 
 set bsdir=buffer
 
@@ -989,7 +996,25 @@ call g:SwitchMapComplete(1)
 " ------------------------------------------------
 
 
+" ------------------------------------------------
+let g:PasteMode='[PasteMode]'
+let g:CurrPasteMode=""
+set nopaste
+function! g:SwitchPaste()
+  if g:CurrPasteMode== g:PasteMode
+    set nopaste
+    let g:CurrPasteMode=""
+    echomsg "No Paste Mode"
+  else
+    let g:CurrPasteMode=g:PasteMode
+    echomsg "Paste Mode"
+    set paste
+  endif
+endfunction 
 
+nmap <silent> <F2> :call g:SwitchPaste()<cr>
+vmap <silent> <F2> :call g:SwitchPaste()<cr>
+" ------------------------------------------------
 
 "" for LargeFile.vim, Mbytes
 let g:LargeFile = 2
