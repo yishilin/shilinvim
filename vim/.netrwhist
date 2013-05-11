@@ -1,9 +1,3 @@
 let g:netrw_dirhistmax  =10
-let g:netrw_dirhist_cnt =7
-let g:netrw_dirhist_1='/Users/shilin/.rvm/gems/ruby-1.9.3-p362@github_commit/gems/github_api-0.9.6/lib/github_api'
-let g:netrw_dirhist_2='/Users/shilin/.rvm/gems/ruby-1.9.3-p362@github_commit/gems/github_api-0.9.6'
-let g:netrw_dirhist_3='/Users/shilin/.rvm/gems/ruby-1.9.3-p362@github_commit/gems/soap4r-1.5.8'
-let g:netrw_dirhist_4='/Users/shilin/.rvm/gems/ruby-1.9.3-p362@github_commit/gems/soap4r-1.5.8/lib'
-let g:netrw_dirhist_5='/Users/shilin/.rvm/gems/ruby-1.9.3-p362@github_commit/gems/soap4r-1.5.8/lib/xsd'
-let g:netrw_dirhist_6='/local/yottaa/com.yottaa.dpu/spec/helpers'
-let g:netrw_dirhist_7='/local/yottaa/com.yottaa.dpu/spec/helpers/administration'
+let g:netrw_dirhist_cnt =1
+let g:netrw_dirhist_1='/local/code/shopqi/app/liquids'

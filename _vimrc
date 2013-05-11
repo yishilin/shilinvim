@@ -60,6 +60,7 @@ endif
 let $MYVIMRC2= $VIM_PLUGIN . "/vimrc.vim"  
 
 
+let g:EasyMotion_leader_key = '<Leader>'
 
 
 "---------------------------------------------
