@@ -566,6 +566,7 @@ endfunction
 source $VIM_PLUGIN/bundle/LargeFile/plugin/LargeFile.vim
 source $VIM_PLUGIN/bundle/mygit/plugin/mygit.vim 
 source $VIM_PLUGIN/bundle/fugitive/plugin/fugitive.vim 
+source $VIM_PLUGIN/bundle/snipMate/snippets/support_functions.vim
 
 function! GetCurrPasteMode()
  return g:CurrPasteMode
@@ -1062,6 +1063,7 @@ if bufwinnr(1)
 endif
 
 ""--------------------------------------------
+
 
 
 if filereadable($MYVIMRC2)
