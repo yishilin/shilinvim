@@ -10,3 +10,4 @@ coverage
 .rvmrc
 .DS_Store
 vim/bundle/favex/favlist
+vim/.netrwhist
