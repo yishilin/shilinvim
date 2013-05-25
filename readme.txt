@@ -45,3 +45,15 @@ If you really must use one:
 :e name.vba
 :!mkdir ~/.vim/bundle/name
 :UseVimball ~/.vim/bundle/name
+
+
+3.  http://vimcasts.org/episodes/synchronizing-plugins-with-git-submodules-and-pathogen/
+in the vim git repo root:
+1.) git submodule add https://github.com/tpope/vim-rails.git vim/bundle/vim-rails
+2.) pull:
+git submodule foreach git pull origin master
+or
+cd ~/.vim/bundle/vim-rails
+git pull origin master
+
+
