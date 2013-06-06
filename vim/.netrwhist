@@ -1,4 +1,5 @@
 let g:netrw_dirhistmax  =10
-let g:netrw_dirhist_cnt =2
+let g:netrw_dirhist_cnt =3
 let g:netrw_dirhist_1='/local/code/shopqi/app/liquids'
 let g:netrw_dirhist_2='/local/backup/SkyDrive/Yottaa/gem'
+let g:netrw_dirhist_3='/local/yottaa/com.yottaa.dpu/har/ruby/1.9.1/bundler/gems/plurl-47a3af9e899a'
