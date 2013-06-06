@@ -231,15 +231,26 @@ nmap <silent> <Leader>t :CtrlP<CR>
 set wildignore+=*/tmp/*,*.so,*.swp,*.zip  " MacOSX/Linux
 
 let g:ctrlp_custom_ignore = {
-  \ 'dir':  '\.git$\|\.hg$\|\.svn$',
-  \ 'file': '\.exe$\|\.so$\|\.dll$',
+  \ 'dir':  '\.git$\|\.hg$\|\.svn$\|node_modules',
+  \ 'file': '\.exe$\|\.so$\|\.dll$\|\.class$\|\.o$\|\~$\|\.DS_Store',
   \ 'link': 'some_bad_symbolic_links',
   \ }
 
+
+let g:ctrlp_extensions = [
+   \ 'ctrlp-filetpe',
+   \ ]
+let g:ctrlp_follow_symlinks = 1
+
+
 "---------------------------------------------
+"see https://github.com/airblade/vim-rooter
 
+" Rooter patterns for identifying root path
+let g:rooter_patterns = ['tags', '.git', '.git/', '_darcs/', '.hg/', '.bzr/', '.svn/']
 
-
+" Change root directory on buffer enter
+autocmd BufEnter * :Rooter"
 
 "---------------------------------------------
 "" font setting
