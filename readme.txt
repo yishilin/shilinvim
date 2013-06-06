@@ -47,13 +47,18 @@ If you really must use one:
 :UseVimball ~/.vim/bundle/name
 
 
-3.  http://vimcasts.org/episodes/synchronizing-plugins-with-git-submodules-and-pathogen/
-in the vim git repo root:
+3.  add an vim plugin git repo as a git submodule:
+0.) cdvim
 1.) git submodule add https://github.com/tpope/vim-rails.git vim/bundle/vim-rails
-2.) pull:
-git submodule foreach git pull origin master
-or
-cd ~/.vim/bundle/vim-rails
-git pull origin master
+this will update .gitmodules
+sometime you need to:
+git rm --cached vim/bundle/vim-rails
+
+4. how to install the submodule
+git submodule init
+git submodule update
+
+5. remember to run ./update.sh
+
 
 
