@@ -1,3 +1,4 @@
+vim/vimrc.vim
 Gemfile.lock
 .bundle
 log/*.log
@@ -11,4 +12,3 @@ coverage
 .DS_Store
 vim/bundle/favex/favlist
 vim/.netrwhist
-vim/vimrc.vim
