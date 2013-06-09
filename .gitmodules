@@ -64,3 +64,6 @@
 [submodule "vim/bundle/nelstrom-vim-textobj-rubyblock"]
 	path = vim/bundle/nelstrom-vim-textobj-rubyblock
 	url = https://github.com/nelstrom/vim-textobj-rubyblock.git
+[submodule "vim/bundle/markdown"]
+	path = vim/bundle/markdown
+	url = https://github.com/hallison/vim-markdown.git
