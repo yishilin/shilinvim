@@ -11,3 +11,4 @@ coverage
 .DS_Store
 vim/bundle/favex/favlist
 vim/.netrwhist
+vim/vimrc.vim
