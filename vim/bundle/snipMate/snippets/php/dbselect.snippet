@@ -1,9 +1,0 @@
-$service_result = new Wuyou_ServiceResult();
-$db = Wuyou_Database_Pdo::getInstance();
-
-$sql_select = sprintf("${1}", ${2});
-$statment = $db->query($sql_select);
-
-
-//$row = $db->getOne($con);
-$rows = $db->getAll($con);
