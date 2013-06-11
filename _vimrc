@@ -477,6 +477,9 @@ autocmd User Rails		call Set_rails_project_root()
 "------------------------------------------------ 
 "" tab setting
 "---------------------------- 
+let g:SuperTabNoCompleteAfter = ['^', ',', '\s']
+
+
 function! g:SetTab(expandEnable, spaceNum) 
   let spaceNum = a:spaceNum
   let expandEnable = a:expandEnable

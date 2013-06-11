@@ -55,10 +55,12 @@ sometime you need to:
 git rm --cached vim/bundle/vim-rails
 
 4. how to install the submodule
+see ./.gitmodules
 git submodule init
 git submodule update
 
 5. remember to run ./update.sh
 
+6. for snipmate, see https://github.com/garbas/vim-snipmate
 
 
