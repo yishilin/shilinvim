@@ -21,6 +21,8 @@ https://bitbucket.org/account/user/sorry123/ssh-keys/
 https://github.com/settings/ssh
 
 
+
+
 1. install vim configuration:
 cd /local/github
 git clone git@github.com:yishilin/shilinvim.git #this will create ./shilinvim/ dir
@@ -49,6 +51,8 @@ If you really must use one:
 
 3.  add an vim plugin git repo as a git submodule:
 0.) cdvim
+git config --global core.excludesfile ~/.gitignore
+
 1.) git submodule add https://github.com/tpope/vim-rails.git vim/bundle/vim-rails
 this will update .gitmodules
 sometime you need to:
