@@ -467,6 +467,9 @@ endfunction
 "" and NERDTree init and render a new tree
 map <silent> cd  <esc>:call Map_cd()<cr>
 
+
+let NERDTreeDirArrows=0
+
 autocmd User Rails		silent! Rlcd
 autocmd User Rails		call Set_rails_project_root()
 "------------------------------------------------ 
