@@ -698,7 +698,7 @@ vmap <silent> <c-w>]   :call TagVisual()<cr>
 "map <silent> mt <esc>:Tlist<cr>
 nmap <silent> mt <esc>:call TaglistKeyMap()<cr> 
 function! TaglistKeyMap() 
-  if &filetype !~ 'java'
+  if &filetype != 'java'
     ""not java use Tlist
     exec "Tlist"
   else
@@ -928,14 +928,6 @@ endfunction
 
 
 
-""show todo list 
-""命令 :TaskList
-let g:tlTokenList = ["FIXME", "TODO", "@todo", "todo"]
-map <F10> <Plug>TaskList 
- 
-
-
-
 "" 取消光标闪烁
 set guicursor=a:block-blinkon0,i-ci:ver25-Cursor/lCursor,v-ve:ver25-Cursor/lCursor
 
@@ -1008,7 +1000,7 @@ function! g:SwitchMapComplete(CurMapComplete)
 endfunction 
 command! -nargs=0  SwitchPasteOn  :call g:SwitchMapComplete(0)
 command! -nargs=0  SwitchPasteOff :call g:SwitchMapComplete(1)
-call g:SwitchMapComplete(1)
+"call g:SwitchMapComplete(1)
 " ------------------------------------------------
 
 
