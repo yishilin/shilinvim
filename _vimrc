@@ -18,6 +18,26 @@ filetype plugin indent on " Enable filetype-specific indenting and plugins
 ""--------------------------------------------
 
 
+
+""--------------------------------------------
+"" vimwiki.vim
+""-------------------------
+
+" ######### VimWiki 写作助手 ######### "
+
+" 使用鼠标映射
+let g:vimwiki_use_mouse = 0
+
+" 不要将驼峰式词组作为 Wiki 词条
+let g:vimwiki_camel_case = 0
+
+let g:vimwiki_list = [{'path': '/local/backup/SkyDrive/Dropbox/vimwiki/',
+\ 'path_html': '/local/backup/SkyDrive/Dropbox/vimwiki/html/',
+\ 'html_header': '/local/backup/SkyDrive/Dropbox/vimwiki/template/header.tpl',}]
+
+""--------------------------------------------
+
+
 "" Platform
 function! MySys()
   if has("win32")
@@ -258,13 +278,13 @@ autocmd BufEnter * :Rooter"
 if 'windows' == g:platform
   "set guifont=ProggyCleanCP:h12:cANSI
   "set guifont=ProggyCleanTT:h12:cDEFAULT
-  set guifont=MONACO:h10
+  set guifont=MONACO:h15
   "set guifont=Fixedsys:h11
   "set guifont=Consolas:h11:cDEFAULT
 elseif 'mac' == g:platform
   "set guifont=ProggyCleanCP:h12:cANSI
   "set guifont=ProggyCleanTT:h12:cDEFAULT
-  set guifont=MONACO:h13
+  set guifont=MONACO:h15
   "set guifont=Fixedsys:h11
   "set guifont=Consolas:h11:cDEFAULT
 else 
@@ -367,7 +387,7 @@ set autoindent
 
 nmap <silent> mm <esc>:MRU<cr>
 let MRU_Max_Entries = 60
-let MRU_Exclude_Files = '.*\.pdf$\|.*\.zip$\|.*\.rar$\|.*\.7z$\|.*\.class$'
+let MRU_Exclude_Files = '.*\.pdf$\|.*\.zip$\|.*\.rar$\|.*\.7z$\|.*\.class$|.*\.wiki$'
 let MRU_Exclude_Files .= '\|.*BExec_output.*\|.*NERD_tree_.*\|.*__MRU_Files__.*'
 let MRU_Exclude_Files .= '\|.*favex/favlist\|.*\.fugitiveblame'
 

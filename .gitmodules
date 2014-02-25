@@ -98,3 +98,6 @@
 	path = vim/bundle/vim-addon-mw-utils
 	url = https://github.com/MarcWeber/vim-addon-mw-utils.git
     ignore = untracked
+[submodule "vim/bundle/plexer"]
+	path = vim/bundle/plexer
+	url = https://github.com/alfredodeza/plexer.vim.git
