@@ -1,5 +1,5 @@
  " Vim global plugin for executing shell command asyn.
- " Author: yishilin@gmail.com
+ " Author: y****lin@gmail.com
  " v1.0
 
 "" Install:

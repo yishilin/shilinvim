@@ -1,5 +1,5 @@
 " mygit: get the current git branch
-"   Author:	shilin yishilin@gmail.com
+"   Author:	shilin y****lin@gmail.com
 "   Date:		Sep 23, 2011
 "   Version: 1.0	
 
