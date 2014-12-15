@@ -27,13 +27,33 @@ filetype plugin indent on " Enable filetype-specific indenting and plugins
 
 " 使用鼠标映射
 let g:vimwiki_use_mouse = 0
+let g:vimwiki_menu = ""
+let g:vimwiki_list_ignore_newline = 0
+
+"http://stackoverflow.com/questions/12033273/get-vimwiki-working-with-snipmate-the-vim-plugins
+let g:vimwiki_table_mappings = 0
 
 " 不要将驼峰式词组作为 Wiki 词条
 let g:vimwiki_camel_case = 0
 
-let g:vimwiki_list = [{'path': '/local/backup/SkyDrive/Dropbox/vimwiki/',
-\ 'path_html': '/local/backup/SkyDrive/Dropbox/vimwiki/html/',
-\ 'html_header': '/local/backup/SkyDrive/Dropbox/vimwiki/template/header.tpl',}]
+
+let $personal_vimwiki_dir = '/local/backup/SkyDrive/Dropbox/personal_vimwiki/'
+let g:personal_vimwiki_config = {'path': $personal_vimwiki_dir,
+\ 'path_html': $personal_vimwiki_dir.'/html/',
+\ "syntax": "markdown", 
+\ 'template_path': $personal_vimwiki_dir.'/template/', 
+\ 'template_default': 'default_template',
+\ 'template_ext': '.html'}
+
+let $blog_vimwiki_dir = '/local/backup/SkyDrive/Dropbox/blog_vimwiki/'
+let g:blog_vimwiki_config = {'path': $blog_vimwiki_dir,
+\ 'path_html': $blog_vimwiki_dir.'/html/',
+\ "syntax": "markdown", 
+\ 'template_path': $blog_vimwiki_dir.'/template/', 
+\ 'template_default': 'default_template',
+\ 'template_ext': '.html'}
+
+let g:vimwiki_list = [g:personal_vimwiki_config, g:blog_vimwiki_config]
 
 ""--------------------------------------------
 
@@ -70,7 +90,8 @@ set autowriteall
 set t_Co=256
 
 set noswapfile
-
+"set ignorecase
+"set smartcase
 
 if 'windows' == g:platform
   let $VIM_PLUGIN = $VIM . "/vimfiles"  
@@ -1087,9 +1108,6 @@ if bufwinnr(1)
   map < 8<C-W><
   map > 8<C-W>>
 endif
-
-""--------------------------------------------
-
 
 
 if filereadable($MYVIMRC2)
