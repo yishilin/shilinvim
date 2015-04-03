@@ -17,6 +17,40 @@ filetype plugin indent on " Enable filetype-specific indenting and plugins
 
 ""--------------------------------------------
 
+"" Platform
+function! MySys()
+  if has("win32")
+    return "windows"
+  endif
+
+  if has("unix")
+    let s:uname = system("echo -n \"$(uname)\"")
+    if !v:shell_error && s:uname == "Darwin"
+        return "mac"
+    endif
+  endif
+
+  return "linux"
+endfunction
+let g:platform = MySys() 
+
+
+if 'windows' == g:platform
+  let $VIM_PLUGIN = $VIM . "/vimfiles"  
+else
+  let $VIM_PLUGIN = $HOME . "/.vim"
+endif
+let $MYVIMRC2 = $VIM_PLUGIN . "/vimrc.vim"  
+
+
+
+if filereadable($MYVIMRC2)
+  source $MYVIMRC2
+else
+"  echoerr 'the customer vimrc#'. $MYVIMRC2 ' is no exist!, pls refer vimrc_bk.vim'.
+endif
+
+
 
 
 ""--------------------------------------------
@@ -37,7 +71,7 @@ let g:vimwiki_table_mappings = 0
 let g:vimwiki_camel_case = 0
 
 
-let $personal_vimwiki_dir = '/local/backup/SkyDrive/Dropbox/personal_vimwiki/'
+let $personal_vimwiki_dir = $config_dropbox_dir.'/personal_vimwiki/'
 let g:personal_vimwiki_config = {'path': $personal_vimwiki_dir,
 \ 'path_html': $personal_vimwiki_dir.'/html/',
 \ "syntax": "markdown", 
@@ -45,7 +79,7 @@ let g:personal_vimwiki_config = {'path': $personal_vimwiki_dir,
 \ 'template_default': 'default_template',
 \ 'template_ext': '.html'}
 
-let $blog_vimwiki_dir = '/local/backup/SkyDrive/Dropbox/blog_vimwiki/'
+let $blog_vimwiki_dir = $config_dropbox_dir.'/blog_vimwiki/'
 let g:blog_vimwiki_config = {'path': $blog_vimwiki_dir,
 \ 'path_html': $blog_vimwiki_dir.'/html/',
 \ "syntax": "markdown", 
@@ -55,25 +89,15 @@ let g:blog_vimwiki_config = {'path': $blog_vimwiki_dir,
 
 let g:vimwiki_list = [g:personal_vimwiki_config, g:blog_vimwiki_config]
 
+
+autocmd FileType vimwiki :set wrap
+      \ | nmap  tt :silent ! open %<cr>
+
+autocmd FileType markdown :set wrap
+      \ | nmap  tt :silent ! open %<cr>
+
 ""--------------------------------------------
 
-
-"" Platform
-function! MySys()
-  if has("win32")
-    return "windows"
-  endif
-
-  if has("unix")
-    let s:uname = system("echo -n \"$(uname)\"")
-    if !v:shell_error && s:uname == "Darwin"
-        return "mac"
-    endif
-  endif
-
-  return "linux"
-endfunction
-let g:platform = MySys() 
 
 
 "" In macvim map <apple-shift-arrow> to switch tab
@@ -92,13 +116,6 @@ set t_Co=256
 set noswapfile
 "set ignorecase
 "set smartcase
-
-if 'windows' == g:platform
-  let $VIM_PLUGIN = $VIM . "/vimfiles"  
-else
-  let $VIM_PLUGIN = $HOME . "/.vim"
-endif
-let $MYVIMRC2= $VIM_PLUGIN . "/vimrc.vim"  
 
 
 let g:EasyMotion_leader_key = '<Leader>'
@@ -1109,12 +1126,6 @@ if bufwinnr(1)
   map > 8<C-W>>
 endif
 
-
-if filereadable($MYVIMRC2)
-  source $MYVIMRC2
-else
-"  echoerr 'the customer vimrc#'. $MYVIMRC2 ' is no exist!, pls refer vimrc_bk.vim'.
-endif
 
 set runtimepath+=$VIM_PLUGIN
 

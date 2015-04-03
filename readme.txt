@@ -67,4 +67,6 @@ git submodule update
 
 6. for snipmate, see https://github.com/garbas/vim-snipmate
 
-
+7. ctags (mac): 
+    brew install ctags
+    vim/vimrc.vim maybe need to update g:Tlist_Ctags_Cmd
