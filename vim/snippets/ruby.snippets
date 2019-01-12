@@ -2,13 +2,18 @@
 # Ruby snippets - for Rails, see below #
 ########################################
 
-# encoding for Ruby 1.9
-snippet enc
-	# encoding: utf-8
 
 # #!/usr/bin/env ruby
 snippet #!
 	#!/usr/bin/env ruby
+	# encoding: utf-8
+
+snippet rb
+	#!/usr/bin/env ruby -wKU
+
+
+# encoding for Ruby 1.9
+snippet enc
 	# encoding: utf-8
 
 # New Block
@@ -18,8 +23,6 @@ snippet =b
 	=end
 snippet y
 	:yields: ${1:arguments}
-snippet rb
-	#!/usr/bin/env ruby -wKU
 snippet beg
 	begin
 		${3}
@@ -423,20 +426,20 @@ snippet opt
 		${6}
 	end
 snippet tc
-	require "test/unit"
+	require 'test/unit'
 
-	require "${1:library_file_name}"
+	require '${1:library_file_name}'
 
-	class Test${2:$1} < Test::Unit::TestCase
+	class ${2}Test < Test::Unit::TestCase 
+	  def setup
+	  end
+	  def teardown
+		end
+
 		def test_${3:case_name}
-			${4}
+			${0}
 		end
 	end
-snippet ts
-	require "test/unit"
-
-	require "tc_${1:test_case_file}"
-	require "tc_${2:test_case_file}"${3}
 snippet as
 	assert ${1:test}, "${2:Failure message.}"${3}
 snippet ase

@@ -11,9 +11,21 @@
 "http://tammersaleh.com/posts/the-modern-vim-config-with-pathogen
 "http://www.vim.org/scripts/script.php?script_id=2332
 ":helptags
-call pathogen#infect()
-syntax on   " Enable syntax highlighting
-filetype plugin indent on " Enable filetype-specific indenting and plugins
+
+"call pathogen#infect()
+"syntax on   " Enable syntax highlighting
+"filetype plugin indent on " Enable filetype-specific indenting and plugins
+
+"filetype off                                                                
+"call pathogen#infect('~/.vim/bundle')
+"call pathogen#helptags()
+
+
+ call pathogen#runtime_append_all_bundles()
+ filetype off
+ syntax on
+ filetype plugin indent on
+
 
 ""--------------------------------------------
 
@@ -53,50 +65,6 @@ endif
 
 
 
-""--------------------------------------------
-"" vimwiki.vim
-""-------------------------
-
-" ######### VimWiki 写作助手 ######### "
-
-" 使用鼠标映射
-let g:vimwiki_use_mouse = 0
-let g:vimwiki_menu = ""
-let g:vimwiki_list_ignore_newline = 0
-
-"http://stackoverflow.com/questions/12033273/get-vimwiki-working-with-snipmate-the-vim-plugins
-let g:vimwiki_table_mappings = 0
-
-" 不要将驼峰式词组作为 Wiki 词条
-let g:vimwiki_camel_case = 0
-
-
-let $personal_vimwiki_dir = $config_dropbox_dir.'/personal_vimwiki/'
-let g:personal_vimwiki_config = {'path': $personal_vimwiki_dir,
-\ 'path_html': $personal_vimwiki_dir.'/html/',
-\ "syntax": "markdown", 
-\ 'template_path': $personal_vimwiki_dir.'/template/', 
-\ 'template_default': 'default_template',
-\ 'template_ext': '.html'}
-
-let $blog_vimwiki_dir = $config_dropbox_dir.'/blog_vimwiki/'
-let g:blog_vimwiki_config = {'path': $blog_vimwiki_dir,
-\ 'path_html': $blog_vimwiki_dir.'/html/',
-\ "syntax": "markdown", 
-\ 'template_path': $blog_vimwiki_dir.'/template/', 
-\ 'template_default': 'default_template',
-\ 'template_ext': '.html'}
-
-let g:vimwiki_list = [g:personal_vimwiki_config, g:blog_vimwiki_config]
-
-
-autocmd FileType vimwiki :set wrap
-      \ | nmap  tt :silent ! open %<cr>
-
-autocmd FileType markdown :set wrap
-      \ | nmap  tt :silent ! open %<cr>
-
-""--------------------------------------------
 
 
 
@@ -170,8 +138,11 @@ nnoremap Y y$
 
 
 "" 设置语言和编码
-"autocmd BufNewFile,BufNew,BufCreate,BufAdd * call SetUtf8WhenNew() 
-autocmd BufNewFile * call SetUtf8WhenNew() 
+augroup utf8
+  autocmd!
+  autocmd BufNewFile,BufNew,BufCreate,BufAdd * call SetUtf8WhenNew() 
+augroup END
+
 function! SetUtf8WhenNew() 
   set modifiable
   if &modifiable
@@ -308,7 +279,11 @@ let g:ctrlp_follow_symlinks = 1
 let g:rooter_patterns = ['tags', '.git', '.git/', '_darcs/', '.hg/', '.bzr/', '.svn/']
 
 " Change root directory on buffer enter
-autocmd BufEnter * :Rooter"
+augroup Rooter
+    autocmd!
+    autocmd BufEnter * :Rooter"
+augroup END
+
 
 "---------------------------------------------
 "" font setting
@@ -423,41 +398,86 @@ set autoindent
 "" MRU.vim Setting
 "----------------------------------------- 
 
-nmap <silent> mm <esc>:MRU<cr>
-let MRU_Max_Entries = 60
-let MRU_Exclude_Files = '.*\.pdf$\|.*\.zip$\|.*\.rar$\|.*\.7z$\|.*\.class$\|.*\.wiki$'
-let MRU_Exclude_Files .= '\|.*BExec_output.*\|.*NERD_tree_.*\|.*__MRU_Files__.*'
-let MRU_Exclude_Files .= '\|.*favex/favlist\|.*\.fugitiveblame'
+augroup MRU
+  autocmd!
+  nmap <silent> mm <esc>:MRU<cr>
+  let MRU_Max_Entries = 60
+  let MRU_Exclude_Files = '.*\.pdf$\|.*\.zip$\|.*\.rar$\|.*\.7z$\|.*\.class$\|.*\.wiki$'
+  let MRU_Exclude_Files .= '\|.*BExec_output.*\|.*NERD_tree_.*\|.*__MRU_Files__.*'
+  let MRU_Exclude_Files .= '\|.*favex/favlist\|.*\.fugitiveblame'
+  
+  
+  let MRU_Add_Menu = 0 
+  
+  
+  " Autocommands to detect the most recently used files
+  autocmd BufRead * call g:MRU_AddFile(expand('<abuf>'))
+  autocmd BufNewFile * call g:MRU_AddFile(expand('<abuf>'))
+  autocmd BufWritePost * call g:MRU_AddFile(expand('<abuf>'))
+  autocmd BufWritePre,FileWritePre,BufWriteCmd   *NERD_tree_* call CancelSave()
+  fun! CancelSave()
+    echomsg "![E+] Can not save \""expand("%:p")."\""
+    return 0
+  endfun          
+  
+  
+  " The ':vimgrep' command adds all the files searched to the buffer list.
+  " This also modifies the MRU list, even though the user didn't edit the
+  " files. Use the following autocmds to prevent this.
+  autocmd QuickFixCmdPre *vimgrep* let g:mru_list_locked = 1
+  autocmd QuickFixCmdPost *vimgrep* let g:mru_list_locked = 0
+  
+  au BufRead,BufNewFile *__MRU_Files__*  setlocal  cursorline
+  
+  " Command to open the MRU window
+  command! -nargs=? -complete=customlist,g:MRU_Complete MRU
+              \ call g:MRU_Cmd(<q-args>)    
 
-
-let MRU_Add_Menu = 0 
-
-
-" Autocommands to detect the most recently used files
-autocmd BufRead * call g:MRU_AddFile(expand('<abuf>'))
-autocmd BufNewFile * call g:MRU_AddFile(expand('<abuf>'))
-autocmd BufWritePost * call g:MRU_AddFile(expand('<abuf>'))
-autocmd BufWritePre,FileWritePre,BufWriteCmd   *NERD_tree_* call CancelSave()
-fun! CancelSave()
-  echomsg "![E+] Can not save \""expand("%:p")."\""
-  return 0
-endfun          
-
-
-
-" The ':vimgrep' command adds all the files searched to the buffer list.
-" This also modifies the MRU list, even though the user didn't edit the
-" files. Use the following autocmds to prevent this.
-autocmd QuickFixCmdPre *vimgrep* let g:mru_list_locked = 1
-autocmd QuickFixCmdPost *vimgrep* let g:mru_list_locked = 0
-
-au BufRead,BufNewFile *__MRU_Files__*  setlocal  cursorline
-
-" Command to open the MRU window
-command! -nargs=? -complete=customlist,g:MRU_Complete MRU
-            \ call g:MRU_Cmd(<q-args>)    
-
+augroup END
 "---------------------------------------------------------------------
+
+
+
+
+"------------------------------------------------ 
+"" ruby unit test
+"---------------------------- 
+let test#ruby#runner = 'm'
+let g:test#runner_commands = ['M']
+let test#ruby#bundle_exec = 0
+let g:test#ruby#minitest#executable = 'm'
+
+"https://github.com/janko-m/vim-test/blob/master/autoload/test/ruby/m.vim
+
+" these "Ctrl mappings" work well when Caps Lock is mapped to Ctrl
+"nmap <silent> t<C-n> :TestNearest<CR>
+nmap <silent> t<C-f> :TestFile<CR>
+nmap <silent> t<C-l> :TestLast<CR>
+nmap <silent> t<C-g> :TestVisit<CR>
+nmap <silent> t<C-s> :TestSuite<CR>
+
+augroup rubyunittest
+  autocmd!
+  autocmd BufRead,BufNewFile *_test.rb       nmap <buffer> tt :lcd %:p:h <bar> TestNearest<CR>
+  autocmd BufRead,BufNewFile *_test.rb       nmap <buffer> tf :lcd %:p:h <bar> TestFile<CR>
+  autocmd BufRead,BufNewFile *.rb       nmap <buffer> tl :TestLast<cr>
+
+  "autocmd BufRead,BufNewFile *_test.rb       nmap <buffer> tt :call g:RubyUnitTestCase()<cr>
+  "autocmd BufRead,BufNewFile *_test.rb       nmap <buffer> tf :call g:RubyUnitTestFile()<cr>
+
+  function! g:RubyUnitTestFile()
+    :lcd %:p:h
+    :execute "!clear && m %" 
+  endfunction
+  
+  function! g:RubyUnitTestCase()
+    :lcd %:p:h
+    :execute "!clear && m %:" . line(".")
+  endfunction
+
+augroup END
+
+
 
 
 "------------------------------------------------ 
@@ -472,7 +492,7 @@ function! Set_rails_project_root()
 endfunction
 
 "au! BufRead,BufNewFile *_spec.rb       nmap  tt :call g:TRailsTest()<cr>
-"au! BufRead,BufNewFile *.feature       nmap  tt :call g:TRailsTest()<cr>
+"au! BufRead,BufNewFile *_spec.rb       nmap  tt :call g:TRailsTest()<cr>
 
 
 function! g:TRailsTest()
@@ -528,8 +548,12 @@ map <silent> cd  <esc>:call Map_cd()<cr>
 
 let NERDTreeDirArrows=0
 
-autocmd User Rails		silent! Rlcd
-autocmd User Rails		call Set_rails_project_root()
+
+augroup Rails
+  autocmd!
+  autocmd User Rails		silent! Rlcd
+  autocmd User Rails		call Set_rails_project_root()
+augroup END
 "------------------------------------------------ 
 
 
@@ -661,6 +685,7 @@ set bsdir=buffer
 set history=512   "" Number of things to remember in history.
 
 
+map s <Nop>
 
 
 "" Fast reloading of the .vimrc
@@ -673,10 +698,14 @@ map <silent> <leader>eb :e $HOME/.NERDTreeBookmarks<cr>
 ""map <silent> <leader>ed :e $VIM_PLUGIN/vimrc.vim<cr>
 
 
-"" autoload _vimrc if you edit _vimrc in vim
-"autocmd! bufwritepost *vimrc,*.vim source %
-autocmd! bufwritepost $MYVIMRC source %
-autocmd! bufwritepost *.vim ReloadScript % 
+augroup VIMRC
+  autocmd!
+  "" autoload _vimrc if you edit _vimrc in vim
+  "autocmd! bufwritepost *vimrc,*.vim source %
+  autocmd! bufwritepost $MYVIMRC source %
+  autocmd! bufwritepost *.vim ReloadScript % 
+augroup END
+
 
 
 
@@ -970,22 +999,6 @@ let Tlist_Inc_Winwidth=0
 
 
 
-
-
-"" jump to last cursor position when opening a file
-"" dont do it when writing a commit log entry
-autocmd BufReadPost * call SetCursorPosition()
-function! SetCursorPosition()
-    if &filetype !~ 'commit\c'
-        if line("'\"") > 0 && line("'\"") <= line("$")
-            exe "normal g`\""
-        endif
-    end
-endfunction
-
-
-
-
 "" 取消光标闪烁
 set guicursor=a:block-blinkon0,i-ci:ver25-Cursor/lCursor,v-ve:ver25-Cursor/lCursor
 
@@ -1088,7 +1101,12 @@ let g:LargeFile = 2
 
 "" in insert mode to auto scroll
 let g:IAutoScrollMode="on" 
-autocmd! CursorMovedI * silent call ICheck_Scroll() 
+
+augroup autoscroll
+  autocmd!
+  autocmd! CursorMovedI * silent call ICheck_Scroll() 
+augroup END
+
 function! ICheck_Scroll()
     " we only check scroll when enabled:)
     if g:IAutoScrollMode == "on"
@@ -1111,6 +1129,12 @@ function! ICheck_Scroll()
     endif
 endfunction
 
+imap <c-f>      <Right>
+imap <c-b>      <Left>
+imap <c-p>      <Up>
+imap <c-n>      <Down>
+imap <c-a>      <Home>
+imap <c-e>      <End>
 
 
 ""--------------------------------------------
