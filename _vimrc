@@ -468,13 +468,17 @@ augroup rubyunittest
     let index_start = match(file_relative_name, "_test.rb$")
     if -1 != index_start
         "end with _test.rb, ie. current in _test.rb
-        let index_start = index_start+1
-        let target_file = file_relative_name[:-index_start] . ".rb"
-        :execute "e " . target_file
+        let target_file = file_relative_name[0:index_start-1] . ".rb"
+        "echo "file_relative_name:". file_relative_name
+        "echo "index_start:".index_start 
+        "echo "target_file:".target_file
     else
         let target_file = file_relative_name_no_ext . "_test.rb"
-        :execute "e " . target_file 
     endif 
+
+    let cmd = "e " . target_file
+    "echo cmd
+    :execute cmd
   endfunction
 
 
