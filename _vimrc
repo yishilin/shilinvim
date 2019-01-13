@@ -55,17 +55,11 @@ endif
 let $MYVIMRC2 = $VIM_PLUGIN . "/vimrc.vim"  
 
 
-
 if filereadable($MYVIMRC2)
   source $MYVIMRC2
 else
 "  echoerr 'the customer vimrc#'. $MYVIMRC2 ' is no exist!, pls refer vimrc_bk.vim'.
-endif
-
-
-
-
-
+endif 
 
 
 "" In macvim map <apple-shift-arrow> to switch tab
@@ -198,7 +192,7 @@ if has("gui_running")
     set helplang=cn
 
     "" Vim 在启动时最大化窗口(windows 有效)
-    au GUIEnter * simalt ~x
+    autocmd GUIEnter * simalt ~x
   else
     "" In linux platform
 
@@ -427,7 +421,7 @@ augroup MRU
   autocmd QuickFixCmdPre *vimgrep* let g:mru_list_locked = 1
   autocmd QuickFixCmdPost *vimgrep* let g:mru_list_locked = 0
   
-  au BufRead,BufNewFile *__MRU_Files__*  setlocal  cursorline
+  autocmd BufRead,BufNewFile *__MRU_Files__*  setlocal  cursorline
   
   " Command to open the MRU window
   command! -nargs=? -complete=customlist,g:MRU_Complete MRU
@@ -451,28 +445,71 @@ let g:test#ruby#minitest#executable = 'm'
 
 " these "Ctrl mappings" work well when Caps Lock is mapped to Ctrl
 "nmap <silent> t<C-n> :TestNearest<CR>
-nmap <silent> t<C-f> :TestFile<CR>
-nmap <silent> t<C-l> :TestLast<CR>
-nmap <silent> t<C-g> :TestVisit<CR>
-nmap <silent> t<C-s> :TestSuite<CR>
+"nmap <silent> t<C-f> :TestFile<CR>
+"nmap <silent> t<C-l> :TestLast<CR>
+"nmap <silent> t<C-g> :TestVisit<CR>
+"nmap <silent> t<C-s> :TestSuite<CR>
 
 augroup rubyunittest
   autocmd!
-  autocmd BufRead,BufNewFile *_test.rb       nmap <buffer> tt :lcd %:p:h <bar> TestNearest<CR>
-  autocmd BufRead,BufNewFile *_test.rb       nmap <buffer> tf :lcd %:p:h <bar> TestFile<CR>
-  autocmd BufRead,BufNewFile *.rb       nmap <buffer> tl :TestLast<cr>
+  "autocmd BufRead,BufNewFile *_test.rb       nmap <buffer> tt :lcd %:p:h <bar> TestNearest<CR>
+  "autocmd BufRead,BufNewFile *_test.rb       nmap <buffer> tf :lcd %:p:h <bar> TestFile<CR>
+  "autocmd BufRead,BufNewFile *.rb       nmap <buffer> tl :TestLast<cr>
 
-  "autocmd BufRead,BufNewFile *_test.rb       nmap <buffer> tt :call g:RubyUnitTestCase()<cr>
-  "autocmd BufRead,BufNewFile *_test.rb       nmap <buffer> tf :call g:RubyUnitTestFile()<cr>
+  autocmd BufRead,BufNewFile *.rb  nmap <buffer> tf :call g:RubyUnitTestFile()<cr>
+  autocmd BufRead,BufNewFile *.rb  nmap <buffer> tt :call g:RubyUnitTestCase()<cr>
+  autocmd BufRead,BufNewFile *.rb  nmap <buffer> gt :call g:RubySwitchTest()<cr>
+
+  function! g:RubySwitchTest()
+    :lcd %:p:h
+    let file_relative_name = expand("%")
+    let file_relative_name_no_ext  = expand("%:r")
+
+    let index_start = match(file_relative_name, "_test.rb$")
+    if -1 != index_start
+        "end with _test.rb, ie. current in _test.rb
+        let index_start = index_start+1
+        let target_file = file_relative_name[:-index_start] . ".rb"
+        :execute "e " . target_file
+    else
+        let target_file = file_relative_name_no_ext . "_test.rb"
+        :execute "e " . target_file 
+    endif 
+  endfunction
+
 
   function! g:RubyUnitTestFile()
     :lcd %:p:h
-    :execute "!clear && m %" 
+    let file_relative_name = expand("%")
+    let file_relative_name_no_ext  = expand("%:r")
+
+    if -1 != match(file_relative_name, "_test.rb$")
+        "end with _test.rb, ie. current in _test.rb
+        let test_file = file_relative_name
+        let cmd = "!clear && m " . test_file
+        :execute cmd
+    else
+        let test_file = file_relative_name_no_ext . "_test.rb"
+        let cmd = "!clear && m " . test_file
+        :execute cmd 
+    endif 
   endfunction
   
   function! g:RubyUnitTestCase()
     :lcd %:p:h
-    :execute "!clear && m %:" . line(".")
+    let file_relative_name = expand("%")
+    let file_relative_name_no_ext  = expand("%:r")
+
+    if -1 != match(file_relative_name, "_test.rb$")
+        "end with _test.rb, ie. current in _test.rb
+        let test_file = file_relative_name
+        let cmd = "!clear && m " . test_file . ":". line(".")
+        :execute cmd
+    else
+        let test_file = file_relative_name_no_ext . "_test.rb"
+        let cmd = "!clear && m " . test_file
+        :execute cmd 
+    endif 
   endfunction
 
 augroup END
@@ -491,8 +528,8 @@ function! Set_rails_project_root()
   let g:project_root = CurDir() 
 endfunction
 
-"au! BufRead,BufNewFile *_spec.rb       nmap  tt :call g:TRailsTest()<cr>
-"au! BufRead,BufNewFile *_spec.rb       nmap  tt :call g:TRailsTest()<cr>
+"autocmd! BufRead,BufNewFile *_spec.rb       nmap  tt :call g:TRailsTest()<cr>
+"autocmd! BufRead,BufNewFile *_spec.rb       nmap  tt :call g:TRailsTest()<cr>
 
 
 function! g:TRailsTest()
@@ -724,11 +761,11 @@ endfunction
 
 " 以下符号是单词的一部分,不要对他们换行分割(在自动补齐和单词搜索如<S-8>时很有用) 
 " @ -> 所有字母, 48-57 -> 数字0-9
-au BufRead,BufNewFile *.tcl,*.test  setlocal  iskeyword=@,48-57,_
-au BufRead,BufNewFile *.php         setlocal  iskeyword=@,48-57,_
-au BufRead,BufNewFile *.mkd         setlocal spell
+autocmd BufRead,BufNewFile *.tcl,*.test  setlocal  iskeyword=@,48-57,_
+autocmd BufRead,BufNewFile *.php         setlocal  iskeyword=@,48-57,_
+autocmd BufRead,BufNewFile *.mkd         setlocal spell
 
-au! BufRead,BufNewFile *.scala       nmap  tt :call g:RunScala()<cr>
+autocmd! BufRead,BufNewFile *.scala       nmap  tt :call g:RunScala()<cr>
 
 function! g:RunScala()
   let command = "scala ". expand("%:p")
@@ -807,7 +844,7 @@ endfunction
 map  <silent> <F7> :call QuickFixWin()<cr>
 
 "" QuickFix 高亮当前行
-au BufReadPost quickfix  setlocal cursorline
+autocmd BufReadPost quickfix  setlocal cursorline
       \ | silent exec "nnoremap <silent> <buffer> q :cclose<cr>"
 
 let s:bQuick=0
@@ -823,7 +860,7 @@ endfunction
 
 
 
-au CmdwinEnter * setlocal cursorline
+autocmd CmdwinEnter * setlocal cursorline
       \ | silent exec "nnoremap <silent> <buffer> q :q<cr>"
 
 
