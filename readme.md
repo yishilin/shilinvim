@@ -2,7 +2,37 @@
 # Overview
 Setup the vim in linux/unix env
 
-# Install steps
+
+# Install steps for windows 10
+
+1) cd C:/Software, git clone shilinvim.git
+
+2) $HOME/_vimrc
+
+```
+let g:VIM_GIT_CONF_PATH = "C:/Software/shilinvim"
+source C:/Software/shilinvim/_vimrc
+```
+
+
+3) update git module:
+cd C:/Software/shilinvim
+
+```
+git config --global core.excludesfile ~/.gitignore
+
+# update git submodule vim plugin
+git pull origin master
+git submodule init
+git submodule update
+git submodule foreach git pull origin master
+```
+
+4) install font
+
+5) put ctags into $VIM/
+
+# Install steps mac
 
 
 ```shell

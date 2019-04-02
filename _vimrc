@@ -1,4 +1,38 @@
 
+set nocp
+
+"" Platform
+function! MySys()
+  if has("win32")
+    return "windows"
+  endif
+
+  if has("unix")
+    let s:uname = system("echo -n \"$(uname)\"")
+    if !v:shell_error && s:uname == "Darwin"
+        return "mac"
+    endif
+  endif
+
+  return "linux"
+endfunction
+let g:platform = MySys() 
+
+let g:VIM_GIT_CONF_PATH = get(g:, 'VIM_GIT_CONF_PATH', "NONE")
+if g:VIM_GIT_CONF_PATH == "NONE"
+  if 'windows' == g:platform
+    let $VIM_PLUGIN = $HOME . "/vimfiles"  
+  else
+    let $VIM_PLUGIN = $HOME . "/.vim"
+  endif
+else
+    let $VIM_PLUGIN = g:VIM_GIT_CONF_PATH . "/vim"
+endif
+
+set runtimepath+=$VIMRUNTIME
+set runtimepath+=$VIM_PLUGIN
+let $MYVIMRC2 = $VIM_PLUGIN . "/vimrc.vim"  
+
 "" install vim plguin Vimballs (.vba)?
 "" :e xx_name.vba
 "" :!mkdir ~/.vim/bundle/xx_name
@@ -20,7 +54,6 @@
 "call pathogen#infect('~/.vim/bundle')
 "call pathogen#helptags()
 
-
  call pathogen#runtime_append_all_bundles()
  filetype off
  syntax on
@@ -29,30 +62,6 @@
 
 ""--------------------------------------------
 
-"" Platform
-function! MySys()
-  if has("win32")
-    return "windows"
-  endif
-
-  if has("unix")
-    let s:uname = system("echo -n \"$(uname)\"")
-    if !v:shell_error && s:uname == "Darwin"
-        return "mac"
-    endif
-  endif
-
-  return "linux"
-endfunction
-let g:platform = MySys() 
-
-
-if 'windows' == g:platform
-  let $VIM_PLUGIN = $VIM . "/vimfiles"  
-else
-  let $VIM_PLUGIN = $HOME . "/.vim"
-endif
-let $MYVIMRC2 = $VIM_PLUGIN . "/vimrc.vim"  
 
 
 if filereadable($MYVIMRC2)
@@ -1192,7 +1201,6 @@ if bufwinnr(1)
 endif
 
 
-set runtimepath+=$VIM_PLUGIN
 
 
 
