@@ -22,10 +22,10 @@ cd C:/Software/shilinvim
 git config --global core.excludesfile ~/.gitignore
 
 # update git submodule vim plugin
-git pull origin master
+git pull origin master  #optional
 git submodule init
 git submodule update
-git submodule foreach git pull origin master
+git submodule foreach git pull origin master #optional
 ```
 
 4) install font
