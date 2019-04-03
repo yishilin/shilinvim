@@ -19,13 +19,11 @@ source C:/Software/shilinvim/_vimrc
 cd C:/Software/shilinvim
 
 ```
-git config --global core.excludesfile ~/.gitignore
+git clone --recurse-submodules -j8 https://github.com/yishilin/shilinvim.git
 
-# update git submodule vim plugin
-git pull origin master  #optional
-git submodule init
-git submodule update
+git config --global core.excludesfile ~/.gitignore
 git submodule foreach git pull origin master #optional
+
 ```
 
 4) install font
@@ -49,7 +47,10 @@ do_remove(){
 cd $INSTALL_PATH
 
 #below will create ./shilinvim/ dir
-git clone https://github.com/yishilin/shilinvim.git
+git clone --recurse-submodules -j8 https://github.com/yishilin/shilinvim.git
+
+git config --global core.excludesfile ~/.gitignore
+git submodule foreach git pull origin master #optional
 
 VIM_DIR=$PWD/shilinvim
 do_remove ~/.vim
@@ -60,11 +61,6 @@ ln -s $VIM_DIR/_vimrc ~/.vimrc
 cd $VIM_DIR
 git config --global core.excludesfile ~/.gitignore
 
-# update git submodule vim plugin
-git pull origin master
-git submodule init
-git submodule update
-git submodule foreach git pull origin master
 ```
 
 
