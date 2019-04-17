@@ -98,10 +98,6 @@
 	path = vim/bundle/nelstrom-vim-textobj-rubyblock
 	url = https://github.com/nelstrom/vim-textobj-rubyblock.git
     ignore = untracked
-[submodule "vim/bundle/markdown"]
-	path = vim/bundle/markdown
-	url = https://github.com/hallison/vim-markdown.git
-    ignore = untracked
 [submodule "vim/bundle/tlib_vim"]
 	path = vim/bundle/tlib_vim
 	url = https://github.com/tomtom/tlib_vim.git
@@ -117,3 +113,6 @@
 [submodule ".\\vim\\bundle\\vim-ps1"]
 	path = .\\vim\\bundle\\vim-ps1
 	url = https://github.com/PProvost/vim-ps1.git
+[submodule "vim\\bundle\\vim-markdown"]
+	path = vim\\bundle\\vim-markdown
+	url = https://github.com/plasticboy/vim-markdown.git

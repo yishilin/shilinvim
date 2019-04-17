@@ -96,10 +96,34 @@ If you really must use one:
 下面以 vim-rails 为例：
 
 ```shell
-# this will update .gitmodules:
+
+cd $VIM_GIT_ROOT_DIR
+git submodule init
+
+# this will update .gitmodules file:
 git submodule add https://github.com/tpope/vim-rails.git vim/bundle/vim-rails
 
 # sometime you need to:
 git rm --cached vim/bundle/vim-rails
 ```
+
+Then in vim:
+:Helptags
+
+
+# Update plugin
+With Git, with or without submodules:
+$ cd bundle/delimitMate-master
+$ git pull
+
+
+
+# Remove plugin
+With Git, using submodules:
+
+$ cd $VIM_GIT_ROOT_DIR
+$ git submodule deinit -f vim/bundle/delimitMate
+$ git rm -rf vim/bundle/delimitMate
+$ rm -rf .git/modules/bundle/delimitMate
+
 
