@@ -114,3 +114,6 @@
 	path = vim/bundle/plexer
 	url = https://github.com/alfredodeza/plexer.vim.git
 	ignore = untracked
+[submodule ".\\vim\\bundle\\vim-ps1"]
+	path = .\\vim\\bundle\\vim-ps1
+	url = https://github.com/PProvost/vim-ps1.git
