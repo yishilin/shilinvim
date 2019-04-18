@@ -25,7 +25,7 @@ cd C:/Software/shilinvim
 git clone --recurse-submodules -j8 https://github.com/yishilin/shilinvim.git
 
 git config --global core.excludesfile ~/.gitignore
-git submodule foreach git pull origin master #optional
+git submodule foreach git pull origin master #optional, used when update submodule
 
 ```
 
@@ -53,7 +53,7 @@ cd $INSTALL_PATH
 git clone --recurse-submodules -j8 https://github.com/yishilin/shilinvim.git
 
 git config --global core.excludesfile ~/.gitignore
-git submodule foreach git pull origin master #optional
+git submodule foreach git pull origin master #optional, used when update submodule
 
 VIM_DIR=$PWD/shilinvim
 do_remove ~/.vim
@@ -116,17 +116,20 @@ Then in vim:
 
 # Update plugin
 With Git, with or without submodules:
+```
 $ cd bundle/delimitMate-master
 $ git pull
+```
 
 
 
 # Remove plugin
 With Git, using submodules:
 
+```
 $ cd $VIM_GIT_ROOT_DIR
 $ git submodule deinit -f vim/bundle/delimitMate
 $ git rm -rf vim/bundle/delimitMate
 $ rm -rf .git/modules/bundle/delimitMate
-
+```
 
