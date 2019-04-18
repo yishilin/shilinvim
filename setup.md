@@ -1,13 +1,16 @@
-
 # Overview
-Setup the vim in linux/unix env
+Setup the vim in Windows/Linux/Mac env
 
 
 # Install steps for windows 10
 
-1) cd C:/Software, git clone shilinvim.git
+1) download
+```
+cd C:/Software, 
+git clone shilinvim.git
+```
 
-2) $HOME/_vimrc
+2) vim $HOME/\_vimrc
 
 ```
 let g:VIM_GIT_CONF_PATH = "C:/Software/shilinvim"
