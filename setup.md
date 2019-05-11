@@ -12,7 +12,7 @@ https://git-scm.com/download/win
 
 
 ```
-cd C:/Software/shilinvim
+cd C:/Software/
 git clone --recurse-submodules -j8 https://github.com/yishilin/shilinvim.git
 
 git config --global core.excludesfile ~/.gitignore
@@ -27,10 +27,11 @@ let g:VIM_GIT_CONF_PATH = "C:/Software/shilinvim"
 source C:/Software/shilinvim/_vimrc
 ```
 
-
 4) install font
 
 5) put ctags into $VIM/
+
+
 
 # Install steps mac
 
